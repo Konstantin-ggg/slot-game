@@ -39,17 +39,17 @@ html
         .balance-panel {
             background: #000000;
             border-radius: 50px;
-            padding: 16px 24px;
-            margin-bottom: 16px;
+            padding: 12px 20px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border: 2px solid gold;
-            box-shadow: 0 0 15px gold;
+            box-shadow: 0 0 10px gold;
         }
 
         .balance-label {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: white;
             text-transform: uppercase;
@@ -57,26 +57,26 @@ html
         }
 
         .balance-value {
-            font-size: 32px;
+            font-size: 26px;
             font-weight: bold;
             color: gold;
-            text-shadow: 0 0 15px orange;
+            text-shadow: 0 0 10px orange;
             background: rgba(0,0,0,0.5);
-            padding: 4px 16px;
+            padding: 2px 12px;
             border-radius: 40px;
         }
 
-        /* БАННЕР РОЗЫГРЫША */
+        /* БАННЕР РОЗЫГРЫША - УМЕНЬШЕННЫЙ */
         .event-banner {
             background: linear-gradient(45deg, #ff6b6b, #feca57);
-            border-radius: 20px;
-            padding: 16px;
-            margin: 16px 0;
+            border-radius: 16px;
+            padding: 8px 12px;
+            margin: 12px 0;
             text-align: center;
-            border: 3px solid gold;
-            box-shadow: 0 0 20px gold;
+            border: 2px solid gold;
+            box-shadow: 0 0 15px gold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         .event-banner:active {
@@ -84,41 +84,41 @@ html
         }
 
         .event-icon {
-            font-size: 32px;
-            margin-bottom: 8px;
+            font-size: 24px;
+            margin-bottom: 2px;
         }
 
         .event-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             color: #1a1a2e;
         }
 
         .event-description {
-            font-size: 14px;
-            margin-bottom: 12px;
+            font-size: 12px;
+            margin-bottom: 4px;
             color: #1a1a2e;
         }
 
         .event-timer {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             color: #1a1a2e;
             background: white;
             border-radius: 50px;
-            padding: 8px;
+            padding: 4px 8px;
             display: inline-block;
-            min-width: 200px;
+            min-width: 160px;
         }
 
         .ticket-counter {
-            margin-top: 12px;
-            font-size: 16px;
+            margin-top: 6px;
+            font-size: 14px;
             font-weight: bold;
             color: #1a1a2e;
             background: rgba(255,255,255,0.5);
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 50px;
             display: inline-block;
         }
@@ -153,13 +153,9 @@ html
             overflow: hidden;
         }
 
+        /* УБРАЛ АНИМАЦИЮ - фрукты не прыгают */
         .reel.spinning {
-            animation: spin 0.2s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(100%); }
+            /* Пусто - нет анимации */
         }
 
         .reel::after {
@@ -316,16 +312,16 @@ html
             <span class="balance-value" id="balance">1000</span>
         </div>
 
-        <!-- БАННЕР РОЗЫГРЫША -->
+        <!-- БАННЕР РОЗЫГРЫША - УМЕНЬШЕННЫЙ -->
         <div class="event-banner" id="eventBanner">
             <div class="event-icon" id="eventIcon">🏆🚗</div>
             <div class="event-title" id="eventTitle">РОЗЫГРЫШ АВТОМОБИЛЯ</div>
             <div class="event-description" id="eventDescription">
-                Каждое вращение = 1 билет. Главный приз - Toyota Camry 2026!
+                Каждое вращение = билет. Приз - Toyota Camry!
             </div>
-            <div class="event-timer" id="eventTimer">6 дней 23:59:59</div>
+            <div class="event-timer" id="eventTimer">6д 23:59:59</div>
             <div class="ticket-counter" id="ticketCounter">
-                🎫 Ваши билеты: 0
+                🎫 Билеты: 0
             </div>
         </div>
 
@@ -377,7 +373,7 @@ html
         const currentEvent = {
             active: true,
             title: "РОЗЫГРЫШ АВТОМОБИЛЯ",
-            description: "Каждое вращение = 1 билет. Главный приз - Toyota Camry 2026!",
+            description: "Каждое вращение = билет. Приз - Toyota Camry!",
             prize: "Toyota Camry 2026",
             icon: "🏆🚗",
             endDate: "2026-03-25T20:00:00", // ДАТА ОКОНЧАНИЯ (МЕНЯТЬ КАЖДУЮ НЕДЕЛЮ)
@@ -428,7 +424,7 @@ html
         const increaseBet = document.getElementById('increaseBet');
 
         // Обновляем счетчик билетов
-        ticketCounter.textContent = `🎫 Ваши билеты: ${tickets}`;
+        ticketCounter.textContent = `🎫 Билеты: ${tickets}`;
 
         // =============== ТАЙМЕР ИВЕНТА ===============
         function updateEventTimer() {
@@ -468,7 +464,7 @@ html
         function updateUI() {
             balanceEl.textContent = balance;
             betValue.textContent = currentBet;
-            ticketCounter.textContent = `🎫 Ваши билеты: ${tickets}`;
+            ticketCounter.textContent = `🎫 Билеты: ${tickets}`;
             localStorage.setItem('tickets', tickets);
         }
 
@@ -489,12 +485,6 @@ html
         function addTicket() {
             tickets++;
             updateUI();
-            
-            // Маленькая анимация только для счетчика
-            ticketCounter.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                ticketCounter.style.transform = 'scale(1)';
-            }, 100);
         }
 
         async function spin() {
@@ -516,11 +506,8 @@ html
             winMessage.textContent = '';
             winLine.classList.remove('active');
 
-            reel1.classList.add('spinning');
-            reel2.classList.add('spinning');
-            reel3.classList.add('spinning');
-
-            const spinDuration = 1000;
+            // Просто меняем символы без анимации
+            const spinDuration = 500;
             const startTime = Date.now();
             
             while (Date.now() - startTime < spinDuration) {
@@ -534,10 +521,6 @@ html
             reel1.textContent = result[0];
             reel2.textContent = result[1];
             reel3.textContent = result[2];
-
-            reel1.classList.remove('spinning');
-            reel2.classList.remove('spinning');
-            reel3.classList.remove('spinning');
 
             const win = calculateWin(result[0], result[1], result[2], currentBet);
             
