@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Однорукий бандит</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- AdsGram SDK -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -278,6 +280,32 @@
             background: rgba(0,0,0,0.5);
             padding: 2px 12px;
             border-radius: 40px;
+        }
+
+        /* НОВЫЙ БЛОК: РЕФЕРАЛЬНАЯ ССЫЛКА */
+        .referral-panel {
+            background: linear-gradient(145deg, #1a3a2a, #0a2a1a);
+            border-radius: 20px;
+            padding: 12px;
+            margin: 16px 0;
+            border: 2px solid #4CAF50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .referral-text {
+            font-size: 14px;
+            color: #4CAF50;
+        }
+
+        .referral-count {
+            background: #4CAF50;
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: bold;
         }
 
         .daily-bonus-indicator {
@@ -607,6 +635,12 @@
             </div>
         </div>
 
+        <!-- РЕФЕРАЛЬНЫЙ БЛОК -->
+        <div class="referral-panel" onclick="showReferralLink()">
+            <span class="referral-text">👥 Пригласить друга</span>
+            <span class="referral-count" id="referralCount">0</span>
+        </div>
+
         <!-- БАРАБАНЫ -->
         <div class="reels-container">
             <div class="reels" id="reels">
@@ -719,6 +753,93 @@
             document.getElementById('adminPanel').style.display = 'block';
         }
 
+        // =============== РЕФЕРАЛЬНАЯ СИСТЕМА ===============
+        let referrals = JSON.parse(localStorage.getItem('referrals') || '[]');
+        
+        function showReferralLink() {
+            const botUsername = 'YourSlotGameBot';
+            const referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
+            
+            tg.showPopup({
+                title: '👥 ПРИГЛАСИТЬ ДРУГА',
+                message: `Твоя ссылка:\n${referralLink}\n\n✅ За каждого друга +200 монет\n🎁 За 5 друзей +500 монет и 10 билетов!`,
+                buttons: [
+                    {type: 'default', text: '📋 Копировать', id: 'copy'},
+                    {type: 'close', text: 'Закрыть'}
+                ]
+            }, (btnId) => {
+                if (btnId === 'copy') {
+                    tg.showPopup({
+                        title: '✅ СКОПИРОВАНО',
+                        message: 'Отправь ссылку друзьям!',
+                        buttons: [{type: 'close'}]
+                    });
+                }
+            });
+        }
+
+        function checkReferral(startParam) {
+            if (startParam && startParam.startsWith('ref_')) {
+                const referrerId = startParam.replace('ref_', '');
+                if (referrerId !== userId) {
+                    const referred = JSON.parse(localStorage.getItem('referred') || 'false');
+                    if (!referred) {
+                        // Начисляем бонус новому игроку
+                        balance += 200;
+                        localStorage.setItem('referred', 'true');
+                        
+                        // Сохраняем информацию о реферале для админа
+                        const referralData = JSON.parse(localStorage.getItem('referral_data') || '[]');
+                        referralData.push({
+                            referrer: referrerId,
+                            referred: userId,
+                            date: new Date().toISOString()
+                        });
+                        localStorage.setItem('referral_data', JSON.stringify(referralData));
+                        
+                        showMessage('🎁 +200 монет за переход по ссылке!');
+                    }
+                }
+            }
+        }
+
+        // Проверяем параметры запуска
+        const startParam = tg.initDataUnsafe?.start_param || '';
+        checkReferral(startParam);
+
+        // =============== ADSGRAM РЕКЛАМА ===============
+        const adsgramSettings = {
+            blockId: 'YOUR_BLOCK_ID', // Заменить после регистрации в AdsGram
+            onReward: function() {
+                balance += 200;
+                updateUI();
+                showMessage('🎥 +200 монет за просмотр рекламы!');
+            },
+            onError: function() {
+                console.log('Реклама не загрузилась');
+            }
+        };
+
+        function showRewardedAd() {
+            if (window.Adsgram) {
+                const ad = window.Adsgram.init(adsgramSettings);
+                ad.show().catch((error) => {
+                    console.log('Ad error:', error);
+                    tg.showPopup({
+                        title: '❌ Ошибка',
+                        message: 'Реклама временно недоступна',
+                        buttons: [{type: 'close'}]
+                    });
+                });
+            } else {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Реклама не загрузилась',
+                    buttons: [{type: 'close'}]
+                });
+            }
+        }
+
         let currentEvent = {
             active: true,
             title: "РОЗЫГРЫШ АВТОМОБИЛЯ",
@@ -743,6 +864,7 @@
         const ticketCounter = document.getElementById('ticketCounter');
         const leaderboardList = document.getElementById('leaderboardList');
         const bonusTimer = document.getElementById('bonusTimer');
+        const referralCount = document.getElementById('referralCount');
 
         function updateEventDisplay() {
             eventIcon.textContent = currentEvent.icon || '🏆';
@@ -802,6 +924,14 @@
                 title: '🎁 ЕЖЕДНЕВНЫЙ БОНУС',
                 message: text,
                 buttons: [{type: 'close', text: 'Играть!'}]
+            });
+        }
+
+        function showMessage(text) {
+            tg.showPopup({
+                title: '🎉 УВЕДОМЛЕНИЕ',
+                message: text,
+                buttons: [{type: 'close'}]
             });
         }
 
@@ -991,22 +1121,17 @@
         const decreaseBet = document.getElementById('decreaseBet');
         const increaseBet = document.getElementById('increaseBet');
 
-        // =============== ТАБЛИЦА ЛИДЕРОВ (через localStorage) ===============
+        // =============== ТАБЛИЦА ЛИДЕРОВ ===============
         function loadLeaderboard() {
-            console.log('Загружаем таблицу лидеров...');
-            
             const saved = localStorage.getItem('globalLeaderboard');
             
             if (saved) {
                 try {
                     leaderboard = JSON.parse(saved);
-                    console.log('Загружено из localStorage, игроков:', leaderboard.length);
                 } catch (e) {
-                    console.log('Ошибка парсинга localStorage');
                     leaderboard = [];
                 }
             } else {
-                console.log('Нет данных в localStorage');
                 leaderboard = [];
             }
             
@@ -1018,19 +1143,15 @@
         function saveLeaderboard() {
             localStorage.setItem('globalLeaderboard', JSON.stringify(leaderboard));
             localStorage.setItem('leaderboardUpdated', Date.now().toString());
-            console.log('Таблица сохранена в localStorage');
         }
 
         function updatePlayerInLeaderboard() {
-            console.log('Обновляем игрока в таблице, текущие билеты:', tickets);
-            
             const existingIndex = leaderboard.findIndex(item => item.id === userId);
             
             if (existingIndex >= 0) {
                 leaderboard[existingIndex].tickets = tickets;
                 leaderboard[existingIndex].name = userName;
                 leaderboard[existingIndex].username = userUsername;
-                console.log('Игрок обновлён, билетов теперь:', leaderboard[existingIndex].tickets);
             } else {
                 leaderboard.push({
                     name: userName,
@@ -1038,23 +1159,14 @@
                     id: userId,
                     username: userUsername
                 });
-                console.log('Новый игрок добавлен, билетов:', tickets);
             }
             
             leaderboard.sort((a, b) => b.tickets - a.tickets);
             leaderboard = leaderboard.slice(0, 50);
         }
 
-        // Слушаем изменения от других игроков
         window.addEventListener('storage', (event) => {
             if (event.key === 'globalLeaderboard') {
-                console.log('Таблица обновлена другим игроком, перезагружаем...');
-                loadLeaderboard();
-            }
-        });
-
-        window.addEventListener('storage', (event) => {
-            if (event.key === 'leaderboardUpdated') {
                 loadLeaderboard();
             }
         });
@@ -1119,16 +1231,6 @@
             tomorrow.setDate(tomorrow.getDate() + 1);
             tomorrow.setHours(20, 0, 0, 0);
             return tomorrow.toISOString();
-        }
-
-        function showMessage(text) {
-            if (tg.showPopup) {
-                tg.showPopup({
-                    title: '🎉 БОНУС',
-                    message: text,
-                    buttons: [{type: 'close'}]
-                });
-            }
         }
 
         function checkAndUpdateStreak() {
@@ -1361,9 +1463,16 @@
             addWinnersButton();
             addRaffleInfo();
             
+            // Запускаем обновление таймеров каждую минуту
             setInterval(() => {
-                document.getElementById('weeklyTimer').textContent = formatTimeToRaffle(raffles.weekly.endDate);
-                document.getElementById('dailyTimer').textContent = formatTimeToRaffle(raffles.daily.endDate);
+                const weeklyEl = document.getElementById('weeklyTimer');
+                const dailyEl = document.getElementById('dailyTimer');
+                if (weeklyEl) {
+                    weeklyEl.textContent = formatTimeToRaffle(raffles.weekly.endDate);
+                }
+                if (dailyEl) {
+                    dailyEl.textContent = formatTimeToRaffle(raffles.daily.endDate);
+                }
             }, 60000);
         }
 
@@ -1447,6 +1556,22 @@
                 addTicket();
             } else {
                 winMessage.textContent = '😎 Попробуй еще!';
+                
+                // Предлагаем посмотреть рекламу
+                setTimeout(() => {
+                    tg.showPopup({
+                        title: '🎥 Хочешь ещё монет?',
+                        message: 'Посмотри видео и получи +200 монет!',
+                        buttons: [
+                            {type: 'default', text: '🎬 Смотреть', id: 'watch'},
+                            {type: 'close', text: 'Нет'}
+                        ]
+                    }, (btnId) => {
+                        if (btnId === 'watch') {
+                            showRewardedAd();
+                        }
+                    });
+                }, 1000);
             }
 
             addTicket();
