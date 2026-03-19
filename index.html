@@ -280,68 +280,6 @@
             border-radius: 40px;
         }
 
-        /* НОВЫЙ БЛОК: КУПИТЬ МОНЕТЫ */
-        .shop-panel {
-            background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
-            border-radius: 20px;
-            padding: 16px;
-            margin: 16px 0;
-            border: 2px solid gold;
-        }
-
-        .shop-title {
-            color: gold;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .shop-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 12px;
-            text-align: center;
-            border: 1px solid rgba(255,215,0,0.3);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .shop-item:active {
-            transform: scale(0.95);
-            background: rgba(255,215,0,0.1);
-        }
-
-        .shop-item-price {
-            color: gold;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .shop-item-amount {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-top: 4px;
-        }
-
-        .shop-item-badge {
-            background: gold;
-            color: #1a1a2e;
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 50px;
-            display: inline-block;
-            margin-top: 6px;
-            font-weight: bold;
-        }
-
         .daily-bonus-indicator {
             display: flex;
             justify-content: space-between;
@@ -458,6 +396,68 @@
             color: gold;
         }
 
+        /* МАГАЗИН (теперь после кнопок) */
+        .shop-panel {
+            background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 16px 0;
+            border: 2px solid gold;
+        }
+
+        .shop-title {
+            color: gold;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .shop-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .shop-item:active {
+            transform: scale(0.95);
+            background: rgba(255,215,0,0.1);
+        }
+
+        .shop-item-price {
+            color: gold;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .shop-item-amount {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .shop-item-badge {
+            background: gold;
+            color: #1a1a2e;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 6px;
+            font-weight: bold;
+        }
+
         .leaderboard {
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
@@ -538,7 +538,7 @@
 </head>
 <body>
     <div class="slot-machine">
-        <!-- АДМИН-ПАНЕЛЬ -->
+        <!-- АДМИН-ПАНЕЛЬ (только для тебя) -->
         <div id="adminPanel" style="display: none;">
             <div class="admin-panel">
                 <div class="admin-title">🔐 АДМИН-ПАНЕЛЬ</div>
@@ -610,13 +610,29 @@
             <span class="balance-value" id="balance">1000</span>
         </div>
 
-        <!-- ИНДИКАТОР ЕЖЕДНЕВНОГО БОНУСА -->
+        <!-- ЕЖЕДНЕВНЫЙ БОНУС -->
         <div class="daily-bonus-indicator" id="dailyBonusIndicator">
             <span class="bonus-text">⏳ Ежедневный бонус</span>
             <span class="bonus-timer" id="bonusTimer">Доступно</span>
         </div>
 
-        <!-- НОВЫЙ БЛОК: МАГАЗИН ЗА STARS -->
+        <!-- СООБЩЕНИЕ О ВЫИГРЫШЕ -->
+        <div class="win-message" id="winMessage"></div>
+
+        <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
+        <div class="bet-control">
+            <button class="bet-btn" id="decreaseBet">-</button>
+            <span class="bet-value" id="betValue">10</span>
+            <button class="bet-btn" id="increaseBet">+</button>
+        </div>
+
+        <!-- КНОПКИ ДЕЙСТВИЙ -->
+        <div class="controls">
+            <button class="btn btn-spin" id="spinBtn">🎰 КРУТИТЬ</button>
+            <button class="btn btn-maxbet" id="maxBetBtn">⚡ MAX СТАВКА</button>
+        </div>
+
+        <!-- МАГАЗИН (ТЕПЕРЬ ПОСЛЕ КНОПОК) -->
         <div class="shop-panel">
             <div class="shop-title">⭐ КУПИТЬ МОНЕТЫ ЗА STARS</div>
             <div class="shop-grid">
@@ -641,22 +657,6 @@
                     <div class="shop-item-badge">👑 VIP</div>
                 </div>
             </div>
-        </div>
-
-        <!-- СООБЩЕНИЕ О ВЫИГРЫШЕ -->
-        <div class="win-message" id="winMessage"></div>
-
-        <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
-        <div class="bet-control">
-            <button class="bet-btn" id="decreaseBet">-</button>
-            <span class="bet-value" id="betValue">10</span>
-            <button class="bet-btn" id="increaseBet">+</button>
-        </div>
-
-        <!-- КНОПКИ ДЕЙСТВИЙ -->
-        <div class="controls">
-            <button class="btn btn-spin" id="spinBtn">🎰 КРУТИТЬ</button>
-            <button class="btn btn-maxbet" id="maxBetBtn">⚡ MAX СТАВКА</button>
         </div>
 
         <!-- ТАБЛИЦА ЛИДЕРОВ -->
@@ -735,26 +735,20 @@
         // =============== СИСТЕМА ПОКУПКИ ЗА STARS ===============
         window.buyPackage = async function(stars, coins) {
             try {
-                // Создаём счёт через бота (нужно будет добавить endpoint)
-                // Пока используем прямой метод Telegram [citation:8]
-                const invoiceLink = await createInvoiceLink(stars, coins);
+                const invoiceLink = `https://t.me/$send?startapp=stars_${stars}`;
                 
-                // Открываем окно оплаты Telegram
                 tg.openInvoice(invoiceLink, (status) => {
                     if (status === 'paid') {
-                        // Успешная оплата - начисляем монеты
                         balance += coins;
                         saveBalance();
                         updateUI();
                         
-                        // Показываем сообщение
                         tg.showPopup({
                             title: '✅ УСПЕХ',
                             message: `+${coins} монет зачислено!`,
                             buttons: [{type: 'close', text: 'Играть!'}]
                         });
                         
-                        // Вибрация
                         tg.HapticFeedback.notificationOccurred('success');
                     }
                 });
@@ -767,24 +761,6 @@
                 });
             }
         };
-
-        // Временная функция для создания ссылки на оплату
-        // В будущем заменим на вызов твоего бэкенда [citation:8]
-        function createInvoiceLink(stars, coins) {
-            return new Promise((resolve) => {
-                // Формируем payload с данными о покупке
-                const payload = JSON.stringify({
-                    userId: userId,
-                    stars: stars,
-                    coins: coins
-                });
-                
-                // Создаём ссылку на оплату через Telegram API
-                // В реальности это должно быть на сервере, но для теста используем заглушку
-                const invoiceLink = `https://t.me/$send?startapp=stars_${stars}`;
-                resolve(invoiceLink);
-            });
-        }
 
         // =============== СИСТЕМА ЕЖЕДНЕВНОГО БОНУСА ===============
         const DAILY_BONUS = 1000;
