@@ -194,6 +194,32 @@
             display: inline-block;
         }
 
+        /* РЕФЕРАЛЬНЫЙ БЛОК */
+        .referral-panel {
+            background: linear-gradient(145deg, #1a3a2a, #0a2a1a);
+            border-radius: 20px;
+            padding: 12px;
+            margin: 16px 0;
+            border: 2px solid #4CAF50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .referral-text {
+            font-size: 14px;
+            color: #4CAF50;
+        }
+
+        .referral-count {
+            background: #4CAF50;
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: bold;
+        }
+
         /* БАРАБАНЫ */
         .reels-container {
             background: #000;
@@ -280,32 +306,6 @@
             background: rgba(0,0,0,0.5);
             padding: 2px 12px;
             border-radius: 40px;
-        }
-
-        /* НОВЫЙ БЛОК: РЕФЕРАЛЬНАЯ ССЫЛКА */
-        .referral-panel {
-            background: linear-gradient(145deg, #1a3a2a, #0a2a1a);
-            border-radius: 20px;
-            padding: 12px;
-            margin: 16px 0;
-            border: 2px solid #4CAF50;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .referral-text {
-            font-size: 14px;
-            color: #4CAF50;
-        }
-
-        .referral-count {
-            background: #4CAF50;
-            color: #1a1a2e;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-weight: bold;
         }
 
         .daily-bonus-indicator {
@@ -749,20 +749,58 @@
         const userName = tg.initDataUnsafe?.user?.first_name || 'Игрок';
         const userUsername = tg.initDataUnsafe?.user?.username || '';
 
+        // =============== ADSGRAM РЕКЛАМА ===============
+        const BLOCK_ID = "bot-25463";
+        let AdController = null;
+        if (window.Adsgram) {
+            try {
+                AdController = window.Adsgram.init({ blockId: BLOCK_ID });
+                console.log('AdsGram инициализирован с ID:', BLOCK_ID);
+            } catch (e) {
+                console.log('Ошибка инициализации AdsGram:', e);
+            }
+        }
+
+        function showRewardedAd() {
+            if (!AdController) {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Реклама временно недоступна',
+                    buttons: [{type: 'close'}]
+                });
+                return;
+            }
+
+            AdController.show().then((result) => {
+                balance += 200;
+                updateUI();
+                tg.showPopup({
+                    title: '🎥 СПАСИБО!',
+                    message: '+200 монет за просмотр рекламы!',
+                    buttons: [{type: 'close', text: 'Играть дальше'}]
+                });
+            }).catch((error) => {
+                console.log('Ad error:', error);
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Не удалось показать рекламу. Попробуйте позже.',
+                    buttons: [{type: 'close'}]
+                });
+            });
+        }
+
         if (userId === ADMIN_ID) {
             document.getElementById('adminPanel').style.display = 'block';
         }
 
         // =============== РЕФЕРАЛЬНАЯ СИСТЕМА ===============
-        let referrals = JSON.parse(localStorage.getItem('referrals') || '[]');
-        
         function showReferralLink() {
             const botUsername = 'YourSlotGameBot';
             const referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
             
             tg.showPopup({
                 title: '👥 ПРИГЛАСИТЬ ДРУГА',
-                message: `Твоя ссылка:\n${referralLink}\n\n✅ За каждого друга +200 монет\n🎁 За 5 друзей +500 монет и 10 билетов!`,
+                message: `Твоя ссылка:\n${referralLink}\n\n✅ За каждого друга +200 монет`,
                 buttons: [
                     {type: 'default', text: '📋 Копировать', id: 'copy'},
                     {type: 'close', text: 'Закрыть'}
@@ -784,61 +822,16 @@
                 if (referrerId !== userId) {
                     const referred = JSON.parse(localStorage.getItem('referred') || 'false');
                     if (!referred) {
-                        // Начисляем бонус новому игроку
                         balance += 200;
                         localStorage.setItem('referred', 'true');
-                        
-                        // Сохраняем информацию о реферале для админа
-                        const referralData = JSON.parse(localStorage.getItem('referral_data') || '[]');
-                        referralData.push({
-                            referrer: referrerId,
-                            referred: userId,
-                            date: new Date().toISOString()
-                        });
-                        localStorage.setItem('referral_data', JSON.stringify(referralData));
-                        
                         showMessage('🎁 +200 монет за переход по ссылке!');
                     }
                 }
             }
         }
 
-        // Проверяем параметры запуска
         const startParam = tg.initDataUnsafe?.start_param || '';
         checkReferral(startParam);
-
-        // =============== ADSGRAM РЕКЛАМА ===============
-        const adsgramSettings = {
-            blockId: 'YOUR_BLOCK_ID', // Заменить после регистрации в AdsGram
-            onReward: function() {
-                balance += 200;
-                updateUI();
-                showMessage('🎥 +200 монет за просмотр рекламы!');
-            },
-            onError: function() {
-                console.log('Реклама не загрузилась');
-            }
-        };
-
-        function showRewardedAd() {
-            if (window.Adsgram) {
-                const ad = window.Adsgram.init(adsgramSettings);
-                ad.show().catch((error) => {
-                    console.log('Ad error:', error);
-                    tg.showPopup({
-                        title: '❌ Ошибка',
-                        message: 'Реклама временно недоступна',
-                        buttons: [{type: 'close'}]
-                    });
-                });
-            } else {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Реклама не загрузилась',
-                    buttons: [{type: 'close'}]
-                });
-            }
-        }
 
         let currentEvent = {
             active: true,
@@ -1463,7 +1456,6 @@
             addWinnersButton();
             addRaffleInfo();
             
-            // Запускаем обновление таймеров каждую минуту
             setInterval(() => {
                 const weeklyEl = document.getElementById('weeklyTimer');
                 const dailyEl = document.getElementById('dailyTimer');
