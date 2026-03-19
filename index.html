@@ -281,6 +281,32 @@ html
             border-radius: 40px;
         }
 
+        /* ИНДИКАТОР ЕЖЕДНЕВНОГО БОНУСА */
+        .daily-bonus-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50px;
+            padding: 8px 16px;
+            margin: 8px 0 16px 0;
+            border: 1px solid gold;
+        }
+
+        .bonus-text {
+            font-size: 14px;
+            color: gold;
+        }
+
+        .bonus-timer {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            background: rgba(255,215,0,0.2);
+            padding: 4px 12px;
+            border-radius: 50px;
+        }
+
         .win-message {
             text-align: center;
             font-size: 24px;
@@ -452,19 +478,17 @@ html
 </head>
 <body>
     <div class="slot-machine">
-        <!-- АДМИН-ПАНЕЛЬ (скрыта для обычных игроков) -->
+        <!-- АДМИН-ПАНЕЛЬ -->
         <div id="adminPanel" style="display: none;">
             <div class="admin-panel">
                 <div class="admin-title">🔐 АДМИН-ПАНЕЛЬ</div>
                 
-                <!-- Объявления -->
                 <div class="admin-section">
                     <div class="admin-section-title">📢 ОБЪЯВЛЕНИЕ</div>
                     <input type="text" id="announcementText" class="admin-input" placeholder="Текст объявления...">
                     <button class="admin-button" onclick="window.sendAnnouncement()">📨 ОТПРАВИТЬ ВСЕМ</button>
                 </div>
                 
-                <!-- Редактор розыгрыша -->
                 <div class="admin-section">
                     <div class="admin-section-title">🎁 РЕДАКТОР РОЗЫГРЫША</div>
                     <input type="text" id="prizeInput" class="admin-input" placeholder="Приз">
@@ -472,7 +496,6 @@ html
                     <button class="admin-button" onclick="window.updateEvent()">💾 СОХРАНИТЬ</button>
                 </div>
                 
-                <!-- Статистика -->
                 <div class="admin-section">
                     <div class="admin-section-title">📊 СТАТИСТИКА</div>
                     <div class="admin-stats">
@@ -527,6 +550,12 @@ html
             <span class="balance-value" id="balance">1000</span>
         </div>
 
+        <!-- ИНДИКАТОР ЕЖЕДНЕВНОГО БОНУСА -->
+        <div class="daily-bonus-indicator" id="dailyBonusIndicator">
+            <span class="bonus-text">⏳ Ежедневный бонус</span>
+            <span class="bonus-timer" id="bonusTimer">Доступно</span>
+        </div>
+
         <!-- СООБЩЕНИЕ О ВЫИГРЫШЕ -->
         <div class="win-message" id="winMessage"></div>
 
@@ -575,9 +604,8 @@ html
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
-        tg.expand(); // Растянуть на весь экран
+        tg.expand();
         
-        // РАЗРЕШАЕМ ПРОКРУТКУ
         document.body.style.overflowY = 'auto';
         document.body.style.height = 'auto';
         document.documentElement.style.overflowY = 'auto';
@@ -603,7 +631,6 @@ html
             background: "linear-gradient(45deg, #ff6b6b, #feca57)"
         };
 
-        // Загружаем сохранённый ивент
         if (localStorage.getItem('currentEvent')) {
             currentEvent = JSON.parse(localStorage.getItem('currentEvent'));
         }
@@ -616,6 +643,90 @@ html
         const eventTimer = document.getElementById('eventTimer');
         const ticketCounter = document.getElementById('ticketCounter');
         const leaderboardList = document.getElementById('leaderboardList');
+        const bonusTimer = document.getElementById('bonusTimer');
+
+        // =============== СИСТЕМА ЕЖЕДНЕВНОГО БОНУСА ===============
+        const DAILY_BONUS = 1000;
+        
+        function checkAndGiveDailyBonus() {
+            const lastBonusKey = `lastBonus_${userId}`;
+            const lastBonus = localStorage.getItem(lastBonusKey);
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+            
+            if (!lastBonus) {
+                // Первый вход - даём бонус
+                balance = DAILY_BONUS;
+                localStorage.setItem(lastBonusKey, now);
+                localStorage.setItem('balance', balance);
+                showBonusMessage('🎁 Вы получили 1000 монет!');
+            } else {
+                const timeSinceLastBonus = now - parseInt(lastBonus);
+                
+                if (timeSinceLastBonus >= oneDay) {
+                    // Прошло больше 24 часов - даём новый бонус
+                    balance = DAILY_BONUS;
+                    localStorage.setItem(lastBonusKey, now);
+                    localStorage.setItem('balance', balance);
+                    showBonusMessage('🎁 Ежедневный бонус: +1000 монет!');
+                } else {
+                    // Меньше 24 часов - загружаем сохранённый баланс
+                    balance = parseInt(localStorage.getItem('balance') || '0');
+                    
+                    // Если баланс стал 0, показываем таймер
+                    if (balance <= 0) {
+                        updateBonusTimer(oneDay - timeSinceLastBonus);
+                    }
+                }
+            }
+            
+            updateBonusTimerDisplay();
+        }
+
+        function showBonusMessage(text) {
+            tg.showPopup({
+                title: '🎁 ЕЖЕДНЕВНЫЙ БОНУС',
+                message: text,
+                buttons: [{type: 'close', text: 'Играть!'}]
+            });
+        }
+
+        function updateBonusTimer(remainingTime) {
+            const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+            const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+            bonusTimer.textContent = `${hours}ч ${minutes}м`;
+            bonusTimer.style.background = '#ff4444';
+        }
+
+        function updateBonusTimerDisplay() {
+            const lastBonusKey = `lastBonus_${userId}`;
+            const lastBonus = localStorage.getItem(lastBonusKey);
+            
+            if (!lastBonus) return;
+            
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000;
+            const timeSinceLastBonus = now - parseInt(lastBonus);
+            
+            if (timeSinceLastBonus >= oneDay) {
+                bonusTimer.textContent = 'Доступно!';
+                bonusTimer.style.background = '#4CAF50';
+            } else if (balance <= 0) {
+                const remaining = oneDay - timeSinceLastBonus;
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                bonusTimer.textContent = `${hours}ч ${minutes}м`;
+                bonusTimer.style.background = '#ff4444';
+            } else {
+                bonusTimer.textContent = 'Есть монеты';
+                bonusTimer.style.background = '#4CAF50';
+            }
+        }
+
+        // Сохраняем баланс при каждом изменении
+        function saveBalance() {
+            localStorage.setItem('balance', balance);
+        }
 
         // Применяем настройки ивента
         function updateEventDisplay() {
@@ -624,7 +735,6 @@ html
             eventDescription.textContent = currentEvent.description;
             eventBanner.style.background = currentEvent.background;
             
-            // Заполняем поля админки
             if (document.getElementById('prizeInput')) {
                 document.getElementById('prizeInput').value = currentEvent.prize;
                 document.getElementById('dateInput').value = currentEvent.endDate;
@@ -707,14 +817,11 @@ html
         let isSpinning = false;
         let tickets = parseInt(localStorage.getItem('tickets') || '0');
         
-        // Статистика
         let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
         let totalWins = parseInt(localStorage.getItem('totalWins') || '0');
         
-        // Хранилище лидеров
         let leaderboard = [];
 
-        // Элементы управления
         const balanceEl = document.getElementById('balance');
         const reel1 = document.getElementById('reel1');
         const reel2 = document.getElementById('reel2');
@@ -738,7 +845,6 @@ html
                             leaderboard = [];
                         }
                     } else {
-                        // Если данных нет, создаём демо-лидерборд
                         leaderboard = [
                             { name: 'Игрок123', tickets: 1540, id: '123' },
                             { name: 'Lucky777', tickets: 1320, id: '456' },
@@ -751,7 +857,6 @@ html
                     updateStats();
                 });
             } else {
-                // Если CloudStorage недоступен, используем демо-данные
                 leaderboard = [
                     { name: 'Игрок123', tickets: 1540, id: '123' },
                     { name: 'Lucky777', tickets: 1320, id: '456' },
@@ -764,14 +869,12 @@ html
             }
         }
 
-        // Сохранение лидеров
         function saveLeaderboard() {
             if (tg.CloudStorage) {
                 tg.CloudStorage.setItem('leaderboard', JSON.stringify(leaderboard));
             }
         }
 
-        // Обновление статистики в админке
         function updateStats() {
             if (document.getElementById('statsPlayers')) {
                 document.getElementById('statsPlayers').textContent = leaderboard.length;
@@ -781,7 +884,6 @@ html
             }
         }
 
-        // Обновление позиции игрока
         function updateLeaderboard() {
             const existingIndex = leaderboard.findIndex(item => item.id === userId);
             
@@ -803,7 +905,6 @@ html
             updateStats();
         }
 
-        // Отрисовка лидеров
         function renderLeaderboard() {
             let html = '';
             
@@ -823,7 +924,6 @@ html
             leaderboardList.innerHTML = html;
         }
 
-        // Таймер
         function updateEventTimer() {
             const end = new Date(currentEvent.endDate).getTime();
             const now = new Date().getTime();
@@ -847,7 +947,6 @@ html
         updateEventTimer();
         setInterval(updateEventTimer, 1000);
 
-        // Клик по баннеру
         eventBanner.addEventListener('click', function() {
             tg.showPopup({
                 title: currentEvent.title,
@@ -856,13 +955,14 @@ html
             });
         });
 
-        // Функции игры
         function updateUI() {
             balanceEl.textContent = balance;
             betValue.textContent = currentBet;
             ticketCounter.textContent = `🎫 Билеты: ${tickets}`;
             localStorage.setItem('tickets', tickets);
+            saveBalance();
             updateLeaderboard();
+            updateBonusTimerDisplay();
         }
 
         function getRandomSymbol() {
@@ -930,7 +1030,7 @@ html
                 winLine.classList.add('active');
                 addTicket();
             } else {
-                winMessage.textContent = '😢 Попробуй еще!';
+                winMessage.textContent = '😎 Попробуй еще!';
             }
 
             addTicket();
@@ -943,7 +1043,6 @@ html
             increaseBet.disabled = false;
         }
 
-        // Обработчики
         spinBtn.addEventListener('click', spin);
         maxBetBtn.addEventListener('click', () => {
             currentBet = Math.min(100, balance);
@@ -967,6 +1066,7 @@ html
         // Инициализация
         updateEventDisplay();
         loadLeaderboard();
+        checkAndGiveDailyBonus(); // Запускаем проверку бонуса
         updateUI();
     </script>
 </body>
