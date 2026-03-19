@@ -991,71 +991,68 @@
         const decreaseBet = document.getElementById('decreaseBet');
         const increaseBet = document.getElementById('increaseBet');
 
+        // =============== ТАБЛИЦА ЛИДЕРОВ (через localStorage) ===============
         function loadLeaderboard() {
-    console.log('Загружаем таблицу лидеров...');
-    
-    // Пробуем загрузить из localStorage (для этого игрока)
-    const saved = localStorage.getItem('globalLeaderboard');
-    
-    if (saved) {
-        try {
-            leaderboard = JSON.parse(saved);
-            console.log('Загружено из localStorage, игроков:', leaderboard.length);
-        } catch (e) {
-            console.log('Ошибка парсинга localStorage');
-            leaderboard = [];
+            console.log('Загружаем таблицу лидеров...');
+            
+            const saved = localStorage.getItem('globalLeaderboard');
+            
+            if (saved) {
+                try {
+                    leaderboard = JSON.parse(saved);
+                    console.log('Загружено из localStorage, игроков:', leaderboard.length);
+                } catch (e) {
+                    console.log('Ошибка парсинга localStorage');
+                    leaderboard = [];
+                }
+            } else {
+                console.log('Нет данных в localStorage');
+                leaderboard = [];
+            }
+            
+            updatePlayerInLeaderboard();
+            renderLeaderboard();
+            updateStats();
         }
-    } else {
-        console.log('Нет данных в localStorage');
-        leaderboard = [];
-    }
-    
-    // Добавляем текущего игрока
-    updatePlayerInLeaderboard();
-    renderLeaderboard();
-    updateStats();
-    
-    // Отправляем сигнал другим игрокам (через localStorage)
-    localStorage.setItem('leaderboardUpdated', Date.now().toString());
-}
 
-// Слушаем изменения от других игроков
-window.addEventListener('storage', (event) => {
-    if (event.key === 'globalLeaderboard') {
-        console.log('Таблица обновлена другим игроком, перезагружаем...');
-        loadLeaderboard();
-    }
-});
-
-function saveLeaderboard() {
-    localStorage.setItem('globalLeaderboard', JSON.stringify(leaderboard));
-    localStorage.setItem('leaderboardUpdated', Date.now().toString());
-    console.log('Таблица сохранена в localStorage');
+        function saveLeaderboard() {
+            localStorage.setItem('globalLeaderboard', JSON.stringify(leaderboard));
+            localStorage.setItem('leaderboardUpdated', Date.now().toString());
+            console.log('Таблица сохранена в localStorage');
+        }
 
         function updatePlayerInLeaderboard() {
-    console.log('Обновляем игрока в таблице, текущие билеты:', tickets);
-    
-    const existingIndex = leaderboard.findIndex(item => item.id === userId);
-    
-    if (existingIndex >= 0) {
-        leaderboard[existingIndex].tickets = tickets;
-        leaderboard[existingIndex].name = userName;
-        leaderboard[existingIndex].username = userUsername;
-        console.log('Игрок обновлён, билетов теперь:', leaderboard[existingIndex].tickets);
-    } else {
-        leaderboard.push({
-            name: userName,
-            tickets: tickets,
-            id: userId,
-            username: userUsername
+            console.log('Обновляем игрока в таблице, текущие билеты:', tickets);
+            
+            const existingIndex = leaderboard.findIndex(item => item.id === userId);
+            
+            if (existingIndex >= 0) {
+                leaderboard[existingIndex].tickets = tickets;
+                leaderboard[existingIndex].name = userName;
+                leaderboard[existingIndex].username = userUsername;
+                console.log('Игрок обновлён, билетов теперь:', leaderboard[existingIndex].tickets);
+            } else {
+                leaderboard.push({
+                    name: userName,
+                    tickets: tickets,
+                    id: userId,
+                    username: userUsername
+                });
+                console.log('Новый игрок добавлен, билетов:', tickets);
+            }
+            
+            leaderboard.sort((a, b) => b.tickets - a.tickets);
+            leaderboard = leaderboard.slice(0, 50);
+        }
+
+        // Слушаем изменения от других игроков
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'globalLeaderboard') {
+                console.log('Таблица обновлена другим игроком, перезагружаем...');
+                loadLeaderboard();
+            }
         });
-        console.log('Новый игрок добавлен, билетов:', tickets);
-    }
-    
-    leaderboard.sort((a, b) => b.tickets - a.tickets);
-    leaderboard = leaderboard.slice(0, 50);
-}
-        
+
         window.addEventListener('storage', (event) => {
             if (event.key === 'leaderboardUpdated') {
                 loadLeaderboard();
