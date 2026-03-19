@@ -20,9 +20,11 @@ html
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             color: white;
             padding: 16px;
+            overflow-y: auto !important;
+            height: auto !important;
         }
 
         .slot-machine {
@@ -34,6 +36,7 @@ html
             padding: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,215,0,0.3) inset;
             border: 1px solid rgba(255,215,0,0.5);
+            margin-bottom: 20px;
         }
 
         /* АДМИН-ПАНЕЛЬ */
@@ -247,7 +250,7 @@ html
             box-shadow: 0 0 20px gold;
         }
 
-        /* БАЛАНС (ТЕПЕРЬ ПОД БАРАБАНАМИ) */
+        /* БАЛАНС (ПОД БАРАБАНАМИ) */
         .balance-panel {
             background: #000000;
             border-radius: 50px;
@@ -495,7 +498,7 @@ html
             </div>
         </div>
 
-        <!-- БАННЕР РОЗЫГРЫША (САМЫЙ ВЕРХ) -->
+        <!-- БАННЕР РОЗЫГРЫША -->
         <div class="event-banner" id="eventBanner">
             <div class="event-icon" id="eventIcon">🏆🚗</div>
             <div class="event-title" id="eventTitle">РОЗЫГРЫШ АВТОМОБИЛЯ</div>
@@ -518,7 +521,7 @@ html
             <div class="win-line" id="winLine"></div>
         </div>
 
-        <!-- БАЛАНС (ТЕПЕРЬ ПОД БАРАБАНАМИ) -->
+        <!-- БАЛАНС (ПОД БАРАБАНАМИ) -->
         <div class="balance-panel">
             <span class="balance-label">💰 БАЛАНС</span>
             <span class="balance-value" id="balance">1000</span>
@@ -572,10 +575,15 @@ html
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
-        tg.expand();
+        tg.expand(); // Растянуть на весь экран
+        
+        // РАЗРЕШАЕМ ПРОКРУТКУ
+        document.body.style.overflowY = 'auto';
+        document.body.style.height = 'auto';
+        document.documentElement.style.overflowY = 'auto';
 
-        // ⚠️ ВСТАВЬ СВОЙ TELEGRAM ID ⚠️
-        const ADMIN_ID = 1065392792; // УЗНАТЬ: https://t.me/userinfobot
+        // ⚠️ ТВОЙ TELEGRAM ID
+        const ADMIN_ID = 1065392792;
         const userId = tg.initDataUnsafe?.user?.id || 0;
         const userName = tg.initDataUnsafe?.user?.first_name || 'Игрок';
 
@@ -617,8 +625,10 @@ html
             eventBanner.style.background = currentEvent.background;
             
             // Заполняем поля админки
-            document.getElementById('prizeInput').value = currentEvent.prize;
-            document.getElementById('dateInput').value = currentEvent.endDate;
+            if (document.getElementById('prizeInput')) {
+                document.getElementById('prizeInput').value = currentEvent.prize;
+                document.getElementById('dateInput').value = currentEvent.endDate;
+            }
         }
 
         // Функции админки
@@ -763,10 +773,12 @@ html
 
         // Обновление статистики в админке
         function updateStats() {
-            document.getElementById('statsPlayers').textContent = leaderboard.length;
-            document.getElementById('statsSpins').textContent = totalSpins;
-            document.getElementById('statsTickets').textContent = leaderboard.reduce((sum, p) => sum + p.tickets, 0);
-            document.getElementById('statsWins').textContent = totalWins;
+            if (document.getElementById('statsPlayers')) {
+                document.getElementById('statsPlayers').textContent = leaderboard.length;
+                document.getElementById('statsSpins').textContent = totalSpins;
+                document.getElementById('statsTickets').textContent = leaderboard.reduce((sum, p) => sum + p.tickets, 0);
+                document.getElementById('statsWins').textContent = totalWins;
+            }
         }
 
         // Обновление позиции игрока
