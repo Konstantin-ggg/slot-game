@@ -1159,5 +1159,325 @@
         checkAndGiveDailyBonus();
         updateUI();
     </script>
+    const raffles = {
+    weekly: {
+        prize: "10 000 монет", // Текущий приз недели
+        endDate: getNextWeekDate(), // Следующая пятница 20:00
+        participants: 0,
+        winner: null
+    },
+    daily: {
+        prize: "500 монет", // Ежедневный приз
+        endDate: getTomorrowDate(), // Завтра 20:00
+        participants: 0,
+        winner: null
+    }
+};
+
+// Функция для получения даты следующей пятницы
+function getNextWeekDate() {
+    const now = new Date();
+    const friday = new Date();
+    friday.setDate(now.getDate() + ((5 - now.getDay() + 7) % 7 || 7));
+    friday.setHours(20, 0, 0, 0);
+    return friday.toISOString();
+}
+
+// Функция для получения даты завтра
+function getTomorrowDate() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(20, 0, 0, 0);
+    return tomorrow.toISOString();
+}
+
+// Система страйков (ежедневных серий)
+function checkAndUpdateStreak() {
+    const streakKey = `streak_${userId}`;
+    const lastVisitKey = `lastVisit_${userId}`;
+    const now = new Date();
+    const today = now.toDateString();
+    
+    const lastVisit = localStorage.getItem(lastVisitKey);
+    const currentStreak = parseInt(localStorage.getItem(streakKey) || '0');
+    
+    if (!lastVisit) {
+        // Первый визит
+        localStorage.setItem(streakKey, '1');
+        localStorage.setItem(lastVisitKey, today);
+        giveStreakBonus(1);
+        return;
+    }
+    
+    const lastDate = new Date(lastVisit).toDateString();
+    
+    if (lastDate === today) {
+        // Уже заходил сегодня
+        return;
+    }
+    
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+    
+    if (lastDate === yesterdayStr) {
+        // Заходил вчера - увеличиваем страйк
+        const newStreak = currentStreak + 1;
+        localStorage.setItem(streakKey, newStreak);
+        giveStreakBonus(newStreak);
+    } else {
+        // Пропустил день - сбрасываем
+        localStorage.setItem(streakKey, '1');
+        giveStreakBonus(1);
+    }
+    
+    localStorage.setItem(lastVisitKey, today);
+}
+
+// Бонусы за страйк
+function giveStreakBonus(streak) {
+    let bonus = 100; // Базовый бонус за вход
+    
+    if (streak === 7) {
+        bonus += 500; // +500 за неделю
+        tickets += 10; // +10 билетов
+        showMessage('🎁 7 дней подряд! +500 монет и 10 билетов!');
+    } else if (streak === 30) {
+        bonus += 2000; // +2000 за месяц
+        tickets += 50; // +50 билетов
+        showMessage('👑 30 дней подряд! +2000 монет и 50 билетов!');
+    } else {
+        showMessage(`🎁 День ${streak} подряд! +${bonus} монет!`);
+    }
+    
+    balance += bonus;
+    updateUI();
+}
+
+// Функция для показа сообщений
+function showMessage(text) {
+    if (tg.showPopup) {
+        tg.showPopup({
+            title: '🎉 БОНУС',
+            message: text,
+            buttons: [{type: 'close'}]
+        });
+    }
+}
+
+// Проверка и проведение розыгрышей
+function checkAndRunRaffles() {
+    const now = new Date();
+    
+    // Проверяем еженедельный розыгрыш
+    if (new Date(raffles.weekly.endDate) <= now) {
+        runWeeklyRaffle();
+    }
+    
+    // Проверяем ежедневный розыгрыш
+    if (new Date(raffles.daily.endDate) <= now) {
+        runDailyRaffle();
+    }
+}
+
+// Проведение еженедельного розыгрыша
+function runWeeklyRaffle() {
+    if (!leaderboard || leaderboard.length === 0) return;
+    
+    // Берем топ-100 игроков
+    const eligible = leaderboard.slice(0, 100);
+    
+    // Случайный выбор с учетом веса (чем больше билетов, тем выше шанс)
+    const totalTickets = eligible.reduce((sum, p) => sum + p.tickets, 0);
+    let random = Math.floor(Math.random() * totalTickets);
+    
+    let winner = null;
+    for (const player of eligible) {
+        random -= player.tickets;
+        if (random <= 0) {
+            winner = player;
+            break;
+        }
+    }
+    
+    if (winner) {
+        // Записываем победителя
+        const winners = JSON.parse(localStorage.getItem('winners') || '[]');
+        winners.unshift({
+            name: winner.name,
+            prize: raffles.weekly.prize,
+            date: new Date().toLocaleDateString(),
+            tickets: winner.tickets
+        });
+        localStorage.setItem('winners', JSON.stringify(winners.slice(0, 10)));
+        
+        // Отправляем уведомление
+        tg.showPopup({
+            title: '🏆 ПОБЕДИТЕЛЬ НЕДЕЛИ',
+            message: `${winner.name} выиграл(а) ${raffles.weekly.prize}!\nБилетов: ${winner.tickets}`,
+            buttons: [{type: 'close'}]
+        });
+    }
+    
+    // Обновляем дату следующего розыгрыша
+    raffles.weekly.endDate = getNextWeekDate();
+    localStorage.setItem('raffles', JSON.stringify(raffles));
+}
+
+// Проведение ежедневного розыгрыша
+function runDailyRaffle() {
+    if (!leaderboard || leaderboard.length === 0) return;
+    
+    // Берем всех, кто заходил сегодня
+    const today = new Date().toDateString();
+    const activeToday = leaderboard.filter(p => {
+        const lastActive = localStorage.getItem(`lastActive_${p.id}`);
+        return lastActive && new Date(lastActive).toDateString() === today;
+    });
+    
+    if (activeToday.length === 0) return;
+    
+    // Случайный выбор
+    const winner = activeToday[Math.floor(Math.random() * activeToday.length)];
+    
+    // Начисляем приз (500 монет)
+    // Здесь нужно будет добавить логику начисления на баланс победителя
+    // Это сложнее, т.к. победитель может быть не в игре сейчас
+    
+    // Записываем в историю
+    const winners = JSON.parse(localStorage.getItem('dailyWinners') || '[]');
+    winners.unshift({
+        name: winner.name,
+        prize: raffles.daily.prize,
+        date: new Date().toLocaleDateString()
+    });
+    localStorage.setItem('dailyWinners', JSON.stringify(winners.slice(0, 10)));
+    
+    raffles.daily.endDate = getTomorrowDate();
+    localStorage.setItem('raffles', JSON.stringify(raffles));
+}
+
+// Добавляем кнопку "История победителей" в интерфейс
+function addWinnersButton() {
+    const leaderboardDiv = document.getElementById('leaderboard');
+    if (!leaderboardDiv) return;
+    
+    const winnersBtn = document.createElement('button');
+    winnersBtn.className = 'admin-button';
+    winnersBtn.style.marginTop = '10px';
+    winnersBtn.style.background = 'linear-gradient(145deg, #ffd700, #ffb347)';
+    winnersBtn.style.color = '#1a1a2e';
+    winnersBtn.textContent = '🏆 ИСТОРИЯ ПОБЕДИТЕЛЕЙ';
+    winnersBtn.onclick = showWinnersHistory;
+    
+    leaderboardDiv.appendChild(winnersBtn);
+}
+
+// Показать историю победителей
+function showWinnersHistory() {
+    const winners = JSON.parse(localStorage.getItem('winners') || '[]');
+    const dailyWinners = JSON.parse(localStorage.getItem('dailyWinners') || '[]');
+    
+    let message = '🏆 ПОБЕДИТЕЛИ НЕДЕЛИ:\n\n';
+    
+    if (winners.length === 0) {
+        message += 'Пока нет победителей\n';
+    } else {
+        winners.forEach((w, i) => {
+            message += `${i+1}. ${w.name} — ${w.prize} (${w.date})\n`;
+        });
+    }
+    
+    message += '\n📅 ПОБЕДИТЕЛИ ДНЯ:\n\n';
+    
+    if (dailyWinners.length === 0) {
+        message += 'Пока нет победителей\n';
+    } else {
+        dailyWinners.slice(0, 5).forEach((w, i) => {
+            message += `${i+1}. ${w.name} — ${w.prize} (${w.date})\n`;
+        });
+    }
+    
+    tg.showPopup({
+        title: '🏆 ИСТОРИЯ РОЗЫГРЫШЕЙ',
+        message: message,
+        buttons: [{type: 'close', text: 'Закрыть'}]
+    });
+}
+
+// Добавляем в интерфейс блок с информацией о розыгрышах
+function addRaffleInfo() {
+    const shopPanel = document.querySelector('.shop-panel');
+    if (!shopPanel) return;
+    
+    const raffleInfo = document.createElement('div');
+    raffleInfo.className = 'admin-section';
+    raffleInfo.style.marginTop = '10px';
+    raffleInfo.style.background = 'rgba(255,215,0,0.1)';
+    raffleInfo.innerHTML = `
+        <div class="admin-section-title" style="color: gold;">🎰 БЛИЖАЙШИЕ РОЗЫГРЫШИ</div>
+        <div style="padding: 8px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>🏆 Еженедельный:</span>
+                <span style="color: gold; font-weight: bold;" id="weeklyTimer">${formatTimeToRaffle(raffles.weekly.endDate)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>🎁 Ежедневный:</span>
+                <span style="color: gold; font-weight: bold;" id="dailyTimer">${formatTimeToRaffle(raffles.daily.endDate)}</span>
+            </div>
+        </div>
+    `;
+    
+    shopPanel.appendChild(raffleInfo);
+}
+
+// Форматирование времени до розыгрыша
+function formatTimeToRaffle(endDate) {
+    const end = new Date(endDate).getTime();
+    const now = Date.now();
+    const diff = end - now;
+    
+    if (diff <= 0) return 'Скоро!';
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 24) {
+        const days = Math.floor(hours / 24);
+        return `${days}д ${hours % 24}ч`;
+    }
+    return `${hours}ч ${minutes}м`;
+}
+
+// Инициализация системы
+function initRaffleSystem() {
+    // Загружаем сохраненные данные
+    const saved = localStorage.getItem('raffles');
+    if (saved) {
+        Object.assign(raffles, JSON.parse(saved));
+    }
+    
+    // Проверяем страйк при каждом входе
+    checkAndUpdateStreak();
+    
+    // Проверяем розыгрыши
+    checkAndRunRaffles();
+    
+    // Добавляем кнопку истории
+    addWinnersButton();
+    
+    // Добавляем информацию о розыгрышах
+    addRaffleInfo();
+    
+    // Обновляем таймеры каждую минуту
+    setInterval(() => {
+        document.getElementById('weeklyTimer').textContent = formatTimeToRaffle(raffles.weekly.endDate);
+        document.getElementById('dailyTimer').textContent = formatTimeToRaffle(raffles.daily.endDate);
+    }, 60000);
+}
+
+// Запускаем после загрузки всех данных
+setTimeout(initRaffleSystem, 1000);
+</script>
 </body>
 </html>
