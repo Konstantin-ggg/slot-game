@@ -1446,27 +1446,36 @@
         }
 
         function initRaffleSystem() {
-            const saved = localStorage.getItem('raffles');
-            if (saved) {
-                Object.assign(raffles, JSON.parse(saved));
-            }
+    const saved = localStorage.getItem('raffles');
+    if (saved) {
+        Object.assign(raffles, JSON.parse(saved));
+    }
+    
+    checkAndUpdateStreak();
+    checkAndRunRaffles();
+    addWinnersButton();
+    addRaffleInfo();
+    
+    // Обновляем таймер главного баннера (только до розыгрыша главного приза)
+    setInterval(() => {
+        const end = new Date(currentEvent.endDate).getTime();
+        const now = Date.now();
+        const diff = end - now;
+        
+        if (diff <= 0) {
+            eventTimer.textContent = "РОЗЫГРЫШ ЗАВЕРШЁН!";
+            eventTimer.style.background = "#ff6b6b";
+            eventTimer.style.color = "white";
+        } else {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
             
-            checkAndUpdateStreak();
-            checkAndRunRaffles();
-            addWinnersButton();
-            addRaffleInfo();
-            
-            setInterval(() => {
-                const weeklyEl = document.getElementById('weeklyTimer');
-                const dailyEl = document.getElementById('dailyTimer');
-                if (weeklyEl) {
-                    weeklyEl.textContent = formatTimeToRaffle(raffles.weekly.endDate);
-                }
-                if (dailyEl) {
-                    dailyEl.textContent = formatTimeToRaffle(raffles.daily.endDate);
-                }
-            }, 60000);
+            eventTimer.textContent = `${days}д ${hours}ч ${minutes}м ${seconds}с`;
         }
+    }, 1000); // Обновляем каждую секунду
+}
 
         function updateUI() {
             balanceEl.textContent = balance;
