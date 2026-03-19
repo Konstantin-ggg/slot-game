@@ -396,7 +396,7 @@
             color: gold;
         }
 
-        /* МАГАЗИН (теперь после кнопок) */
+        /* МАГАЗИН */
         .shop-panel {
             background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
             border-radius: 20px;
@@ -538,7 +538,7 @@
 </head>
 <body>
     <div class="slot-machine">
-        <!-- АДМИН-ПАНЕЛЬ (только для тебя) -->
+        <!-- АДМИН-ПАНЕЛЬ -->
         <div id="adminPanel" style="display: none;">
             <div class="admin-panel">
                 <div class="admin-title">🔐 АДМИН-ПАНЕЛЬ</div>
@@ -551,7 +551,14 @@
                 
                 <div class="admin-section">
                     <div class="admin-section-title">🎁 РЕДАКТОР РОЗЫГРЫША</div>
-                    <input type="text" id="prizeInput" class="admin-input" placeholder="Приз">
+                    <input type="text" id="prizeInput" class="admin-input" placeholder="Название приза">
+                    <select id="prizeType" class="admin-input" style="appearance: auto;">
+                        <option value="stars">⭐ Telegram Stars</option>
+                        <option value="gift">🎁 Подарок Telegram</option>
+                        <option value="vip">👑 VIP-статус</option>
+                        <option value="other">🎲 Другое</option>
+                    </select>
+                    <input type="number" id="prizeStarsAmount" class="admin-input" placeholder="Количество Stars" value="100" min="1">
                     <input type="text" id="dateInput" class="admin-input" placeholder="Дата (ГГГГ-ММ-ДДTЧЧ:ММ)">
                     <button class="admin-button" onclick="window.updateEvent()">💾 СОХРАНИТЬ</button>
                 </div>
@@ -577,11 +584,17 @@
                         </div>
                     </div>
                     <button class="admin-button danger" onclick="window.pickWinner()">👑 ВЫБРАТЬ ПОБЕДИТЕЛЯ</button>
+                    <div id="winnerResult" style="margin-top: 10px; padding: 10px; background: rgba(255,215,0,0.1); border-radius: 10px; display: none;">
+                        <div style="font-weight: bold; margin-bottom: 5px;">🏆 ПОБЕДИТЕЛЬ:</div>
+                        <div id="winnerName" style="color: gold;"></div>
+                        <div id="winnerPrize" style="font-size: 12px; margin: 5px 0;"></div>
+                        <button class="admin-button" onclick="window.markPrizeSent()" style="margin-top: 5px; background: linear-gradient(145deg, #4CAF50, #45a049);">✅ ОТМЕТИТЬ КАК ОТПРАВЛЕНО</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- БАННЕР РОЗЫГРЫША -->
+        <!-- БАННЕР -->
         <div class="event-banner" id="eventBanner">
             <div class="event-icon" id="eventIcon">🏆🚗</div>
             <div class="event-title" id="eventTitle">РОЗЫГРЫШ АВТОМОБИЛЯ</div>
@@ -610,29 +623,29 @@
             <span class="balance-value" id="balance">1000</span>
         </div>
 
-        <!-- ЕЖЕДНЕВНЫЙ БОНУС -->
+        <!-- БОНУС -->
         <div class="daily-bonus-indicator" id="dailyBonusIndicator">
             <span class="bonus-text">⏳ Ежедневный бонус</span>
             <span class="bonus-timer" id="bonusTimer">Доступно</span>
         </div>
 
-        <!-- СООБЩЕНИЕ О ВЫИГРЫШЕ -->
+        <!-- СООБЩЕНИЕ -->
         <div class="win-message" id="winMessage"></div>
 
-        <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
+        <!-- СТАВКА -->
         <div class="bet-control">
             <button class="bet-btn" id="decreaseBet">-</button>
             <span class="bet-value" id="betValue">10</span>
             <button class="bet-btn" id="increaseBet">+</button>
         </div>
 
-        <!-- КНОПКИ ДЕЙСТВИЙ -->
+        <!-- КНОПКИ -->
         <div class="controls">
             <button class="btn btn-spin" id="spinBtn">🎰 КРУТИТЬ</button>
             <button class="btn btn-maxbet" id="maxBetBtn">⚡ MAX СТАВКА</button>
         </div>
 
-        <!-- МАГАЗИН (ТЕПЕРЬ ПОСЛЕ КНОПОК) -->
+        <!-- МАГАЗИН -->
         <div class="shop-panel">
             <div class="shop-title">⭐ КУПИТЬ МОНЕТЫ ЗА STARS</div>
             <div class="shop-grid">
@@ -697,17 +710,15 @@
         document.body.style.height = 'auto';
         document.documentElement.style.overflowY = 'auto';
 
-        // ⚠️ ТВОЙ TELEGRAM ID
         const ADMIN_ID = 1065392792;
         const userId = tg.initDataUnsafe?.user?.id || 0;
         const userName = tg.initDataUnsafe?.user?.first_name || 'Игрок';
+        const userUsername = tg.initDataUnsafe?.user?.username || '';
 
-        // Показываем админ-панель только админу
         if (userId === ADMIN_ID) {
             document.getElementById('adminPanel').style.display = 'block';
         }
 
-        // Данные ивента
         let currentEvent = {
             active: true,
             title: "РОЗЫГРЫШ АВТОМОБИЛЯ",
@@ -715,14 +726,15 @@
             prize: "Toyota Camry 2026",
             icon: "🏆🚗",
             endDate: "2026-03-25T20:00:00",
-            background: "linear-gradient(45deg, #ff6b6b, #feca57)"
+            background: "linear-gradient(45deg, #ff6b6b, #feca57)",
+            prizeType: 'other',
+            starsAmount: 100
         };
 
         if (localStorage.getItem('currentEvent')) {
             currentEvent = JSON.parse(localStorage.getItem('currentEvent'));
         }
 
-        // Элементы интерфейса
         const eventBanner = document.getElementById('eventBanner');
         const eventIcon = document.getElementById('eventIcon');
         const eventTitle = document.getElementById('eventTitle');
@@ -732,17 +744,28 @@
         const leaderboardList = document.getElementById('leaderboardList');
         const bonusTimer = document.getElementById('bonusTimer');
 
-        // =============== СИСТЕМА ПОКУПКИ ЗА STARS ===============
+        function updateEventDisplay() {
+            eventIcon.textContent = currentEvent.icon || '🏆';
+            eventTitle.textContent = currentEvent.title || 'РОЗЫГРЫШ';
+            eventDescription.textContent = currentEvent.description || 'Крути барабаны!';
+            eventBanner.style.background = currentEvent.background || 'linear-gradient(45deg, #ff6b6b, #feca57)';
+            
+            if (document.getElementById('prizeInput')) {
+                document.getElementById('prizeInput').value = currentEvent.prize || '';
+                document.getElementById('dateInput').value = currentEvent.endDate || '';
+                document.getElementById('prizeType').value = currentEvent.prizeType || 'other';
+                document.getElementById('prizeStarsAmount').value = currentEvent.starsAmount || 100;
+            }
+        }
+
         window.buyPackage = async function(stars, coins) {
-    tg.showPopup({
-        title: '⭐ ПОКУПКА МОНЕТ',
-        message: `💎 Пакет: ${coins} монет за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!\n\nСпасибо за интерес к игре!`,
-        buttons: [
-            {type: 'close', text: '🎰 Понятно'}
-        ]
-    });
-};
-        // =============== СИСТЕМА ЕЖЕДНЕВНОГО БОНУСА ===============
+            tg.showPopup({
+                title: '⭐ ПОКУПКА МОНЕТ',
+                message: `💎 Пакет: ${coins} монет за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!`,
+                buttons: [{type: 'close', text: '🎰 Понятно'}]
+            });
+        };
+
         const DAILY_BONUS = 1000;
         
         function checkAndGiveDailyBonus() {
@@ -818,20 +841,6 @@
             localStorage.setItem('balance', balance);
         }
 
-        // Применяем настройки ивента
-        function updateEventDisplay() {
-            eventIcon.textContent = currentEvent.icon;
-            eventTitle.textContent = currentEvent.title;
-            eventDescription.textContent = currentEvent.description;
-            eventBanner.style.background = currentEvent.background;
-            
-            if (document.getElementById('prizeInput')) {
-                document.getElementById('prizeInput').value = currentEvent.prize;
-                document.getElementById('dateInput').value = currentEvent.endDate;
-            }
-        }
-
-        // Функции админки
         window.sendAnnouncement = function() {
             const text = document.getElementById('announcementText').value;
             if (text) {
@@ -853,16 +862,30 @@
         window.updateEvent = function() {
             const newPrize = document.getElementById('prizeInput').value;
             const newDate = document.getElementById('dateInput').value;
+            const prizeType = document.getElementById('prizeType').value;
+            const starsAmount = document.getElementById('prizeStarsAmount').value;
+            
+            let displayPrize = newPrize;
+            if (prizeType === 'stars') {
+                displayPrize = `${starsAmount} ⭐ Stars`;
+            } else if (prizeType === 'gift') {
+                displayPrize = `🎁 ${newPrize}`;
+            } else if (prizeType === 'vip') {
+                displayPrize = `👑 ${newPrize}`;
+            }
             
             if (newPrize) {
-                currentEvent.prize = newPrize;
-                currentEvent.title = `РОЗЫГРЫШ ${newPrize.toUpperCase()}`;
-                currentEvent.description = `Каждое вращение = билет. Приз - ${newPrize}!`;
+                currentEvent.prize = displayPrize;
+                currentEvent.title = `РОЗЫГРЫШ ${displayPrize.toUpperCase()}`;
+                currentEvent.description = `Каждое вращение = билет. Главный приз - ${displayPrize}!`;
             }
             
             if (newDate) {
                 currentEvent.endDate = newDate;
             }
+            
+            currentEvent.prizeType = prizeType;
+            currentEvent.starsAmount = starsAmount;
             
             localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
             updateEventDisplay();
@@ -874,14 +897,47 @@
             });
         };
 
+        let lastWinner = null;
+        let lastWinnerPrize = null;
+
         window.pickWinner = function() {
             if (leaderboard && leaderboard.length > 0) {
                 const winner = leaderboard[0];
+                
+                const prizeType = document.getElementById('prizeType').value;
+                const prizeText = document.getElementById('prizeInput').value || 'Приз';
+                const starsAmount = document.getElementById('prizeStarsAmount').value;
+                
+                let prizeDescription = prizeText;
+                if (prizeType === 'stars') {
+                    prizeDescription = `${starsAmount} ⭐ Stars`;
+                } else if (prizeType === 'gift') {
+                    prizeDescription = `🎁 Подарок: ${prizeText}`;
+                } else if (prizeType === 'vip') {
+                    prizeDescription = `👑 VIP: ${prizeText}`;
+                }
+                
+                lastWinner = winner;
+                lastWinnerPrize = prizeDescription;
+                
+                document.getElementById('winnerName').textContent = `${winner.name} (@${winner.username || 'нет username'})`;
+                document.getElementById('winnerPrize').textContent = `Приз: ${prizeDescription}`;
+                document.getElementById('winnerResult').style.display = 'block';
+                
                 tg.showPopup({
                     title: '👑 ПОБЕДИТЕЛЬ',
-                    message: `${winner.name}\nБилетов: ${winner.tickets}`,
+                    message: `${winner.name}\nПриз: ${prizeDescription}\n\nОтправь приз и нажми "Отметить как отправлено"`,
                     buttons: [{type: 'close'}]
                 });
+                
+                const winners = JSON.parse(localStorage.getItem('winners') || '[]');
+                winners.unshift({
+                    name: winner.name,
+                    prize: prizeDescription,
+                    date: new Date().toLocaleDateString(),
+                    username: winner.username || ''
+                });
+                localStorage.setItem('winners', JSON.stringify(winners.slice(0, 10)));
             } else {
                 tg.showPopup({
                     title: '❌ Ошибка',
@@ -891,7 +947,18 @@
             }
         };
 
-        // Игровые переменные
+        window.markPrizeSent = function() {
+            if (lastWinner) {
+                tg.showPopup({
+                    title: '✅ ОТПРАВЛЕНО',
+                    message: `Приз для ${lastWinner.name} отмечен как отправленный`,
+                    buttons: [{type: 'close'}]
+                });
+                document.getElementById('winnerResult').style.display = 'none';
+                lastWinner = null;
+            }
+        };
+
         const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣'];
         const MULTIPLIERS = {
             '🍒': 2,
@@ -924,10 +991,9 @@
         const decreaseBet = document.getElementById('decreaseBet');
         const increaseBet = document.getElementById('increaseBet');
 
-        // Загрузка лидеров
         function loadLeaderboard() {
             if (tg.CloudStorage) {
-                tg.CloudStorage.getItem('leaderboard', (err, data) => {
+                tg.CloudStorage.getItem('globalLeaderboard', (err, data) => {
                     if (data) {
                         try {
                             leaderboard = JSON.parse(data);
@@ -935,14 +1001,10 @@
                             leaderboard = [];
                         }
                     } else {
-                        leaderboard = [
-                            { name: 'Игрок123', tickets: 1540, id: '123' },
-                            { name: 'Lucky777', tickets: 1320, id: '456' },
-                            { name: 'SlotMaster', tickets: 980, id: '789' },
-                            { name: userName, tickets: tickets, id: userId },
-                            { name: 'Player99', tickets: 98, id: '999' }
-                        ];
+                        leaderboard = [];
                     }
+                    
+                    updatePlayerInLeaderboard();
                     renderLeaderboard();
                     updateStats();
                 });
@@ -951,7 +1013,7 @@
                     { name: 'Игрок123', tickets: 1540, id: '123' },
                     { name: 'Lucky777', tickets: 1320, id: '456' },
                     { name: 'SlotMaster', tickets: 980, id: '789' },
-                    { name: userName, tickets: tickets, id: userId },
+                    { name: userName, tickets: tickets, id: userId, username: userUsername },
                     { name: 'Player99', tickets: 98, id: '999' }
                 ];
                 renderLeaderboard();
@@ -959,10 +1021,60 @@
             }
         }
 
+        function updatePlayerInLeaderboard() {
+            const existingIndex = leaderboard.findIndex(item => item.id === userId);
+            
+            if (existingIndex >= 0) {
+                leaderboard[existingIndex].tickets = tickets;
+                leaderboard[existingIndex].name = userName;
+                leaderboard[existingIndex].username = userUsername;
+            } else {
+                leaderboard.push({
+                    name: userName,
+                    tickets: tickets,
+                    id: userId,
+                    username: userUsername
+                });
+            }
+            
+            leaderboard.sort((a, b) => b.tickets - a.tickets);
+            leaderboard = leaderboard.slice(0, 50);
+        }
+
         function saveLeaderboard() {
             if (tg.CloudStorage) {
-                tg.CloudStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+                tg.CloudStorage.setItem('globalLeaderboard', JSON.stringify(leaderboard));
+                localStorage.setItem('leaderboardUpdated', Date.now().toString());
             }
+        }
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'leaderboardUpdated') {
+                loadLeaderboard();
+            }
+        });
+
+        function renderLeaderboard() {
+            let html = '';
+            
+            if (leaderboard.length === 0) {
+                html = '<div class="leaderboard-item">Пока нет участников</div>';
+            } else {
+                leaderboard.forEach((player, index) => {
+                    const isCurrentPlayer = player.id === userId;
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                    
+                    html += `
+                        <div class="leaderboard-item ${isCurrentPlayer ? 'highlight' : ''}">
+                            <span class="leaderboard-rank">${medal}</span>
+                            <span class="leaderboard-name">${player.name}</span>
+                            <span class="leaderboard-score">${player.tickets}</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            leaderboardList.innerHTML = html;
         }
 
         function updateStats() {
@@ -974,76 +1086,281 @@
             }
         }
 
-        function updateLeaderboard() {
-            const existingIndex = leaderboard.findIndex(item => item.id === userId);
-            
-            if (existingIndex >= 0) {
-                leaderboard[existingIndex].tickets = tickets;
-            } else {
-                leaderboard.push({
-                    name: userName,
-                    tickets: tickets,
-                    id: userId
+        const raffles = {
+            weekly: {
+                prize: "10 000 монет",
+                endDate: getNextWeekDate(),
+                participants: 0,
+                winner: null
+            },
+            daily: {
+                prize: "500 монет",
+                endDate: getTomorrowDate(),
+                participants: 0,
+                winner: null
+            }
+        };
+
+        function getNextWeekDate() {
+            const now = new Date();
+            const friday = new Date();
+            friday.setDate(now.getDate() + ((5 - now.getDay() + 7) % 7 || 7));
+            friday.setHours(20, 0, 0, 0);
+            return friday.toISOString();
+        }
+
+        function getTomorrowDate() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(20, 0, 0, 0);
+            return tomorrow.toISOString();
+        }
+
+        function showMessage(text) {
+            if (tg.showPopup) {
+                tg.showPopup({
+                    title: '🎉 БОНУС',
+                    message: text,
+                    buttons: [{type: 'close'}]
                 });
             }
-            
-            leaderboard.sort((a, b) => b.tickets - a.tickets);
-            leaderboard = leaderboard.slice(0, 10);
-            
-            saveLeaderboard();
-            renderLeaderboard();
-            updateStats();
         }
 
-        function renderLeaderboard() {
-            let html = '';
+        function checkAndUpdateStreak() {
+            const streakKey = `streak_${userId}`;
+            const lastVisitKey = `lastVisit_${userId}`;
+            const now = new Date();
+            const today = now.toDateString();
             
-            leaderboard.forEach((player, index) => {
-                const isCurrentPlayer = player.id === userId;
-                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-                
-                html += `
-                    <div class="leaderboard-item ${isCurrentPlayer ? 'highlight' : ''}">
-                        <span class="leaderboard-rank">${medal}</span>
-                        <span class="leaderboard-name">${player.name}</span>
-                        <span class="leaderboard-score">${player.tickets}</span>
-                    </div>
-                `;
-            });
+            const lastVisit = localStorage.getItem(lastVisitKey);
+            const currentStreak = parseInt(localStorage.getItem(streakKey) || '0');
             
-            leaderboardList.innerHTML = html;
-        }
-
-        function updateEventTimer() {
-            const end = new Date(currentEvent.endDate).getTime();
-            const now = new Date().getTime();
-            const distance = end - now;
-            
-            if (distance < 0) {
-                eventTimer.textContent = "ИВЕНТ ЗАВЕРШЕН!";
-                eventTimer.style.background = "#ff6b6b";
-                eventTimer.style.color = "white";
+            if (!lastVisit) {
+                localStorage.setItem(streakKey, '1');
+                localStorage.setItem(lastVisitKey, today);
+                giveStreakBonus(1);
                 return;
             }
             
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const lastDate = new Date(lastVisit).toDateString();
             
-            eventTimer.textContent = `${days}д ${hours}ч ${minutes}м ${seconds}с`;
+            if (lastDate === today) {
+                return;
+            }
+            
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+            
+            if (lastDate === yesterdayStr) {
+                const newStreak = currentStreak + 1;
+                localStorage.setItem(streakKey, newStreak);
+                giveStreakBonus(newStreak);
+            } else {
+                localStorage.setItem(streakKey, '1');
+                giveStreakBonus(1);
+            }
+            
+            localStorage.setItem(lastVisitKey, today);
         }
 
-        updateEventTimer();
-        setInterval(updateEventTimer, 1000);
+        function giveStreakBonus(streak) {
+            let bonus = 100;
+            
+            if (streak === 7) {
+                bonus += 500;
+                tickets += 10;
+                showMessage('🎁 7 дней подряд! +500 монет и 10 билетов!');
+            } else if (streak === 30) {
+                bonus += 2000;
+                tickets += 50;
+                showMessage('👑 30 дней подряд! +2000 монет и 50 билетов!');
+            } else {
+                showMessage(`🎁 День ${streak} подряд! +${bonus} монет!`);
+            }
+            
+            balance += bonus;
+            updateUI();
+        }
 
-        eventBanner.addEventListener('click', function() {
-            tg.showPopup({
-                title: currentEvent.title,
-                message: `🏆 ПРИЗ: ${currentEvent.prize}\n\n${currentEvent.description}\n\n🎫 Ваши билеты: ${tickets}\n\n🏅 ТОП-3 ИГРОКОВ:\n1. ${leaderboard[0]?.name || '???'} - ${leaderboard[0]?.tickets || 0} билетов\n2. ${leaderboard[1]?.name || '???'} - ${leaderboard[1]?.tickets || 0} билетов\n3. ${leaderboard[2]?.name || '???'} - ${leaderboard[2]?.tickets || 0} билетов`,
-                buttons: [{type: 'close', text: '🎰 Крутить дальше!'}]
+        function checkAndRunRaffles() {
+            const now = new Date();
+            
+            if (new Date(raffles.weekly.endDate) <= now) {
+                runWeeklyRaffle();
+            }
+            
+            if (new Date(raffles.daily.endDate) <= now) {
+                runDailyRaffle();
+            }
+        }
+
+        function runWeeklyRaffle() {
+            if (!leaderboard || leaderboard.length === 0) return;
+            
+            const eligible = leaderboard.slice(0, 100);
+            const totalTickets = eligible.reduce((sum, p) => sum + p.tickets, 0);
+            let random = Math.floor(Math.random() * totalTickets);
+            
+            let winner = null;
+            for (const player of eligible) {
+                random -= player.tickets;
+                if (random <= 0) {
+                    winner = player;
+                    break;
+                }
+            }
+            
+            if (winner) {
+                const winners = JSON.parse(localStorage.getItem('winners') || '[]');
+                winners.unshift({
+                    name: winner.name,
+                    prize: raffles.weekly.prize,
+                    date: new Date().toLocaleDateString(),
+                    tickets: winner.tickets
+                });
+                localStorage.setItem('winners', JSON.stringify(winners.slice(0, 10)));
+                
+                tg.showPopup({
+                    title: '🏆 ПОБЕДИТЕЛЬ НЕДЕЛИ',
+                    message: `${winner.name} выиграл(а) ${raffles.weekly.prize}!`,
+                    buttons: [{type: 'close'}]
+                });
+            }
+            
+            raffles.weekly.endDate = getNextWeekDate();
+            localStorage.setItem('raffles', JSON.stringify(raffles));
+        }
+
+        function runDailyRaffle() {
+            if (!leaderboard || leaderboard.length === 0) return;
+            
+            const today = new Date().toDateString();
+            const activeToday = leaderboard.filter(p => {
+                const lastActive = localStorage.getItem(`lastActive_${p.id}`);
+                return lastActive && new Date(lastActive).toDateString() === today;
             });
-        });
+            
+            if (activeToday.length === 0) return;
+            
+            const winner = activeToday[Math.floor(Math.random() * activeToday.length)];
+            
+            const winners = JSON.parse(localStorage.getItem('dailyWinners') || '[]');
+            winners.unshift({
+                name: winner.name,
+                prize: raffles.daily.prize,
+                date: new Date().toLocaleDateString()
+            });
+            localStorage.setItem('dailyWinners', JSON.stringify(winners.slice(0, 10)));
+            
+            raffles.daily.endDate = getTomorrowDate();
+            localStorage.setItem('raffles', JSON.stringify(raffles));
+        }
+
+        function addWinnersButton() {
+            const leaderboardDiv = document.getElementById('leaderboard');
+            if (!leaderboardDiv) return;
+            
+            const winnersBtn = document.createElement('button');
+            winnersBtn.className = 'admin-button';
+            winnersBtn.style.marginTop = '10px';
+            winnersBtn.style.background = 'linear-gradient(145deg, #ffd700, #ffb347)';
+            winnersBtn.style.color = '#1a1a2e';
+            winnersBtn.textContent = '🏆 ИСТОРИЯ ПОБЕДИТЕЛЕЙ';
+            winnersBtn.onclick = showWinnersHistory;
+            
+            leaderboardDiv.appendChild(winnersBtn);
+        }
+
+        function showWinnersHistory() {
+            const winners = JSON.parse(localStorage.getItem('winners') || '[]');
+            const dailyWinners = JSON.parse(localStorage.getItem('dailyWinners') || '[]');
+            
+            let message = '🏆 ПОБЕДИТЕЛИ НЕДЕЛИ:\n\n';
+            
+            if (winners.length === 0) {
+                message += 'Пока нет победителей\n';
+            } else {
+                winners.forEach((w, i) => {
+                    message += `${i+1}. ${w.name} — ${w.prize} (${w.date})\n`;
+                });
+            }
+            
+            message += '\n📅 ПОБЕДИТЕЛИ ДНЯ:\n\n';
+            
+            if (dailyWinners.length === 0) {
+                message += 'Пока нет победителей\n';
+            } else {
+                dailyWinners.slice(0, 5).forEach((w, i) => {
+                    message += `${i+1}. ${w.name} — ${w.prize} (${w.date})\n`;
+                });
+            }
+            
+            tg.showPopup({
+                title: '🏆 ИСТОРИЯ РОЗЫГРЫШЕЙ',
+                message: message,
+                buttons: [{type: 'close', text: 'Закрыть'}]
+            });
+        }
+
+        function addRaffleInfo() {
+            const shopPanel = document.querySelector('.shop-panel');
+            if (!shopPanel) return;
+            
+            const raffleInfo = document.createElement('div');
+            raffleInfo.className = 'admin-section';
+            raffleInfo.style.marginTop = '10px';
+            raffleInfo.style.background = 'rgba(255,215,0,0.1)';
+            raffleInfo.innerHTML = `
+                <div class="admin-section-title" style="color: gold;">🎰 БЛИЖАЙШИЕ РОЗЫГРЫШИ</div>
+                <div style="padding: 8px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>🏆 Еженедельный:</span>
+                        <span style="color: gold; font-weight: bold;" id="weeklyTimer">${formatTimeToRaffle(raffles.weekly.endDate)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>🎁 Ежедневный:</span>
+                        <span style="color: gold; font-weight: bold;" id="dailyTimer">${formatTimeToRaffle(raffles.daily.endDate)}</span>
+                    </div>
+                </div>
+            `;
+            
+            shopPanel.appendChild(raffleInfo);
+        }
+
+        function formatTimeToRaffle(endDate) {
+            const end = new Date(endDate).getTime();
+            const now = Date.now();
+            const diff = end - now;
+            
+            if (diff <= 0) return 'Скоро!';
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (hours > 24) {
+                const days = Math.floor(hours / 24);
+                return `${days}д ${hours % 24}ч`;
+            }
+            return `${hours}ч ${minutes}м`;
+        }
+
+        function initRaffleSystem() {
+            const saved = localStorage.getItem('raffles');
+            if (saved) {
+                Object.assign(raffles, JSON.parse(saved));
+            }
+            
+            checkAndUpdateStreak();
+            checkAndRunRaffles();
+            addWinnersButton();
+            addRaffleInfo();
+            
+            setInterval(() => {
+                document.getElementById('weeklyTimer').textContent = formatTimeToRaffle(raffles.weekly.endDate);
+                document.getElementById('dailyTimer').textContent = formatTimeToRaffle(raffles.daily.endDate);
+            }, 60000);
+        }
 
         function updateUI() {
             balanceEl.textContent = balance;
@@ -1051,7 +1368,11 @@
             ticketCounter.textContent = `🎫 Билеты: ${tickets}`;
             localStorage.setItem('tickets', tickets);
             saveBalance();
-            updateLeaderboard();
+            
+            updatePlayerInLeaderboard();
+            renderLeaderboard();
+            saveLeaderboard();
+            updateStats();
             updateBonusTimerDisplay();
         }
 
@@ -1153,331 +1474,12 @@
             }
         });
 
-        // Инициализация
         updateEventDisplay();
         loadLeaderboard();
         checkAndGiveDailyBonus();
         updateUI();
-        // =============== СИСТЕМА РОЗЫГРЫШЕЙ ===============
-    const raffles = {
-    weekly: {
-        prize: "10 000 монет", // Текущий приз недели
-        endDate: getNextWeekDate(), // Следующая пятница 20:00
-        participants: 0,
-        winner: null
-    },
-    daily: {
-        prize: "500 монет", // Ежедневный приз
-        endDate: getTomorrowDate(), // Завтра 20:00
-        participants: 0,
-        winner: null
-    }
-};
-
-// Функция для получения даты следующей пятницы
-function getNextWeekDate() {
-    const now = new Date();
-    const friday = new Date();
-    friday.setDate(now.getDate() + ((5 - now.getDay() + 7) % 7 || 7));
-    friday.setHours(20, 0, 0, 0);
-    return friday.toISOString();
-}
-
-// Функция для получения даты завтра
-function getTomorrowDate() {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(20, 0, 0, 0);
-    return tomorrow.toISOString();
-}
-
-// Система страйков (ежедневных серий)
-function checkAndUpdateStreak() {
-    const streakKey = `streak_${userId}`;
-    const lastVisitKey = `lastVisit_${userId}`;
-    const now = new Date();
-    const today = now.toDateString();
-    
-    const lastVisit = localStorage.getItem(lastVisitKey);
-    const currentStreak = parseInt(localStorage.getItem(streakKey) || '0');
-    
-    if (!lastVisit) {
-        // Первый визит
-        localStorage.setItem(streakKey, '1');
-        localStorage.setItem(lastVisitKey, today);
-        giveStreakBonus(1);
-        return;
-    }
-    
-    const lastDate = new Date(lastVisit).toDateString();
-    
-    if (lastDate === today) {
-        // Уже заходил сегодня
-        return;
-    }
-    
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toDateString();
-    
-    if (lastDate === yesterdayStr) {
-        // Заходил вчера - увеличиваем страйк
-        const newStreak = currentStreak + 1;
-        localStorage.setItem(streakKey, newStreak);
-        giveStreakBonus(newStreak);
-    } else {
-        // Пропустил день - сбрасываем
-        localStorage.setItem(streakKey, '1');
-        giveStreakBonus(1);
-    }
-    
-    localStorage.setItem(lastVisitKey, today);
-}
-
-// Бонусы за страйк
-function giveStreakBonus(streak) {
-    let bonus = 100; // Базовый бонус за вход
-    
-    if (streak === 7) {
-        bonus += 500; // +500 за неделю
-        tickets += 10; // +10 билетов
-        showMessage('🎁 7 дней подряд! +500 монет и 10 билетов!');
-    } else if (streak === 30) {
-        bonus += 2000; // +2000 за месяц
-        tickets += 50; // +50 билетов
-        showMessage('👑 30 дней подряд! +2000 монет и 50 билетов!');
-    } else {
-        showMessage(`🎁 День ${streak} подряд! +${bonus} монет!`);
-    }
-    
-    balance += bonus;
-    updateUI();
-}
-
-// Функция для показа сообщений
-function showMessage(text) {
-    if (tg.showPopup) {
-        tg.showPopup({
-            title: '🎉 БОНУС',
-            message: text,
-            buttons: [{type: 'close'}]
-        });
-    }
-}
-
-// Проверка и проведение розыгрышей
-function checkAndRunRaffles() {
-    const now = new Date();
-    
-    // Проверяем еженедельный розыгрыш
-    if (new Date(raffles.weekly.endDate) <= now) {
-        runWeeklyRaffle();
-    }
-    
-    // Проверяем ежедневный розыгрыш
-    if (new Date(raffles.daily.endDate) <= now) {
-        runDailyRaffle();
-    }
-}
-
-// Проведение еженедельного розыгрыша
-function runWeeklyRaffle() {
-    if (!leaderboard || leaderboard.length === 0) return;
-    
-    // Берем топ-100 игроков
-    const eligible = leaderboard.slice(0, 100);
-    
-    // Случайный выбор с учетом веса (чем больше билетов, тем выше шанс)
-    const totalTickets = eligible.reduce((sum, p) => sum + p.tickets, 0);
-    let random = Math.floor(Math.random() * totalTickets);
-    
-    let winner = null;
-    for (const player of eligible) {
-        random -= player.tickets;
-        if (random <= 0) {
-            winner = player;
-            break;
-        }
-    }
-    
-    if (winner) {
-        // Записываем победителя
-        const winners = JSON.parse(localStorage.getItem('winners') || '[]');
-        winners.unshift({
-            name: winner.name,
-            prize: raffles.weekly.prize,
-            date: new Date().toLocaleDateString(),
-            tickets: winner.tickets
-        });
-        localStorage.setItem('winners', JSON.stringify(winners.slice(0, 10)));
         
-        // Отправляем уведомление
-        tg.showPopup({
-            title: '🏆 ПОБЕДИТЕЛЬ НЕДЕЛИ',
-            message: `${winner.name} выиграл(а) ${raffles.weekly.prize}!\nБилетов: ${winner.tickets}`,
-            buttons: [{type: 'close'}]
-        });
-    }
-    
-    // Обновляем дату следующего розыгрыша
-    raffles.weekly.endDate = getNextWeekDate();
-    localStorage.setItem('raffles', JSON.stringify(raffles));
-}
-
-// Проведение ежедневного розыгрыша
-function runDailyRaffle() {
-    if (!leaderboard || leaderboard.length === 0) return;
-    
-    // Берем всех, кто заходил сегодня
-    const today = new Date().toDateString();
-    const activeToday = leaderboard.filter(p => {
-        const lastActive = localStorage.getItem(`lastActive_${p.id}`);
-        return lastActive && new Date(lastActive).toDateString() === today;
-    });
-    
-    if (activeToday.length === 0) return;
-    
-    // Случайный выбор
-    const winner = activeToday[Math.floor(Math.random() * activeToday.length)];
-    
-    // Начисляем приз (500 монет)
-    // Здесь нужно будет добавить логику начисления на баланс победителя
-    // Это сложнее, т.к. победитель может быть не в игре сейчас
-    
-    // Записываем в историю
-    const winners = JSON.parse(localStorage.getItem('dailyWinners') || '[]');
-    winners.unshift({
-        name: winner.name,
-        prize: raffles.daily.prize,
-        date: new Date().toLocaleDateString()
-    });
-    localStorage.setItem('dailyWinners', JSON.stringify(winners.slice(0, 10)));
-    
-    raffles.daily.endDate = getTomorrowDate();
-    localStorage.setItem('raffles', JSON.stringify(raffles));
-}
-
-// Добавляем кнопку "История победителей" в интерфейс
-function addWinnersButton() {
-    const leaderboardDiv = document.getElementById('leaderboard');
-    if (!leaderboardDiv) return;
-    
-    const winnersBtn = document.createElement('button');
-    winnersBtn.className = 'admin-button';
-    winnersBtn.style.marginTop = '10px';
-    winnersBtn.style.background = 'linear-gradient(145deg, #ffd700, #ffb347)';
-    winnersBtn.style.color = '#1a1a2e';
-    winnersBtn.textContent = '🏆 ИСТОРИЯ ПОБЕДИТЕЛЕЙ';
-    winnersBtn.onclick = showWinnersHistory;
-    
-    leaderboardDiv.appendChild(winnersBtn);
-}
-
-// Показать историю победителей
-function showWinnersHistory() {
-    const winners = JSON.parse(localStorage.getItem('winners') || '[]');
-    const dailyWinners = JSON.parse(localStorage.getItem('dailyWinners') || '[]');
-    
-    let message = '🏆 ПОБЕДИТЕЛИ НЕДЕЛИ:\n\n';
-    
-    if (winners.length === 0) {
-        message += 'Пока нет победителей\n';
-    } else {
-        winners.forEach((w, i) => {
-            message += `${i+1}. ${w.name} — ${w.prize} (${w.date})\n`;
-        });
-    }
-    
-    message += '\n📅 ПОБЕДИТЕЛИ ДНЯ:\n\n';
-    
-    if (dailyWinners.length === 0) {
-        message += 'Пока нет победителей\n';
-    } else {
-        dailyWinners.slice(0, 5).forEach((w, i) => {
-            message += `${i+1}. ${w.name} — ${w.prize} (${w.date})\n`;
-        });
-    }
-    
-    tg.showPopup({
-        title: '🏆 ИСТОРИЯ РОЗЫГРЫШЕЙ',
-        message: message,
-        buttons: [{type: 'close', text: 'Закрыть'}]
-    });
-}
-
-// Добавляем в интерфейс блок с информацией о розыгрышах
-function addRaffleInfo() {
-    const shopPanel = document.querySelector('.shop-panel');
-    if (!shopPanel) return;
-    
-    const raffleInfo = document.createElement('div');
-    raffleInfo.className = 'admin-section';
-    raffleInfo.style.marginTop = '10px';
-    raffleInfo.style.background = 'rgba(255,215,0,0.1)';
-    raffleInfo.innerHTML = `
-        <div class="admin-section-title" style="color: gold;">🎰 БЛИЖАЙШИЕ РОЗЫГРЫШИ</div>
-        <div style="padding: 8px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span>🏆 Еженедельный:</span>
-                <span style="color: gold; font-weight: bold;" id="weeklyTimer">${formatTimeToRaffle(raffles.weekly.endDate)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <span>🎁 Ежедневный:</span>
-                <span style="color: gold; font-weight: bold;" id="dailyTimer">${formatTimeToRaffle(raffles.daily.endDate)}</span>
-            </div>
-        </div>
-    `;
-    
-    shopPanel.appendChild(raffleInfo);
-}
-
-// Форматирование времени до розыгрыша
-function formatTimeToRaffle(endDate) {
-    const end = new Date(endDate).getTime();
-    const now = Date.now();
-    const diff = end - now;
-    
-    if (diff <= 0) return 'Скоро!';
-    
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    if (hours > 24) {
-        const days = Math.floor(hours / 24);
-        return `${days}д ${hours % 24}ч`;
-    }
-    return `${hours}ч ${minutes}м`;
-}
-
-// Инициализация системы
-function initRaffleSystem() {
-    // Загружаем сохраненные данные
-    const saved = localStorage.getItem('raffles');
-    if (saved) {
-        Object.assign(raffles, JSON.parse(saved));
-    }
-    
-    // Проверяем страйк при каждом входе
-    checkAndUpdateStreak();
-    
-    // Проверяем розыгрыши
-    checkAndRunRaffles();
-    
-    // Добавляем кнопку истории
-    addWinnersButton();
-    
-    // Добавляем информацию о розыгрышах
-    addRaffleInfo();
-    
-    // Обновляем таймеры каждую минуту
-    setInterval(() => {
-        document.getElementById('weeklyTimer').textContent = formatTimeToRaffle(raffles.weekly.endDate);
-        document.getElementById('dailyTimer').textContent = formatTimeToRaffle(raffles.daily.endDate);
-    }, 60000);
-}
-
-// Запускаем после загрузки всех данных
-setTimeout(initRaffleSystem, 1000);
-</script>
+        setTimeout(initRaffleSystem, 1000);
+    </script>
 </body>
 </html>
