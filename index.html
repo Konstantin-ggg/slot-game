@@ -736,14 +736,11 @@
         window.buyPackage = async function(stars, coins) {
     tg.showPopup({
         title: '⭐ ПОКУПКА МОНЕТ',
-        message: `💎 Пакет: ${coins} монет за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!\n\nА пока — лови бонус: +100 монет за интерес!`,
+        message: `💎 Пакет: ${coins} монет за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!\n\nСпасибо за интерес к игре!`,
         buttons: [
-            {type: 'default', text: '🎰 Крутить дальше', id: 'close'}
+            {type: 'close', text: '🎰 Понятно'}
         ]
     });
-    // Бонус за интерес
-    balance += 100;
-    updateUI();
 };
         // =============== СИСТЕМА ЕЖЕДНЕВНОГО БОНУСА ===============
         const DAILY_BONUS = 1000;
