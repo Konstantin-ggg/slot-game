@@ -36,6 +36,103 @@ html
             border: 1px solid rgba(255,215,0,0.5);
         }
 
+        /* АДМИН-ПАНЕЛЬ (видна только админу) */
+        .admin-panel {
+            background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 2px solid #ff4444;
+            box-shadow: 0 0 20px rgba(255,68,68,0.5);
+        }
+
+        .admin-title {
+            color: #ff4444;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .admin-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .admin-section-title {
+            color: gold;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid gold;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .admin-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .admin-button {
+            background: linear-gradient(145deg, #4a90e2, #357abd);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .admin-button:hover {
+            transform: scale(1.02);
+        }
+
+        .admin-button.danger {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .admin-stat-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .admin-stat-label {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .admin-stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: gold;
+        }
+
         .balance-panel {
             background: #000000;
             border-radius: 50px;
@@ -226,7 +323,6 @@ html
             box-shadow: 0 0 0 #2a4e77;
         }
 
-        /* НОВЫЙ СТИЛЬ ДЛЯ ТАБЛИЦЫ ЛИДЕРОВ */
         .leaderboard {
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
@@ -350,6 +446,52 @@ html
 </head>
 <body>
     <div class="slot-machine">
+        <!-- АДМИН-ПАНЕЛЬ (будет видна только тебе) -->
+        <div id="adminPanel" style="display: none;">
+            <div class="admin-panel">
+                <div class="admin-title">🔐 АДМИН-ПАНЕЛЬ</div>
+                
+                <!-- Секция объявлений -->
+                <div class="admin-section">
+                    <div class="admin-section-title">📢 ОБЪЯВЛЕНИЕ</div>
+                    <input type="text" id="announcementText" class="admin-input" placeholder="Текст объявления...">
+                    <button class="admin-button" onclick="sendAnnouncement()">📨 ОТПРАВИТЬ ВСЕМ</button>
+                </div>
+                
+                <!-- Секция редактирования розыгрыша -->
+                <div class="admin-section">
+                    <div class="admin-section-title">🎁 РЕДАКТОР РОЗЫГРЫША</div>
+                    <input type="text" id="prizeInput" class="admin-input" placeholder="Приз (например: Toyota Camry)">
+                    <input type="text" id="dateInput" class="admin-input" placeholder="Дата (ГГГГ-ММ-ДДTЧЧ:ММ)">
+                    <button class="admin-button" onclick="updateEvent()">💾 СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
+                </div>
+                
+                <!-- Секция статистики -->
+                <div class="admin-section">
+                    <div class="admin-section-title">📊 СТАТИСТИКА</div>
+                    <div class="admin-stats">
+                        <div class="admin-stat-item">
+                            <div class="admin-stat-label">Игроков</div>
+                            <div class="admin-stat-value" id="statsPlayers">0</div>
+                        </div>
+                        <div class="admin-stat-item">
+                            <div class="admin-stat-label">Вращений</div>
+                            <div class="admin-stat-value" id="statsSpins">0</div>
+                        </div>
+                        <div class="admin-stat-item">
+                            <div class="admin-stat-label">Билетов</div>
+                            <div class="admin-stat-value" id="statsTickets">0</div>
+                        </div>
+                        <div class="admin-stat-item">
+                            <div class="admin-stat-label">Выигрышей</div>
+                            <div class="admin-stat-value" id="statsWins">0</div>
+                        </div>
+                    </div>
+                    <button class="admin-button danger" onclick="pickWinner()">👑 ВЫБРАТЬ ПОБЕДИТЕЛЯ</button>
+                </div>
+            </div>
+        </div>
+
         <div class="balance-panel">
             <span class="balance-label">💰 БАЛАНС</span>
             <span class="balance-value" id="balance">1000</span>
@@ -389,11 +531,9 @@ html
             <button class="btn btn-maxbet" id="maxBetBtn">⚡ MAX СТАВКА</button>
         </div>
 
-        <!-- НОВЫЙ БЛОК: ТАБЛИЦА ЛИДЕРОВ -->
         <div class="leaderboard" id="leaderboard">
             <div class="leaderboard-title">🏆 ТАБЛИЦА ЛИДЕРОВ</div>
             <div id="leaderboardList">
-                <!-- Сюда будут подгружаться игроки -->
                 <div class="leaderboard-item">
                     <span class="leaderboard-rank">1.</span>
                     <span class="leaderboard-name">Загрузка...</span>
@@ -423,12 +563,18 @@ html
         tg.ready();
         tg.expand();
 
-        // Данные игрока
-        const userId = tg.initDataUnsafe?.user?.id || 'anonymous';
+        // ⚠️ ВСТАВЬ СВОЙ TELEGRAM ID ⚠️
+        const ADMIN_ID = 123456789; // УЗНАТЬ: https://t.me/userinfobot
+        const userId = tg.initDataUnsafe?.user?.id || 0;
         const userName = tg.initDataUnsafe?.user?.first_name || 'Игрок';
-        
-        // Текущий ивент
-        const currentEvent = {
+
+        // Показываем админ-панель только админу
+        if (userId === ADMIN_ID) {
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+
+        // Данные ивента (можно менять через админку)
+        let currentEvent = {
             active: true,
             title: "РОЗЫГРЫШ АВТОМОБИЛЯ",
             description: "Каждое вращение = билет. Приз - Toyota Camry!",
@@ -437,6 +583,11 @@ html
             endDate: "2026-03-25T20:00:00",
             background: "linear-gradient(45deg, #ff6b6b, #feca57)"
         };
+
+        // Загружаем сохранённый ивент
+        if (localStorage.getItem('currentEvent')) {
+            currentEvent = JSON.parse(localStorage.getItem('currentEvent'));
+        }
 
         // Элементы интерфейса
         const eventBanner = document.getElementById('eventBanner');
@@ -447,11 +598,8 @@ html
         const ticketCounter = document.getElementById('ticketCounter');
         const leaderboardList = document.getElementById('leaderboardList');
 
-        // Настройки ивента
-        eventIcon.textContent = currentEvent.icon;
-        eventTitle.textContent = currentEvent.title;
-        eventDescription.textContent = currentEvent.description;
-        eventBanner.style.background = currentEvent.background;
+        // Применяем настройки ивента
+        updateEventDisplay();
 
         // Игровые переменные
         const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣'];
@@ -469,6 +617,10 @@ html
         let isSpinning = false;
         let tickets = parseInt(localStorage.getItem('tickets') || '0');
         
+        // Статистика
+        let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
+        let totalWins = parseInt(localStorage.getItem('totalWins') || '0');
+        
         // Хранилище лидеров
         let leaderboard = [];
 
@@ -485,7 +637,67 @@ html
         const decreaseBet = document.getElementById('decreaseBet');
         const increaseBet = document.getElementById('increaseBet');
 
-        // Загрузка лидеров из облака
+        // Обновление отображения ивента
+        function updateEventDisplay() {
+            eventIcon.textContent = currentEvent.icon;
+            eventTitle.textContent = currentEvent.title;
+            eventDescription.textContent = currentEvent.description;
+            eventBanner.style.background = currentEvent.background;
+            
+            // Заполняем поля админки
+            document.getElementById('prizeInput').value = currentEvent.prize;
+            document.getElementById('dateInput').value = currentEvent.endDate;
+        }
+
+        // Функции админки
+        window.sendAnnouncement = function() {
+            const text = document.getElementById('announcementText').value;
+            if (text) {
+                tg.showPopup({
+                    title: '📢 ОБЪЯВЛЕНИЕ',
+                    message: text,
+                    buttons: [{type: 'close', text: 'ОК'}]
+                });
+                document.getElementById('announcementText').value = '';
+            }
+        };
+
+        window.updateEvent = function() {
+            const newPrize = document.getElementById('prizeInput').value;
+            const newDate = document.getElementById('dateInput').value;
+            
+            if (newPrize) {
+                currentEvent.prize = newPrize;
+                currentEvent.title = `РОЗЫГРЫШ ${newPrize.toUpperCase()}`;
+                currentEvent.description = `Каждое вращение = билет. Приз - ${newPrize}!`;
+            }
+            
+            if (newDate) {
+                currentEvent.endDate = newDate;
+            }
+            
+            localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
+            updateEventDisplay();
+            
+            tg.showPopup({
+                title: '✅ УСПЕХ',
+                message: 'Розыгрыш обновлён!',
+                buttons: [{type: 'close'}]
+            });
+        };
+
+        window.pickWinner = function() {
+            if (leaderboard.length > 0) {
+                const winner = leaderboard[0];
+                tg.showPopup({
+                    title: '👑 ПОБЕДИТЕЛЬ',
+                    message: `${winner.name}\nБилетов: ${winner.tickets}`,
+                    buttons: [{type: 'close'}]
+                });
+            }
+        };
+
+        // Загрузка лидеров
         function loadLeaderboard() {
             if (tg.CloudStorage) {
                 tg.CloudStorage.getItem('leaderboard', (err, data) => {
@@ -497,9 +709,9 @@ html
                         }
                     }
                     renderLeaderboard();
+                    updateStats();
                 });
             } else {
-                // Демо-данные для теста
                 leaderboard = [
                     { name: 'Игрок123', tickets: 1540, id: '123' },
                     { name: 'Lucky777', tickets: 1320, id: '456' },
@@ -508,26 +720,32 @@ html
                     { name: 'Player99', tickets: 98, id: '999' }
                 ];
                 renderLeaderboard();
+                updateStats();
             }
         }
 
-        // Сохранение лидеров в облако
+        // Сохранение лидеров
         function saveLeaderboard() {
             if (tg.CloudStorage) {
                 tg.CloudStorage.setItem('leaderboard', JSON.stringify(leaderboard));
             }
         }
 
-        // Обновление позиции игрока в лидерах
+        // Обновление статистики в админке
+        function updateStats() {
+            document.getElementById('statsPlayers').textContent = leaderboard.length;
+            document.getElementById('statsSpins').textContent = totalSpins;
+            document.getElementById('statsTickets').textContent = leaderboard.reduce((sum, p) => sum + p.tickets, 0);
+            document.getElementById('statsWins').textContent = totalWins;
+        }
+
+        // Обновление позиции игрока
         function updateLeaderboard() {
-            // Ищем игрока в таблице
             const existingIndex = leaderboard.findIndex(item => item.id === userId);
             
             if (existingIndex >= 0) {
-                // Обновляем существующего
                 leaderboard[existingIndex].tickets = tickets;
             } else {
-                // Добавляем нового
                 leaderboard.push({
                     name: userName,
                     tickets: tickets,
@@ -535,17 +753,15 @@ html
                 });
             }
             
-            // Сортируем по убыванию билетов
             leaderboard.sort((a, b) => b.tickets - a.tickets);
-            
-            // Оставляем только топ-10
             leaderboard = leaderboard.slice(0, 10);
             
             saveLeaderboard();
             renderLeaderboard();
+            updateStats();
         }
 
-        // Отрисовка таблицы лидеров
+        // Отрисовка лидеров
         function renderLeaderboard() {
             let html = '';
             
@@ -565,7 +781,7 @@ html
             leaderboardList.innerHTML = html;
         }
 
-        // Таймер ивента
+        // Таймер
         function updateEventTimer() {
             const end = new Date(currentEvent.endDate).getTime();
             const now = new Date().getTime();
@@ -640,6 +856,8 @@ html
             increaseBet.disabled = true;
             
             balance -= currentBet;
+            totalSpins++;
+            localStorage.setItem('totalSpins', totalSpins);
             updateUI();
             
             winMessage.textContent = '';
@@ -664,6 +882,8 @@ html
             
             if (win > 0) {
                 balance += win;
+                totalWins++;
+                localStorage.setItem('totalWins', totalWins);
                 winMessage.textContent = `🎉 ВЫИГРЫШ: ${win} 🎉`;
                 winLine.classList.add('active');
                 addTicket();
