@@ -734,34 +734,17 @@
 
         // =============== СИСТЕМА ПОКУПКИ ЗА STARS ===============
         window.buyPackage = async function(stars, coins) {
-            try {
-                const invoiceLink = `https://t.me/$send?startapp=stars_${stars}`;
-                
-                tg.openInvoice(invoiceLink, (status) => {
-                    if (status === 'paid') {
-                        balance += coins;
-                        saveBalance();
-                        updateUI();
-                        
-                        tg.showPopup({
-                            title: '✅ УСПЕХ',
-                            message: `+${coins} монет зачислено!`,
-                            buttons: [{type: 'close', text: 'Играть!'}]
-                        });
-                        
-                        tg.HapticFeedback.notificationOccurred('success');
-                    }
-                });
-            } catch (error) {
-                console.error('Payment error:', error);
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Не удалось создать счёт. Попробуйте позже.',
-                    buttons: [{type: 'close'}]
-                });
-            }
-        };
-
+    tg.showPopup({
+        title: '⭐ ПОКУПКА МОНЕТ',
+        message: `💎 Пакет: ${coins} монет за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!\n\nА пока — лови бонус: +100 монет за интерес!`,
+        buttons: [
+            {type: 'default', text: '🎰 Крутить дальше', id: 'close'}
+        ]
+    });
+    // Бонус за интерес
+    balance += 100;
+    updateUI();
+};
         // =============== СИСТЕМА ЕЖЕДНЕВНОГО БОНУСА ===============
         const DAILY_BONUS = 1000;
         
