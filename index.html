@@ -1031,7 +1031,30 @@ function saveLeaderboard() {
     localStorage.setItem('globalLeaderboard', JSON.stringify(leaderboard));
     localStorage.setItem('leaderboardUpdated', Date.now().toString());
     console.log('Таблица сохранена в localStorage');
-            }
+
+        function updatePlayerInLeaderboard() {
+    console.log('Обновляем игрока в таблице, текущие билеты:', tickets);
+    
+    const existingIndex = leaderboard.findIndex(item => item.id === userId);
+    
+    if (existingIndex >= 0) {
+        leaderboard[existingIndex].tickets = tickets;
+        leaderboard[existingIndex].name = userName;
+        leaderboard[existingIndex].username = userUsername;
+        console.log('Игрок обновлён, билетов теперь:', leaderboard[existingIndex].tickets);
+    } else {
+        leaderboard.push({
+            name: userName,
+            tickets: tickets,
+            id: userId,
+            username: userUsername
+        });
+        console.log('Новый игрок добавлен, билетов:', tickets);
+    }
+    
+    leaderboard.sort((a, b) => b.tickets - a.tickets);
+    leaderboard = leaderboard.slice(0, 50);
+}
         
         window.addEventListener('storage', (event) => {
             if (event.key === 'leaderboardUpdated') {
