@@ -652,52 +652,64 @@ html
         }
 
         // Функции админки
-        window.sendAnnouncement = function() {
-            const text = document.getElementById('announcementText').value;
-            if (text) {
-                tg.showPopup({
-                    title: '📢 ОБЪЯВЛЕНИЕ',
-                    message: text,
-                    buttons: [{type: 'close', text: 'ОК'}]
-                });
-                document.getElementById('announcementText').value = '';
-            }
-        };
+window.sendAnnouncement = function() {
+    const text = document.getElementById('announcementText').value;
+    if (text) {
+        tg.showPopup({
+            title: '📢 ОБЪЯВЛЕНИЕ',
+            message: text,
+            buttons: [{type: 'close', text: 'ОК'}]
+        });
+        document.getElementById('announcementText').value = '';
+    } else {
+        tg.showPopup({
+            title: '❌ Ошибка',
+            message: 'Введите текст объявления',
+            buttons: [{type: 'close'}]
+        });
+    }
+};
 
-        window.updateEvent = function() {
-            const newPrize = document.getElementById('prizeInput').value;
-            const newDate = document.getElementById('dateInput').value;
-            
-            if (newPrize) {
-                currentEvent.prize = newPrize;
-                currentEvent.title = `РОЗЫГРЫШ ${newPrize.toUpperCase()}`;
-                currentEvent.description = `Каждое вращение = билет. Приз - ${newPrize}!`;
-            }
-            
-            if (newDate) {
-                currentEvent.endDate = newDate;
-            }
-            
-            localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
-            updateEventDisplay();
-            
-            tg.showPopup({
-                title: '✅ УСПЕХ',
-                message: 'Розыгрыш обновлён!',
-                buttons: [{type: 'close'}]
-            });
-        };
+window.updateEvent = function() {
+    const newPrize = document.getElementById('prizeInput').value;
+    const newDate = document.getElementById('dateInput').value;
+    
+    if (newPrize) {
+        currentEvent.prize = newPrize;
+        currentEvent.title = `РОЗЫГРЫШ ${newPrize.toUpperCase()}`;
+        currentEvent.description = `Каждое вращение = билет. Приз - ${newPrize}!`;
+    }
+    
+    if (newDate) {
+        currentEvent.endDate = newDate;
+    }
+    
+    localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
+    updateEventDisplay();
+    
+    tg.showPopup({
+        title: '✅ УСПЕХ',
+        message: 'Розыгрыш обновлён!',
+        buttons: [{type: 'close'}]
+    });
+};
 
-        window.pickWinner = function() {
-            if (leaderboard.length > 0) {
-                const winner = leaderboard[0];
-                tg.showPopup({
-                    title: '👑 ПОБЕДИТЕЛЬ',
-                    message: `${winner.name}\nБилетов: ${winner.tickets}`,
-                    buttons: [{type: 'close'}]
-                });
-            }
-        };
+window.pickWinner = function() {
+    if (leaderboard && leaderboard.length > 0) {
+        const winner = leaderboard[0];
+        tg.showPopup({
+            title: '👑 ПОБЕДИТЕЛЬ',
+            message: `${winner.name}\nБилетов: ${winner.tickets}`,
+            buttons: [{type: 'close'}]
+        });
+    } else {
+        tg.showPopup({
+            title: '❌ Ошибка',
+            message: 'Нет данных о победителе',
+            buttons: [{type: 'close'}]
+        });
+    }
+};
 
         // Загрузка лидеров
         function loadLeaderboard() {
