@@ -992,60 +992,45 @@
         const increaseBet = document.getElementById('increaseBet');
 
         function loadLeaderboard() {
-            if (tg.CloudStorage) {
-                tg.CloudStorage.getItem('globalLeaderboard', (err, data) => {
-                    if (data) {
-                        try {
-                            leaderboard = JSON.parse(data);
-                        } catch (e) {
-                            leaderboard = [];
-                        }
-                    } else {
-                        leaderboard = [];
-                    }
-                    
-                    updatePlayerInLeaderboard();
-                    renderLeaderboard();
-                    updateStats();
-                });
-            } else {
-                 console.log('CloudStorage недоступен, используем локальные данные');
-                leaderboard = [
-                    { name: 'Игрок123', tickets: 1540, id: '123' },
-                    { name: 'Lucky777', tickets: 1320, id: '456' },
-                    { name: 'SlotMaster', tickets: 980, id: '789' },
-                    { name: userName, tickets: tickets, id: userId, username: userUsername },
-                    { name: 'Player99', tickets: 98, id: '999' }
-                ];
-                renderLeaderboard();
-                updateStats();
-            }
+    console.log('Загружаем таблицу лидеров...');
+    
+    // Пробуем загрузить из localStorage (для этого игрока)
+    const saved = localStorage.getItem('globalLeaderboard');
+    
+    if (saved) {
+        try {
+            leaderboard = JSON.parse(saved);
+            console.log('Загружено из localStorage, игроков:', leaderboard.length);
+        } catch (e) {
+            console.log('Ошибка парсинга localStorage');
+            leaderboard = [];
         }
+    } else {
+        console.log('Нет данных в localStorage');
+        leaderboard = [];
+    }
+    
+    // Добавляем текущего игрока
+    updatePlayerInLeaderboard();
+    renderLeaderboard();
+    updateStats();
+    
+    // Отправляем сигнал другим игрокам (через localStorage)
+    localStorage.setItem('leaderboardUpdated', Date.now().toString());
+}
 
-        function updatePlayerInLeaderboard() {
-            const existingIndex = leaderboard.findIndex(item => item.id === userId);
-            
-            if (existingIndex >= 0) {
-                leaderboard[existingIndex].tickets = tickets;
-                leaderboard[existingIndex].name = userName;
-                leaderboard[existingIndex].username = userUsername;
-            } else {
-                leaderboard.push({
-                    name: userName,
-                    tickets: tickets,
-                    id: userId,
-                    username: userUsername
-                });
-            }
-            
-            leaderboard.sort((a, b) => b.tickets - a.tickets);
-            leaderboard = leaderboard.slice(0, 50);
-        }
+// Слушаем изменения от других игроков
+window.addEventListener('storage', (event) => {
+    if (event.key === 'globalLeaderboard') {
+        console.log('Таблица обновлена другим игроком, перезагружаем...');
+        loadLeaderboard();
+    }
+});
 
-        function saveLeaderboard() {
-            if (tg.CloudStorage) {
-                tg.CloudStorage.setItem('globalLeaderboard', JSON.stringify(leaderboard));
-                localStorage.setItem('leaderboardUpdated', Date.now().toString());
+function saveLeaderboard() {
+    localStorage.setItem('globalLeaderboard', JSON.stringify(leaderboard));
+    localStorage.setItem('leaderboardUpdated', Date.now().toString());
+    console.log('Таблица сохранена в localStorage');
             }
         }
 
