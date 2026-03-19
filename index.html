@@ -4,7 +4,7 @@ html
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Однорукий бандит - Розыгрыши</title>
+    <title>Однорукий бандит</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -66,7 +66,6 @@ html
             border-radius: 40px;
         }
 
-        /* БАННЕР РОЗЫГРЫША - УМЕНЬШЕННЫЙ */
         .event-banner {
             background: linear-gradient(45deg, #ff6b6b, #feca57);
             border-radius: 16px;
@@ -151,11 +150,6 @@ html
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-        }
-
-        /* УБРАЛ АНИМАЦИЮ - фрукты не прыгают */
-        .reel.spinning {
-            /* Пусто - нет анимации */
         }
 
         .reel::after {
@@ -312,7 +306,6 @@ html
             <span class="balance-value" id="balance">1000</span>
         </div>
 
-        <!-- БАННЕР РОЗЫГРЫША - УМЕНЬШЕННЫЙ -->
         <div class="event-banner" id="eventBanner">
             <div class="event-icon" id="eventIcon">🏆🚗</div>
             <div class="event-title" id="eventTitle">РОЗЫГРЫШ АВТОМОБИЛЯ</div>
@@ -352,10 +345,10 @@ html
             <div class="paytable-grid">
                 <div class="paytable-item">🍒 x2</div>
                 <div class="paytable-item">🍋 x3</div>
-                <div class="paytable-item">🍊 x4</div>
-                <div class="paytable-item">🍇 x5</div>
-                <div class="paytable-item">💎 x10</div>
-                <div class="paytable-item">7️⃣ x20</div>
+                <div class="paytable-item">🍊 x3</div>
+                <div class="paytable-item">🍇 x4</div>
+                <div class="paytable-item">💎 x5</div>
+                <div class="paytable-item">7️⃣ x8</div>
             </div>
             <div style="text-align: center; margin-top: 8px; font-size: 12px; opacity: 0.7;">
                 2 одинаковых = возврат ставки
@@ -368,19 +361,16 @@ html
         tg.ready();
         tg.expand();
 
-        // =============== СИСТЕМА ИВЕНТОВ ===============
-        // ЭТО ВЫ БУДЕТЕ МЕНЯТЬ КАЖДУЮ НЕДЕЛЮ
         const currentEvent = {
             active: true,
             title: "РОЗЫГРЫШ АВТОМОБИЛЯ",
             description: "Каждое вращение = билет. Приз - Toyota Camry!",
             prize: "Toyota Camry 2026",
             icon: "🏆🚗",
-            endDate: "2026-03-25T20:00:00", // ДАТА ОКОНЧАНИЯ (МЕНЯТЬ КАЖДУЮ НЕДЕЛЮ)
+            endDate: "2026-03-25T20:00:00",
             background: "linear-gradient(45deg, #ff6b6b, #feca57)"
         };
 
-        // Элементы ивента
         const eventBanner = document.getElementById('eventBanner');
         const eventIcon = document.getElementById('eventIcon');
         const eventTitle = document.getElementById('eventTitle');
@@ -388,21 +378,19 @@ html
         const eventTimer = document.getElementById('eventTimer');
         const ticketCounter = document.getElementById('ticketCounter');
 
-        // Применяем настройки ивента
         eventIcon.textContent = currentEvent.icon;
         eventTitle.textContent = currentEvent.title;
         eventDescription.textContent = currentEvent.description;
         eventBanner.style.background = currentEvent.background;
 
-        // =============== ИГРОВЫЕ ПЕРЕМЕННЫЕ ===============
         const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣'];
         const MULTIPLIERS = {
             '🍒': 2,
             '🍋': 3,
-            '🍊': 4,
-            '🍇': 5,
-            '💎': 10,
-            '7️⃣': 20
+            '🍊': 3,
+            '🍇': 4,
+            '💎': 5,
+            '7️⃣': 8
         };
 
         let balance = 1000;
@@ -410,7 +398,6 @@ html
         let isSpinning = false;
         let tickets = parseInt(localStorage.getItem('tickets') || '0');
 
-        // Элементы интерфейса
         const balanceEl = document.getElementById('balance');
         const reel1 = document.getElementById('reel1');
         const reel2 = document.getElementById('reel2');
@@ -423,10 +410,8 @@ html
         const decreaseBet = document.getElementById('decreaseBet');
         const increaseBet = document.getElementById('increaseBet');
 
-        // Обновляем счетчик билетов
         ticketCounter.textContent = `🎫 Билеты: ${tickets}`;
 
-        // =============== ТАЙМЕР ИВЕНТА ===============
         function updateEventTimer() {
             const end = new Date(currentEvent.endDate).getTime();
             const now = new Date().getTime();
@@ -447,11 +432,9 @@ html
             eventTimer.textContent = `${days}д ${hours}ч ${minutes}м ${seconds}с`;
         }
 
-        // Обновляем каждую секунду
         updateEventTimer();
         setInterval(updateEventTimer, 1000);
 
-        // =============== КЛИК ПО БАННЕРУ ===============
         eventBanner.addEventListener('click', function() {
             tg.showPopup({
                 title: currentEvent.title,
@@ -460,7 +443,6 @@ html
             });
         });
 
-        // =============== ФУНКЦИИ ИГРЫ ===============
         function updateUI() {
             balanceEl.textContent = balance;
             betValue.textContent = currentBet;
@@ -506,7 +488,6 @@ html
             winMessage.textContent = '';
             winLine.classList.remove('active');
 
-            // Просто меняем символы без анимации
             const spinDuration = 500;
             const startTime = Date.now();
             
@@ -528,16 +509,12 @@ html
                 balance += win;
                 winMessage.textContent = `🎉 ВЫИГРЫШ: ${win} 🎉`;
                 winLine.classList.add('active');
-                
-                // За победу даем дополнительный билет
                 addTicket();
             } else {
                 winMessage.textContent = '😢 Попробуй еще!';
             }
 
-            // За каждое вращение даем билет
             addTicket();
-
             updateUI();
 
             isSpinning = false;
@@ -547,7 +524,6 @@ html
             increaseBet.disabled = false;
         }
 
-        // =============== ОБРАБОТЧИКИ ===============
         spinBtn.addEventListener('click', spin);
 
         maxBetBtn.addEventListener('click', () => {
@@ -569,7 +545,6 @@ html
             }
         });
 
-        // Инициализация
         updateUI();
     </script>
 </body>
