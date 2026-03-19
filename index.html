@@ -36,7 +36,7 @@ html
             border: 1px solid rgba(255,215,0,0.5);
         }
 
-        /* АДМИН-ПАНЕЛЬ (видна только админу) */
+        /* АДМИН-ПАНЕЛЬ */
         .admin-panel {
             background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
             border-radius: 20px;
@@ -133,36 +133,7 @@ html
             color: gold;
         }
 
-        .balance-panel {
-            background: #000000;
-            border-radius: 50px;
-            padding: 12px 20px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 2px solid gold;
-            box-shadow: 0 0 10px gold;
-        }
-
-        .balance-label {
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .balance-value {
-            font-size: 26px;
-            font-weight: bold;
-            color: gold;
-            text-shadow: 0 0 10px orange;
-            background: rgba(0,0,0,0.5);
-            padding: 2px 12px;
-            border-radius: 40px;
-        }
-
+        /* БАННЕР */
         .event-banner {
             background: linear-gradient(45deg, #ff6b6b, #feca57);
             border-radius: 16px;
@@ -219,6 +190,7 @@ html
             display: inline-block;
         }
 
+        /* БАРАБАНЫ */
         .reels-container {
             background: #000;
             border-radius: 24px;
@@ -275,6 +247,47 @@ html
             box-shadow: 0 0 20px gold;
         }
 
+        /* БАЛАНС (ТЕПЕРЬ ПОД БАРАБАНАМИ) */
+        .balance-panel {
+            background: #000000;
+            border-radius: 50px;
+            padding: 12px 20px;
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid gold;
+            box-shadow: 0 0 10px gold;
+        }
+
+        .balance-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .balance-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: gold;
+            text-shadow: 0 0 10px orange;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 12px;
+            border-radius: 40px;
+        }
+
+        .win-message {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 16px 0;
+            min-height: 40px;
+            color: gold;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
         .controls {
             display: flex;
             gap: 12px;
@@ -321,6 +334,39 @@ html
         .btn-maxbet:active {
             transform: translateY(8px);
             box-shadow: 0 0 0 #2a4e77;
+        }
+
+        .bet-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .bet-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: gold;
+            color: #1a1a2e;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bet-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .bet-value {
+            font-size: 20px;
+            font-weight: bold;
+            min-width: 60px;
+            text-align: center;
+            color: gold;
         }
 
         .leaderboard {
@@ -399,74 +445,31 @@ html
             padding: 8px;
             border-radius: 12px;
         }
-
-        .win-message {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin: 16px 0;
-            min-height: 40px;
-            color: gold;
-            text-shadow: 0 0 10px rgba(255,215,0,0.5);
-        }
-
-        .bet-control {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin: 16px 0;
-        }
-
-        .bet-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            background: gold;
-            color: #1a1a2e;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .bet-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .bet-value {
-            font-size: 20px;
-            font-weight: bold;
-            min-width: 60px;
-            text-align: center;
-            color: gold;
-        }
     </style>
 </head>
 <body>
     <div class="slot-machine">
-        <!-- АДМИН-ПАНЕЛЬ (будет видна только тебе) -->
+        <!-- АДМИН-ПАНЕЛЬ (скрыта для обычных игроков) -->
         <div id="adminPanel" style="display: none;">
             <div class="admin-panel">
                 <div class="admin-title">🔐 АДМИН-ПАНЕЛЬ</div>
                 
-                <!-- Секция объявлений -->
+                <!-- Объявления -->
                 <div class="admin-section">
                     <div class="admin-section-title">📢 ОБЪЯВЛЕНИЕ</div>
                     <input type="text" id="announcementText" class="admin-input" placeholder="Текст объявления...">
-                    <button class="admin-button" onclick="sendAnnouncement()">📨 ОТПРАВИТЬ ВСЕМ</button>
+                    <button class="admin-button" onclick="window.sendAnnouncement()">📨 ОТПРАВИТЬ ВСЕМ</button>
                 </div>
                 
-                <!-- Секция редактирования розыгрыша -->
+                <!-- Редактор розыгрыша -->
                 <div class="admin-section">
                     <div class="admin-section-title">🎁 РЕДАКТОР РОЗЫГРЫША</div>
-                    <input type="text" id="prizeInput" class="admin-input" placeholder="Приз (например: Toyota Camry)">
+                    <input type="text" id="prizeInput" class="admin-input" placeholder="Приз">
                     <input type="text" id="dateInput" class="admin-input" placeholder="Дата (ГГГГ-ММ-ДДTЧЧ:ММ)">
-                    <button class="admin-button" onclick="updateEvent()">💾 СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
+                    <button class="admin-button" onclick="window.updateEvent()">💾 СОХРАНИТЬ</button>
                 </div>
                 
-                <!-- Секция статистики -->
+                <!-- Статистика -->
                 <div class="admin-section">
                     <div class="admin-section-title">📊 СТАТИСТИКА</div>
                     <div class="admin-stats">
@@ -487,52 +490,57 @@ html
                             <div class="admin-stat-value" id="statsWins">0</div>
                         </div>
                     </div>
-                    <button class="admin-button danger" onclick="pickWinner()">👑 ВЫБРАТЬ ПОБЕДИТЕЛЯ</button>
+                    <button class="admin-button danger" onclick="window.pickWinner()">👑 ВЫБРАТЬ ПОБЕДИТЕЛЯ</button>
                 </div>
             </div>
         </div>
 
-       <div class="event-banner" id="eventBanner">
-    <div class="event-icon" id="eventIcon">🏆🚗</div>
-    <div class="event-title" id="eventTitle">РОЗЫГРЫШ АВТОМОБИЛЯ</div>
-    <div class="event-description" id="eventDescription">
-        Каждое вращение = билет. Приз - Toyota Camry!
-    </div>
-    <div class="event-timer" id="eventTimer">6д 23:59:59</div>
-    <div class="ticket-counter" id="ticketCounter">
-        🎫 Билеты: 0
-    </div>
-</div>
+        <!-- БАННЕР РОЗЫГРЫША (САМЫЙ ВЕРХ) -->
+        <div class="event-banner" id="eventBanner">
+            <div class="event-icon" id="eventIcon">🏆🚗</div>
+            <div class="event-title" id="eventTitle">РОЗЫГРЫШ АВТОМОБИЛЯ</div>
+            <div class="event-description" id="eventDescription">
+                Каждое вращение = билет. Приз - Toyota Camry!
+            </div>
+            <div class="event-timer" id="eventTimer">6д 23:59:59</div>
+            <div class="ticket-counter" id="ticketCounter">
+                🎫 Билеты: 0
+            </div>
+        </div>
 
-<!-- БАЛАНС -->
-<div class="balance-panel">
-    <span class="balance-label">💰 БАЛАНС</span>
-    <span class="balance-value" id="balance">1000</span>
-</div>
+        <!-- БАРАБАНЫ -->
+        <div class="reels-container">
+            <div class="reels" id="reels">
+                <div class="reel" id="reel1">🍒</div>
+                <div class="reel" id="reel2">🍒</div>
+                <div class="reel" id="reel3">🍒</div>
+            </div>
+            <div class="win-line" id="winLine"></div>
+        </div>
 
-<!-- БАРАБАНЫ -->
-<div class="reels-container">
-    <div class="reels" id="reels">
-        <div class="reel" id="reel1">🍒</div>
-        <div class="reel" id="reel2">🍒</div>
-        <div class="reel" id="reel3">🍒</div>
-    </div>
-    <div class="win-line" id="winLine"></div>
-</div>
+        <!-- БАЛАНС (ТЕПЕРЬ ПОД БАРАБАНАМИ) -->
+        <div class="balance-panel">
+            <span class="balance-label">💰 БАЛАНС</span>
+            <span class="balance-value" id="balance">1000</span>
+        </div>
 
+        <!-- СООБЩЕНИЕ О ВЫИГРЫШЕ -->
         <div class="win-message" id="winMessage"></div>
 
+        <!-- УПРАВЛЕНИЕ СТАВКОЙ -->
         <div class="bet-control">
             <button class="bet-btn" id="decreaseBet">-</button>
             <span class="bet-value" id="betValue">10</span>
             <button class="bet-btn" id="increaseBet">+</button>
         </div>
 
+        <!-- КНОПКИ ДЕЙСТВИЙ -->
         <div class="controls">
             <button class="btn btn-spin" id="spinBtn">🎰 КРУТИТЬ</button>
             <button class="btn btn-maxbet" id="maxBetBtn">⚡ MAX СТАВКА</button>
         </div>
 
+        <!-- ТАБЛИЦА ЛИДЕРОВ -->
         <div class="leaderboard" id="leaderboard">
             <div class="leaderboard-title">🏆 ТАБЛИЦА ЛИДЕРОВ</div>
             <div id="leaderboardList">
@@ -544,6 +552,7 @@ html
             </div>
         </div>
 
+        <!-- ТАБЛИЦА ВЫПЛАТ -->
         <div class="paytable">
             <div class="paytable-title">🎰 ТАБЛИЦА ВЫПЛАТ 🎰</div>
             <div class="paytable-grid">
@@ -575,7 +584,7 @@ html
             document.getElementById('adminPanel').style.display = 'block';
         }
 
-        // Данные ивента (можно менять через админку)
+        // Данные ивента
         let currentEvent = {
             active: true,
             title: "РОЗЫГРЫШ АВТОМОБИЛЯ",
@@ -601,7 +610,76 @@ html
         const leaderboardList = document.getElementById('leaderboardList');
 
         // Применяем настройки ивента
-        updateEventDisplay();
+        function updateEventDisplay() {
+            eventIcon.textContent = currentEvent.icon;
+            eventTitle.textContent = currentEvent.title;
+            eventDescription.textContent = currentEvent.description;
+            eventBanner.style.background = currentEvent.background;
+            
+            // Заполняем поля админки
+            document.getElementById('prizeInput').value = currentEvent.prize;
+            document.getElementById('dateInput').value = currentEvent.endDate;
+        }
+
+        // Функции админки
+        window.sendAnnouncement = function() {
+            const text = document.getElementById('announcementText').value;
+            if (text) {
+                tg.showPopup({
+                    title: '📢 ОБЪЯВЛЕНИЕ',
+                    message: text,
+                    buttons: [{type: 'close', text: 'ОК'}]
+                });
+                document.getElementById('announcementText').value = '';
+            } else {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Введите текст объявления',
+                    buttons: [{type: 'close'}]
+                });
+            }
+        };
+
+        window.updateEvent = function() {
+            const newPrize = document.getElementById('prizeInput').value;
+            const newDate = document.getElementById('dateInput').value;
+            
+            if (newPrize) {
+                currentEvent.prize = newPrize;
+                currentEvent.title = `РОЗЫГРЫШ ${newPrize.toUpperCase()}`;
+                currentEvent.description = `Каждое вращение = билет. Приз - ${newPrize}!`;
+            }
+            
+            if (newDate) {
+                currentEvent.endDate = newDate;
+            }
+            
+            localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
+            updateEventDisplay();
+            
+            tg.showPopup({
+                title: '✅ УСПЕХ',
+                message: 'Розыгрыш обновлён!',
+                buttons: [{type: 'close'}]
+            });
+        };
+
+        window.pickWinner = function() {
+            if (leaderboard && leaderboard.length > 0) {
+                const winner = leaderboard[0];
+                tg.showPopup({
+                    title: '👑 ПОБЕДИТЕЛЬ',
+                    message: `${winner.name}\nБилетов: ${winner.tickets}`,
+                    buttons: [{type: 'close'}]
+                });
+            } else {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Нет данных о победителе',
+                    buttons: [{type: 'close'}]
+                });
+            }
+        };
 
         // Игровые переменные
         const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣'];
@@ -639,78 +717,6 @@ html
         const decreaseBet = document.getElementById('decreaseBet');
         const increaseBet = document.getElementById('increaseBet');
 
-        // Обновление отображения ивента
-        function updateEventDisplay() {
-            eventIcon.textContent = currentEvent.icon;
-            eventTitle.textContent = currentEvent.title;
-            eventDescription.textContent = currentEvent.description;
-            eventBanner.style.background = currentEvent.background;
-            
-            // Заполняем поля админки
-            document.getElementById('prizeInput').value = currentEvent.prize;
-            document.getElementById('dateInput').value = currentEvent.endDate;
-        }
-
-        // Функции админки
-window.sendAnnouncement = function() {
-    const text = document.getElementById('announcementText').value;
-    if (text) {
-        tg.showPopup({
-            title: '📢 ОБЪЯВЛЕНИЕ',
-            message: text,
-            buttons: [{type: 'close', text: 'ОК'}]
-        });
-        document.getElementById('announcementText').value = '';
-    } else {
-        tg.showPopup({
-            title: '❌ Ошибка',
-            message: 'Введите текст объявления',
-            buttons: [{type: 'close'}]
-        });
-    }
-};
-
-window.updateEvent = function() {
-    const newPrize = document.getElementById('prizeInput').value;
-    const newDate = document.getElementById('dateInput').value;
-    
-    if (newPrize) {
-        currentEvent.prize = newPrize;
-        currentEvent.title = `РОЗЫГРЫШ ${newPrize.toUpperCase()}`;
-        currentEvent.description = `Каждое вращение = билет. Приз - ${newPrize}!`;
-    }
-    
-    if (newDate) {
-        currentEvent.endDate = newDate;
-    }
-    
-    localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
-    updateEventDisplay();
-    
-    tg.showPopup({
-        title: '✅ УСПЕХ',
-        message: 'Розыгрыш обновлён!',
-        buttons: [{type: 'close'}]
-    });
-};
-
-window.pickWinner = function() {
-    if (leaderboard && leaderboard.length > 0) {
-        const winner = leaderboard[0];
-        tg.showPopup({
-            title: '👑 ПОБЕДИТЕЛЬ',
-            message: `${winner.name}\nБилетов: ${winner.tickets}`,
-            buttons: [{type: 'close'}]
-        });
-    } else {
-        tg.showPopup({
-            title: '❌ Ошибка',
-            message: 'Нет данных о победителе',
-            buttons: [{type: 'close'}]
-        });
-    }
-};
-
         // Загрузка лидеров
         function loadLeaderboard() {
             if (tg.CloudStorage) {
@@ -721,11 +727,21 @@ window.pickWinner = function() {
                         } catch (e) {
                             leaderboard = [];
                         }
+                    } else {
+                        // Если данных нет, создаём демо-лидерборд
+                        leaderboard = [
+                            { name: 'Игрок123', tickets: 1540, id: '123' },
+                            { name: 'Lucky777', tickets: 1320, id: '456' },
+                            { name: 'SlotMaster', tickets: 980, id: '789' },
+                            { name: userName, tickets: tickets, id: userId },
+                            { name: 'Player99', tickets: 98, id: '999' }
+                        ];
                     }
                     renderLeaderboard();
                     updateStats();
                 });
             } else {
+                // Если CloudStorage недоступен, используем демо-данные
                 leaderboard = [
                     { name: 'Игрок123', tickets: 1540, id: '123' },
                     { name: 'Lucky777', tickets: 1320, id: '456' },
@@ -917,7 +933,6 @@ window.pickWinner = function() {
 
         // Обработчики
         spinBtn.addEventListener('click', spin);
-
         maxBetBtn.addEventListener('click', () => {
             currentBet = Math.min(100, balance);
             updateUI();
@@ -937,7 +952,8 @@ window.pickWinner = function() {
             }
         });
 
-        // Загрузка данных
+        // Инициализация
+        updateEventDisplay();
         loadLeaderboard();
         updateUI();
     </script>
