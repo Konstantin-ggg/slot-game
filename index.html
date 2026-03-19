@@ -1032,8 +1032,7 @@ function saveLeaderboard() {
     localStorage.setItem('leaderboardUpdated', Date.now().toString());
     console.log('Таблица сохранена в localStorage');
             }
-        }
-
+        
         window.addEventListener('storage', (event) => {
             if (event.key === 'leaderboardUpdated') {
                 loadLeaderboard();
