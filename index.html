@@ -848,9 +848,6 @@
         
         <!-- ИНДИКАТОРЫ СТРАНИЦ (4 точки) -->
         <div class="dots" id="dots"></div>
-        
-        <!-- ТАБЛИЦА ВЫПЛАТ (дублируется на главной, но оставим для обратной совместимости) -->
-        <!-- Скрыта, так как уже есть на главной странице -->
     </div>
 
     <script>
@@ -1193,11 +1190,15 @@
             });
         }
 
-        // =============== РЕФЕРАЛЬНАЯ СИСТЕМА ===============
-        function updateReferralCount() {
-            const referrals = JSON.parse(localStorage.getItem('referral_data') || '[]');
-            const count = referrals.filter(r => r.referrer == userId).length;
-            referralCount.textContent = count;
+        // =============== РЕФЕРАЛЬНАЯ СИСТЕМА (через сервер) ===============
+        async function updateReferralCount() {
+            try {
+                const res = await fetch(`${SERVER_URL}/api/referral_count/${userId}`);
+                const data = await res.json();
+                referralCount.textContent = data.count;
+            } catch (e) {
+                console.error('Ошибка загрузки рефералов:', e);
+            }
         }
 
         function showReferralLink() {
@@ -1220,22 +1221,27 @@
             });
         }
 
-        function checkReferral(startParam) {
+        async function checkReferral(startParam) {
             if (startParam && startParam.startsWith('ref_')) {
                 const referrerId = startParam.replace('ref_', '');
-                if (referrerId !== userId && !localStorage.getItem('referred')) {
-                    balance += 200;
-                    localStorage.setItem('referred', 'true');
-                    const data = JSON.parse(localStorage.getItem('referral_data') || '[]');
-                    data.push({ referrer: referrerId, referred: userId, date: new Date().toISOString() });
-                    localStorage.setItem('referral_data', JSON.stringify(data));
-                    updateReferralCount();
-                    updateUI();
-                    tg.showPopup({
-                        title: '🎁 БОНУС',
-                        message: '+200 монет за переход по ссылке!',
-                        buttons: [{type: 'close'}]
-                    });
+                if (referrerId !== userId) {
+                    try {
+                        const res = await fetch(`${SERVER_URL}/api/referral?referrer_id=${referrerId}&referred_id=${userId}`, { method: 'POST' });
+                        const data = await res.json();
+                        if (data.status === 'ok') {
+                            await loadUserData();
+                            updateReferralCount();
+                            tg.showPopup({
+                                title: '🎁 БОНУС',
+                                message: '+200 монет за переход по ссылке!',
+                                buttons: [{type: 'close'}]
+                            });
+                        } else if (data.status === 'already_exists') {
+                            console.log('Реферал уже зарегистрирован');
+                        }
+                    } catch (e) {
+                        console.error('Ошибка регистрации реферала:', e);
+                    }
                 }
             }
         }
@@ -1317,7 +1323,7 @@
             });
         };
 
-        // =============== АДМИН-ФУНКЦИИ (заглушки для админки) ===============
+        // =============== АДМИН-ФУНКЦИИ (заглушки) ===============
         window.sendAnnouncement = function() {
             const text = document.getElementById('announcementText').value;
             if (text) {
@@ -1418,9 +1424,6 @@
         loadUserData();
         loadLeaderboards();
         setInterval(loadLeaderboards, 30000);
-        
-        // Ежедневный бонус проверяется на сервере, кнопка вызывает claimDailyBonus
-        // Дополнительная проверка страйков будет на сервере
     </script>
 </body>
 </html>
