@@ -247,13 +247,16 @@
             margin: 12px 0;
             border: 2px solid #4CAF50;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             cursor: pointer;
         }
 
-        .referral-text { font-size: 14px; color: #4CAF50; }
-        .referral-count { background: #4CAF50; color: #1a1a2e; padding: 4px 12px; border-radius: 50px; font-weight: bold; }
+        .referral-text {
+            font-size: 14px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
 
         .reels-container {
             background: #000;
@@ -658,7 +661,7 @@
                     <div class="rules-content">
                         <h2>📜 ПРАВИЛА ИГРЫ</h2>
                         <div class="rules-text">
-                            <p><strong>🎰 Слот:</strong> 3 барабана, 20 символов. Выигрышные комбинации:</p>
+                            <p><strong>🎰 Слот:</strong> 3 барабана, 7 символов с равной вероятностью. Выигрышные комбинации:</p>
                             <div class="rules-paytable">
                                 <div>🍒🍒🍒 → x2</div>
                                 <div>🍋🍋🍋 → x3</div>
@@ -669,10 +672,11 @@
                                 <div>2 одинаковых → возврат ставки</div>
                                 <div>🎫🎫🎫 → 15 VIP-билетов (через рекламу)</div>
                             </div>
-                            <p><strong>🎫 VIP-БИЛЕТЫ:</strong> Получаются за выпадение 🎫🎫🎫 + просмотр рекламы. Участвуют в VIP-турнире.</p>
-                            <p><strong>📺 РЕКЛАМА:</strong> При нехватке монет → +200 монет (5 раз/день). При 🎫🎫🎫 → 15 VIP-билетов.</p>
+                            <p><strong>🎫 VIP-БИЛЕТЫ:</strong> Получаются за выпадение 🎫🎫🎫 + просмотр рекламы. Участвуют в VIP-турнире. Также 1 VIP-билет даётся за приглашённого друга (вместе с 500 монетами).</p>
+                            <p><strong>📺 РЕКЛАМА:</strong> При нехватке монет → +200 монет (5 раз/день).</p>
                             <p><strong>🎁 БОНУСЫ:</strong> 1000 монет каждый день. За 7 дней подряд +500 монет + 1 VIP-билет. За 30 дней +2000 монет + 5 VIP-билетов.</p>
                             <p><strong>🏆 ТУРНИРЫ:</strong> Недельный (500 Stars, 50 участников). VIP-турнир (2500 Stars, 100 участников, вход 5 VIP-билетов).</p>
+                            <p><strong>👥 РЕФЕРАЛЬНАЯ ПРОГРАММА:</strong> За каждого приглашённого друга → +500 монет и +1 VIP-билет.</p>
                         </div>
                     </div>
                 </div>
@@ -689,10 +693,9 @@
                             <div class="ticket-counter" id="ticketCounter">🎫 Билеты: 0</div>
                         </div>
 
-                        <!-- РЕФЕРАЛЬНЫЙ БЛОК -->
+                        <!-- РЕФЕРАЛЬНЫЙ БЛОК (без счётчика) -->
                         <div class="referral-panel" onclick="showReferralLink()">
-                            <span class="referral-text">👥 Пригласить друга</span>
-                            <span class="referral-count" id="referralCount">0</span>
+                            <span class="referral-text">👥 ПРИГЛАСИТЬ ДРУГА → +500 монет и +1 VIP-билет</span>
                         </div>
 
                         <!-- БАРАБАНЫ -->
@@ -878,16 +881,8 @@
         let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
         let totalWins = parseInt(localStorage.getItem('totalWins') || '0');
 
-        // Символы с вероятностями (20 штук)
-        const SYMBOLS = [
-            '🍒', '🍒', '🍒', '🍒', '🍒',
-            '🍋', '🍋', '🍋', '🍋',
-            '🍊', '🍊', '🍊', '🍊',
-            '🍇', '🍇', '🍇',
-            '💎', '💎',
-            '7️⃣',
-            '🎫'
-        ];
+        // 7 символов с равной вероятностью
+        const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣', '🎫'];
         
         const MULTIPLIERS = {
             '🍒': 2,
@@ -913,7 +908,6 @@
         const increaseBet = document.getElementById('increaseBet');
         const ticketCounter = document.getElementById('ticketCounter');
         const bonusTimer = document.getElementById('bonusTimer');
-        const referralCount = document.getElementById('referralCount');
         const leaderboardList = document.getElementById('leaderboardList');
         const vipLeaderboardList = document.getElementById('vipLeaderboardList');
         const winnersHistoryList = document.getElementById('winnersHistoryList');
@@ -1190,22 +1184,16 @@
             });
         }
 
-        // =============== РЕФЕРАЛЬНАЯ СИСТЕМА (через сервер) ===============
+        // =============== РЕФЕРАЛЬНАЯ СИСТЕМА ===============
         async function updateReferralCount() {
-            try {
-                const res = await fetch(`${SERVER_URL}/api/referral_count/${userId}`);
-                const data = await res.json();
-                referralCount.textContent = data.count;
-            } catch (e) {
-                console.error('Ошибка загрузки рефералов:', e);
-            }
+            // Счётчик убран — функция оставлена для внутренних нужд
         }
 
         function showReferralLink() {
             const link = `https://t.me/YourSlotGameBot?start=ref_${userId}`;
             tg.showPopup({
                 title: '👥 РЕФЕРАЛЬНАЯ ПРОГРАММА',
-                message: `🔗 Твоя ссылка:\n${link}\n\n✅ За каждого друга → +200 монет\n🏆 За 5 друзей → +500 монет + 10 билетов\n\nОтправь ссылку друзьям!`,
+                message: `🔗 Твоя ссылка:\n${link}\n\n✅ За каждого друга → +500 монет + 1 VIP-билет\n\nОтправь ссылку друзьям!`,
                 buttons: [
                     {type: 'default', text: '📋 Копировать', id: 'copy'},
                     {type: 'close', text: 'Закрыть'}
@@ -1230,10 +1218,9 @@
                         const data = await res.json();
                         if (data.status === 'ok') {
                             await loadUserData();
-                            updateReferralCount();
                             tg.showPopup({
                                 title: '🎁 БОНУС',
-                                message: '+200 монет за переход по ссылке!',
+                                message: '+500 монет и +1 VIP-билет за переход по ссылке!',
                                 buttons: [{type: 'close'}]
                             });
                         } else if (data.status === 'already_exists') {
@@ -1249,7 +1236,6 @@
         // Проверка реферала при запуске
         const startParam = tg.initDataUnsafe?.start_param || '';
         checkReferral(startParam);
-        updateReferralCount();
 
         // =============== МАГАЗИН ===============
         window.buyPackage = async function(stars, coins) {
