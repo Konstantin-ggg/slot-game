@@ -324,7 +324,7 @@
             <div class="card">
                 <div class="card-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div>
                 <p>• Каждый день — 1000 монет</p>
-                <p>• Каждые 7 дней подряд — +500 монет + 1 VIP-билетов</p>
+                <p>• Каждые 7 дней подряд — +500 монет + 1 VIP-билет</p>
                 <p>• Каждые 30 дней подряд — +2000 монет + 5 VIP-билетов</p>
             </div>
             
@@ -628,8 +628,26 @@
             return 0;
         }
         
+        // =============== РЕКЛАМА ADSGRAM ===============
+        const BLOCK_ID = "25463";
+        
+        let AdController = null;
+        if (window.Adsgram) {
+            AdController = window.Adsgram.init({ blockId: BLOCK_ID });
+            console.log('AdsGram инициализирован');
+        }
+        
         function showRewardedAd(type, callback) {
-            // Заглушка для рекламы — здесь будет AdsGram
+            if (!AdController) {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Реклама временно недоступна',
+                    buttons: [{type: 'close'}]
+                });
+                if (callback) callback(false);
+                return;
+            }
+        
             if (type === 'coins') {
                 if (adCountToday >= 5) {
                     tg.showPopup({
@@ -637,27 +655,36 @@
                         message: 'Вы исчерпали лимит рекламы на сегодня (5 раз). Завтра будет новый лимит.',
                         buttons: [{type: 'close'}]
                     });
+                    if (callback) callback(false);
                     return;
                 }
-                tg.showPopup({
-                    title: '📺 РЕКЛАМА',
-                    message: 'Сейчас будет реклама. После просмотра вы получите +200 монет',
-                    buttons: [{type: 'close', text: 'Смотреть'}]
-                }, () => {
+                
+                AdController.show().then(() => {
                     adCountToday++;
                     balance += 200;
                     updateUI();
                     if (callback) callback(true);
+                }).catch(() => {
+                    tg.showPopup({
+                        title: '❌ Ошибка',
+                        message: 'Не удалось показать рекламу',
+                        buttons: [{type: 'close'}]
+                    });
+                    if (callback) callback(false);
                 });
+                
             } else if (type === 'vip') {
-                tg.showPopup({
-                    title: '🎫 VIP-БИЛЕТ',
-                    message: 'Сейчас будет реклама. После просмотра вы получите +1 VIP-билет',
-                    buttons: [{type: 'close', text: 'Смотреть'}]
-                }, () => {
+                AdController.show().then(() => {
                     vipTickets++;
                     updateUI();
                     if (callback) callback(true);
+                }).catch(() => {
+                    tg.showPopup({
+                        title: '❌ Ошибка',
+                        message: 'Не удалось показать рекламу',
+                        buttons: [{type: 'close'}]
+                    });
+                    if (callback) callback(false);
                 });
             }
         }
