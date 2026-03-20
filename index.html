@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Джекпот Слот</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
@@ -12,145 +12,161 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
             min-height: 100vh;
-            color: white;
-            overflow: hidden;
-        }
-
-        .swipe-container {
-            width: 100%;
-            height: 100vh;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-snap-type: x mandatory;
-            scroll-behavior: smooth;
-            display: flex;
-            scrollbar-width: none;
-        }
-
-        .swipe-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        .page {
-            flex: 0 0 100%;
-            scroll-snap-align: start;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 40px;
-        }
-
-        .page-indicators {
-            position: fixed;
-            bottom: 20px;
-            left: 0;
-            right: 0;
             display: flex;
             justify-content: center;
-            gap: 12px;
-            z-index: 100;
-            background: rgba(0,0,0,0.5);
-            padding: 8px 16px;
-            border-radius: 30px;
-            width: fit-content;
-            margin: 0 auto;
-            backdrop-filter: blur(10px);
+            align-items: flex-start;
+            color: white;
+            padding: 16px;
+            overflow-y: auto;
         }
 
-        .indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.5);
-            transition: all 0.3s;
-        }
-
-        .indicator.active {
-            width: 24px;
-            border-radius: 10px;
-            background: gold;
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-            color: gold;
-        }
-
-        .card {
+        .slot-machine {
+            max-width: 400px;
+            width: 100%;
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,215,0,0.3) inset;
+            margin-bottom: 20px;
         }
 
-        .card-title {
+        .admin-panel {
+            background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 2px solid #ff4444;
+        }
+
+        .admin-title {
+            color: #ff4444;
             font-size: 18px;
             font-weight: bold;
+            text-align: center;
             margin-bottom: 12px;
-            color: gold;
         }
 
-        .btn {
-            background: linear-gradient(145deg, #ffd700, #ffb347);
-            color: #1a1a2e;
+        .admin-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .admin-section-title {
+            color: gold;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid gold;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .admin-button {
+            background: linear-gradient(145deg, #4a90e2, #357abd);
+            color: white;
             border: none;
             border-radius: 50px;
-            padding: 14px 24px;
-            font-size: 16px;
+            padding: 10px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.2s;
-            margin-top: 12px;
         }
 
-        .btn:active {
-            transform: scale(0.98);
+        .admin-button.danger {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
         }
 
-        .btn-secondary {
-            background: linear-gradient(145deg, #4a90e2, #357abd);
-            color: white;
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
-        .balance-panel {
-            background: #000000;
+        .admin-stat-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .event-banner {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border-radius: 16px;
+            padding: 8px 12px;
+            margin: 12px 0;
+            text-align: center;
+            border: 2px solid gold;
+            box-shadow: 0 0 15px gold;
+            cursor: pointer;
+        }
+
+        .event-icon { font-size: 24px; }
+        .event-title { font-size: 16px; font-weight: bold; color: #1a1a2e; }
+        .event-description { font-size: 12px; color: #1a1a2e; }
+        .event-timer {
+            font-size: 18px;
+            font-weight: bold;
+            background: white;
             border-radius: 50px;
-            padding: 12px 20px;
-            margin-bottom: 16px;
+            padding: 4px 8px;
+            display: inline-block;
+        }
+        .ticket-counter {
+            margin-top: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.5);
+            padding: 4px 10px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        .referral-panel {
+            background: linear-gradient(145deg, #1a3a2a, #0a2a1a);
+            border-radius: 20px;
+            padding: 12px;
+            margin: 16px 0;
+            border: 2px solid #4CAF50;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border: 2px solid gold;
+            cursor: pointer;
+        }
+        .referral-text { color: #4CAF50; }
+        .referral-count {
+            background: #4CAF50;
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: bold;
         }
 
         .reels-container {
             background: #000;
             border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
             box-shadow: 0 10px 0 #4a4a4a, 0 0 0 4px gold;
         }
-
-        .reels {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
+        .reels { display: flex; gap: 12px; justify-content: center; }
         .reel {
             flex: 1;
             aspect-ratio: 1/1.2;
@@ -159,673 +175,467 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 56px;
+            font-size: 64px;
             box-shadow: 0 5px 0 #aaa;
             color: #333;
         }
 
-        .win-line {
-            height: 4px;
-            background: gold;
-            width: 100%;
+        .balance-panel {
+            background: #000;
+            border-radius: 50px;
+            padding: 12px 20px;
             margin: 12px 0;
-            border-radius: 2px;
-            opacity: 0;
-            transition: opacity 0.3s;
+            display: flex;
+            justify-content: space-between;
+            border: 2px solid gold;
+        }
+        .balance-value { font-size: 26px; font-weight: bold; color: gold; }
+
+        .daily-bonus-indicator {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50px;
+            padding: 8px 16px;
+            margin: 8px 0;
+            border: 1px solid gold;
+        }
+        .bonus-timer {
+            background: rgba(255,215,0,0.2);
+            padding: 4px 12px;
+            border-radius: 50px;
         }
 
-        .win-line.active {
-            opacity: 1;
-            box-shadow: 0 0 20px gold;
+        .win-message {
+            text-align: center;
+            font-size: 24px;
+            margin: 16px 0;
+            color: gold;
+        }
+
+        .controls { display: flex; gap: 12px; margin-bottom: 20px; }
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-spin {
+            background: linear-gradient(145deg, #ffd700, #ffb347);
+            color: #1a1a2e;
+            box-shadow: 0 8px 0 #b8860b;
+        }
+        .btn-spin:active { transform: translateY(8px); box-shadow: none; }
+        .btn-maxbet {
+            background: linear-gradient(145deg, #4a90e2, #357abd);
+            color: white;
+            box-shadow: 0 8px 0 #2a4e77;
         }
 
         .bet-control {
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 16px;
             margin: 16px 0;
         }
-
         .bet-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: none;
-            background: gold;
-            color: #1a1a2e;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .bet-value {
-            font-size: 24px;
-            font-weight: bold;
-            min-width: 80px;
-            text-align: center;
-            color: gold;
-        }
-
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .shop-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            padding: 16px;
-            text-align: center;
-            border: 1px solid rgba(255,215,0,0.3);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .shop-item:active {
-            transform: scale(0.96);
-            background: rgba(255,215,0,0.1);
-        }
-
-        .shop-price {
-            color: gold;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .shop-amount {
-            font-size: 14px;
-            margin-top: 6px;
-        }
-
-        .shop-badge {
-            background: gold;
-            color: #1a1a2e;
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 6px;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .leaderboard-rank {
             width: 40px;
-            color: gold;
+            height: 40px;
+            border-radius: 50%;
+            background: gold;
+            color: #1a1a2e;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
         }
+        .bet-value { font-size: 20px; font-weight: bold; color: gold; }
 
-        .leaderboard-name {
-            flex: 1;
-        }
-
-        .leaderboard-score {
-            font-weight: bold;
-            color: gold;
-        }
-
-        .highlight {
-            background: rgba(255,215,0,0.2);
-            border-radius: 12px;
-        }
-
-        .tournament-card {
+        .shop-panel {
             background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
             border-radius: 20px;
             padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid gold;
+            margin: 16px 0;
+            border: 2px solid gold;
         }
+        .shop-title { text-align: center; color: gold; margin-bottom: 12px; }
+        .shop-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+        .shop-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.3);
+            cursor: pointer;
+        }
+        .shop-item-price { color: gold; font-size: 20px; }
 
-        .tournament-header {
+        .tables-container {
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+        }
+        .tables-wrapper { display: flex; }
+        .table-page {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            padding: 0 4px;
+        }
+        .dots { display: flex; justify-content: center; gap: 8px; margin: 8px 0; }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+        }
+        .dot.active { background: gold; width: 20px; border-radius: 4px; }
+
+        .leaderboard, .vip-leaderboard, .free-leaderboard, .winners-history {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 16px;
+        }
+        .leaderboard-title { text-align: center; color: gold; margin-bottom: 12px; }
+        .leaderboard-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .tournament-prize {
-            color: gold;
-            font-weight: bold;
-        }
-
-        .paytable-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            text-align: center;
-        }
-
-        .paytable-item {
-            background: rgba(255,255,255,0.1);
-            padding: 8px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.05);
             border-radius: 12px;
+            margin-bottom: 4px;
         }
+        .leaderboard-item.highlight { background: rgba(255,215,0,0.2); border: 1px solid gold; }
+
+        .paytable {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .paytable-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="swipe-container" id="swipeContainer">
-        <!-- СТРАНИЦА 1: ПРАВИЛА -->
-        <div class="page">
-            <div class="page-title">📜 ПРАВИЛА ИГРЫ</div>
-            
-            <div class="card">
-                <div class="card-title">🎰 КАК ИГРАТЬ</div>
-                <p>• Каждый день 1000 монет бесплатно</p>
-                <p>• За каждое вращение +1 билет в турнир</p>
-                <p>• Собирай выигрышные комбинации</p>
+<div class="slot-machine">
+    <div id="adminPanel" style="display: none;">
+        <div class="admin-panel">
+            <div class="admin-title">🔐 АДМИН-ПАНЕЛЬ</div>
+            <div class="admin-section">
+                <div class="admin-section-title">📢 ОБЪЯВЛЕНИЕ</div>
+                <input type="text" id="announcementText" class="admin-input" placeholder="Текст объявления...">
+                <button class="admin-button" onclick="sendAnnouncement()">📨 ОТПРАВИТЬ ВСЕМ</button>
             </div>
-            
-            <div class="card">
-                <div class="card-title">🎁 ЕЖЕДНЕВНЫЙ БОНУС</div>
-                <p>• Каждый день — 1000 монет</p>
-                <p>• Каждые 7 дней подряд — +500 монет + 1 VIP-билет</p>
-                <p>• Каждые 30 дней подряд — +2000 монет + 5 VIP-билетов</p>
+            <div class="admin-section">
+                <div class="admin-section-title">🎁 РЕДАКТОР РОЗЫГРЫША</div>
+                <input type="text" id="prizeInput" class="admin-input" placeholder="Название приза">
+                <select id="prizeType" class="admin-input">
+                    <option value="stars">⭐ Telegram Stars</option>
+                    <option value="gift">🎁 Подарок</option>
+                    <option value="vip">👑 VIP-статус</option>
+                    <option value="other">🎲 Другое</option>
+                </select>
+                <input type="number" id="prizeStarsAmount" class="admin-input" placeholder="Количество Stars" value="100">
+                <input type="text" id="dateInput" class="admin-input" placeholder="Дата (ГГГГ-ММ-ДДTЧЧ:ММ)">
+                <button class="admin-button" onclick="updateEvent()">💾 СОХРАНИТЬ</button>
             </div>
-            
-            <div class="card">
-                <div class="card-title">📺 РЕКЛАМА</div>
-                <p>• За просмотр рекламы можно получить:</p>
-                <p>  - 200 монет (при нехватке на ставку) — 5 раз в день</p>
-                <p>  - 1 VIP-билет (при выпадении символа 🎫) — без лимита</p>
-                <p>• Лимиты обнуляются в 00:00 по местному времени</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">💰 ТАБЛИЦА ВЫПЛАТ</div>
-                <div class="paytable-grid">
-                    <div class="paytable-item">🍒 x2</div>
-                    <div class="paytable-item">🍋 x3</div>
-                    <div class="paytable-item">🍊 x3</div>
-                    <div class="paytable-item">🍇 x4</div>
-                    <div class="paytable-item">💎 x5</div>
-                    <div class="paytable-item">7️⃣ x8</div>
+            <div class="admin-section">
+                <div class="admin-section-title">📊 СТАТИСТИКА</div>
+                <div class="admin-stats">
+                    <div class="admin-stat-item"><div class="admin-stat-label">Игроков</div><div id="statsPlayers">0</div></div>
+                    <div class="admin-stat-item"><div class="admin-stat-label">Вращений</div><div id="statsSpins">0</div></div>
+                    <div class="admin-stat-item"><div class="admin-stat-label">Билетов</div><div id="statsTickets">0</div></div>
+                    <div class="admin-stat-item"><div class="admin-stat-label">Выигрышей</div><div id="statsWins">0</div></div>
                 </div>
-                <p style="margin-top: 12px; text-align: center;">2 одинаковых = возврат ставки</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">🎫 VIP-СИМВОЛ</div>
-                <p>Символ 🎫 выпадает редко (шанс ~5% на барабан)</p>
-                <p>При выпадении 🎫 предлагается посмотреть рекламу:</p>
-                <p>✅ Посмотрел → получил 1 VIP-билет</p>
-                <p>❌ Отказался → не получил ничего</p>
-                <p>VIP-билеты нужны для входа в VIP-турнир!</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">🏆 ТУРНИРЫ</div>
-                <p><strong>Недельный турнир</strong> — бесплатный, стартует при 100 игроках. Приз: 500 Stars</p>
-                <p><strong>VIP-турнир</strong> — вход 5 VIP-билетов, стартует при 100 участниках. Приз: 2500 Stars</p>
-            </div>
-        </div>
-        
-        <!-- СТРАНИЦА 2: ГЛАВНАЯ (СЛОТ) -->
-        <div class="page">
-            <div class="page-title">🎰 ДЖЕКПОТ СЛОТ</div>
-            
-            <div class="balance-panel">
-                <span>💰 БАЛАНС</span>
-                <span class="balance-value" id="balance">1000</span>
-            </div>
-            
-            <div class="reels-container">
-                <div class="reels">
-                    <div class="reel" id="reel1">🍒</div>
-                    <div class="reel" id="reel2">🍒</div>
-                    <div class="reel" id="reel3">🍒</div>
-                </div>
-                <div class="win-line" id="winLine"></div>
-            </div>
-            
-            <div class="bet-control">
-                <button class="bet-btn" id="decreaseBet">-</button>
-                <span class="bet-value" id="betValue">10</span>
-                <button class="bet-btn" id="increaseBet">+</button>
-            </div>
-            
-            <button class="btn" id="spinBtn">🎰 КРУТИТЬ</button>
-            <button class="btn btn-secondary" id="maxBetBtn" style="margin-top: 8px;">⚡ MAX СТАВКА</button>
-            
-            <div id="winMessage" style="text-align: center; margin-top: 16px; color: gold; font-size: 18px;"></div>
-            <div style="margin-top: 16px; text-align: center;">
-                🎫 VIP-билетов: <span id="vipTickets">0</span>
-            </div>
-            <div style="margin-top: 8px; text-align: center; font-size: 12px; opacity: 0.7;">
-                📺 Реклама сегодня: <span id="adCounter">0</span>/5
-            </div>
-        </div>
-        
-        <!-- СТРАНИЦА 3: МАГАЗИН -->
-        <div class="page">
-            <div class="page-title">⭐ МАГАЗИН</div>
-            
-            <div class="card">
-                <div class="card-title">💰 МОНЕТЫ ЗА STARS</div>
-                <div class="shop-grid">
-                    <div class="shop-item" onclick="buyPackage(10, 1000)">
-                        <div class="shop-price">10 ⭐</div>
-                        <div class="shop-amount">+1000 монет</div>
-                        <div class="shop-badge">🔥 ХИТ</div>
-                    </div>
-                    <div class="shop-item" onclick="buyPackage(40, 5000)">
-                        <div class="shop-price">40 ⭐</div>
-                        <div class="shop-amount">+5000 монет</div>
-                        <div class="shop-badge">⚡ ВЫГОДНО</div>
-                    </div>
-                    <div class="shop-item" onclick="buyPackage(150, 20000)">
-                        <div class="shop-price">150 ⭐</div>
-                        <div class="shop-amount">+20000 монет</div>
-                        <div class="shop-badge">🎁 ПОДАРОК</div>
-                    </div>
-                    <div class="shop-item" onclick="buyPackage(500, 75000)">
-                        <div class="shop-price">500 ⭐</div>
-                        <div class="shop-amount">+75000 монет</div>
-                        <div class="shop-badge">👑 VIP</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">🎫 VIP-БИЛЕТЫ ЗА STARS</div>
-                <div class="shop-grid">
-                    <div class="shop-item" onclick="buyVipPackage(10, 1)">
-                        <div class="shop-price">10 ⭐</div>
-                        <div class="shop-amount">1 VIP-билет</div>
-                    </div>
-                    <div class="shop-item" onclick="buyVipPackage(30, 3)">
-                        <div class="shop-price">30 ⭐</div>
-                        <div class="shop-amount">3 VIP-билета</div>
-                    </div>
-                    <div class="shop-item" onclick="buyVipPackage(100, 10)">
-                        <div class="shop-price">100 ⭐</div>
-                        <div class="shop-amount">10 VIP-билетов</div>
-                        <div class="shop-badge">ЭКОНОМИЯ</div>
-                    </div>
+                <button class="admin-button danger" onclick="pickWinner()">👑 ВЫБРАТЬ ПОБЕДИТЕЛЯ</button>
+                <div id="winnerResult" style="margin-top:10px; display:none;">
+                    <div>🏆 ПОБЕДИТЕЛЬ:</div>
+                    <div id="winnerName" style="color:gold"></div>
+                    <button class="admin-button" onclick="markPrizeSent()">✅ ОТМЕТИТЬ</button>
                 </div>
             </div>
         </div>
-        
-        <!-- СТРАНИЦА 4: ТАБЛИЦА + ТУРНИРЫ -->
-        <div class="page">
-            <div class="page-title">🏆 ТУРНИРЫ И ТАБЛИЦЫ</div>
-            
-            <div class="tournament-card">
-                <div class="tournament-header">
-                    <span>🏆 НЕДЕЛЬНЫЙ ТУРНИР</span>
-                    <span class="tournament-prize">500 ⭐</span>
-                </div>
-                <div>Старт: при 100 игроках</div>
-                <div>Участников: <span id="weeklyPlayers">0</span>/100</div>
-                <div>Твой вклад: <span id="userWeeklyTickets">0</span> билетов</div>
-                <button class="btn" id="joinWeeklyBtn" style="margin-top: 12px;">⚔️ УЧАСТВОВАТЬ</button>
-            </div>
-            
-            <div class="tournament-card">
-                <div class="tournament-header">
-                    <span>👑 VIP-ТУРНИР</span>
-                    <span class="tournament-prize">2500 ⭐</span>
-                </div>
-                <div>Вход: 5 VIP-билетов</div>
-                <div>Участников: <span id="vipTournamentPlayers">0</span>/100</div>
-                <div>Твои VIP-билеты: <span id="userVipTickets">0</span></div>
-                <button class="btn" id="joinVipBtn" style="margin-top: 12px;">👑 ВОЙТИ В VIP-ТУРНИР</button>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">🏆 ТАБЛИЦА ЛИДЕРОВ</div>
-                <div id="leaderboardList">
-                    <div class="leaderboard-item"><span class="leaderboard-rank">1.</span><span class="leaderboard-name">Игрок123</span><span class="leaderboard-score">1540</span></div>
-                    <div class="leaderboard-item"><span class="leaderboard-rank">2.</span><span class="leaderboard-name">Lucky777</span><span class="leaderboard-score">1320</span></div>
-                    <div class="leaderboard-item highlight"><span class="leaderboard-rank">3.</span><span class="leaderboard-name">Вы</span><span class="leaderboard-score">0</span></div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">👑 VIP-ТАБЛИЦА</div>
-                <div id="vipLeaderboardList">
-                    <div class="leaderboard-item"><span class="leaderboard-rank">1.</span><span class="leaderboard-name">WhaleKing</span><span class="leaderboard-score">50</span></div>
-                    <div class="leaderboard-item"><span class="leaderboard-rank">2.</span><span class="leaderboard-name">HighRoller</span><span class="leaderboard-score">42</span></div>
-                    <div class="leaderboard-item highlight"><span class="leaderboard-rank">3.</span><span class="leaderboard-name">Вы</span><span class="leaderboard-score">0</span></div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">📜 ПОСЛЕДНИЕ ПОБЕДИТЕЛИ</div>
-                <div id="winnersList">
-                    <div class="leaderboard-item"><span>🏆 Неделя 15 мар</span><span>ИгрокXXX — 500 ⭐</span></div>
-                    <div class="leaderboard-item"><span>👑 VIP 10 мар</span><span>Player123 — 2500 ⭐</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="page-indicators" id="indicators">
-        <div class="indicator"></div>
-        <div class="indicator active"></div>
-        <div class="indicator"></div>
-        <div class="indicator"></div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-        
-        // =============== СВАЙП-НАВИГАЦИЯ ===============
-        const container = document.getElementById('swipeContainer');
-        const indicators = document.querySelectorAll('.indicator');
-        
-        function updateIndicators() {
-            const scrollPosition = container.scrollLeft;
-            const pageWidth = container.clientWidth;
-            const activeIndex = Math.round(scrollPosition / pageWidth);
-            indicators.forEach((ind, i) => {
-                if (i === activeIndex) ind.classList.add('active');
-                else ind.classList.remove('active');
-            });
+    <div class="event-banner" id="eventBanner">
+        <div class="event-icon" id="eventIcon">🏆🚗</div>
+        <div class="event-title" id="eventTitle">РОЗЫГРЫШ АВТОМОБИЛЯ</div>
+        <div class="event-description" id="eventDescription">Каждое вращение = билет. Приз - Toyota Camry!</div>
+        <div class="event-timer" id="eventTimer">6д 23:59:59</div>
+        <div class="ticket-counter" id="ticketCounter">🎫 Билеты: 0</div>
+    </div>
+
+    <div class="referral-panel" onclick="showReferralLink()">
+        <span class="referral-text">👥 Пригласить друга</span>
+        <span class="referral-count" id="referralCount">0</span>
+    </div>
+
+    <div class="reels-container">
+        <div class="reels">
+            <div class="reel" id="reel1">🍒</div>
+            <div class="reel" id="reel2">🍒</div>
+            <div class="reel" id="reel3">🍒</div>
+        </div>
+        <div class="win-line" id="winLine"></div>
+    </div>
+
+    <div class="balance-panel">
+        <span>💰 БАЛАНС</span>
+        <span class="balance-value" id="balance">1000</span>
+    </div>
+
+    <div class="daily-bonus-indicator">
+        <span>⏳ Ежедневный бонус</span>
+        <span class="bonus-timer" id="bonusTimer">Доступно</span>
+    </div>
+
+    <div class="win-message" id="winMessage"></div>
+
+    <div class="bet-control">
+        <button class="bet-btn" id="decreaseBet">-</button>
+        <span class="bet-value" id="betValue">10</span>
+        <button class="bet-btn" id="increaseBet">+</button>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-spin" id="spinBtn">🎰 КРУТИТЬ</button>
+        <button class="btn btn-maxbet" id="maxBetBtn">⚡ MAX СТАВКА</button>
+    </div>
+
+    <div class="shop-panel">
+        <div class="shop-title">⭐ КУПИТЬ МОНЕТЫ ЗА STARS</div>
+        <div class="shop-grid">
+            <div class="shop-item" onclick="buyStars(10,1000)"><div class="shop-item-price">10 ⭐</div><div>+1000 монет</div><div>🔥 ХИТ</div></div>
+            <div class="shop-item" onclick="buyStars(40,5000)"><div class="shop-item-price">40 ⭐</div><div>+5000 монет</div><div>⚡ ВЫГОДНО</div></div>
+            <div class="shop-item" onclick="buyStars(150,20000)"><div class="shop-item-price">150 ⭐</div><div>+20000 монет</div><div>🎁 ПОДАРОК</div></div>
+            <div class="shop-item" onclick="buyStars(500,75000)"><div class="shop-item-price">500 ⭐</div><div>+75000 монет</div><div>👑 VIP</div></div>
+        </div>
+    </div>
+
+    <div class="tables-container" id="tablesContainer">
+        <div class="tables-wrapper" id="tablesWrapper">
+            <div class="table-page"><div class="leaderboard"><div class="leaderboard-title">🏆 ТАБЛИЦА ЛИДЕРОВ</div><div id="leaderboardList">Загрузка...</div></div></div>
+            <div class="table-page"><div class="vip-leaderboard"><div class="leaderboard-title">👑 VIP-ТАБЛИЦА</div><div id="vipLeaderboardList">Загрузка...</div></div></div>
+            <div class="table-page"><div class="free-leaderboard"><div class="leaderboard-title">🎁 БЕСПЛАТНИКИ</div><div id="freeLeaderboardList">Загрузка...</div></div></div>
+            <div class="table-page"><div class="winners-history"><div class="leaderboard-title">🏆 ИСТОРИЯ ПОБЕД</div><div id="winnersHistoryList">Загрузка...</div></div></div>
+        </div>
+    </div>
+    <div class="dots" id="dots"></div>
+
+    <div class="paytable">
+        <div class="paytable-title">🎰 ТАБЛИЦА ВЫПЛАТ</div>
+        <div class="paytable-grid">
+            <div>🍒 x2</div><div>🍋 x3</div><div>🍊 x3</div>
+            <div>🍇 x4</div><div>💎 x5</div><div>7️⃣ x8</div>
+        </div>
+        <div style="text-align:center; font-size:12px;">2 одинаковых = возврат ставки</div>
+    </div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    document.body.style.overflowY = 'auto';
+
+    const ADMIN_ID = 1065392792;
+    const userId = tg.initDataUnsafe?.user?.id || 0;
+    const userName = tg.initDataUnsafe?.user?.first_name || 'Игрок';
+    const userUsername = tg.initDataUnsafe?.user?.username || '';
+    const SERVER_URL = 'http://192.168.0.104:8000'; // ЗАМЕНИ НА IP СВОЕГО НОУТБУКА
+
+    if (userId === ADMIN_ID) document.getElementById('adminPanel').style.display = 'block';
+
+    // =============== ДАННЫЕ ===============
+    let balance = 0, tickets = 0, vipTickets = 0, currentBet = 10, isSpinning = false;
+    let totalSpins = 0, totalWins = 0;
+    let leaderboard = [], vipLeaderboard = [], freeLeaderboard = [], winnersHistory = [];
+
+    // =============== API ВЫЗОВЫ ===============
+    async function apiCall(endpoint, method = 'GET', data = null) {
+        const url = `${SERVER_URL}${endpoint}`;
+        const options = { method, headers: { 'Content-Type': 'application/json' } };
+        if (data) options.body = JSON.stringify(data);
+        try {
+            const res = await fetch(url, options);
+            return await res.json();
+        } catch (e) {
+            console.error('API error:', e);
+            return null;
         }
-        
-        container.addEventListener('scroll', updateIndicators);
-        
-        // =============== МАССИВ СИМВОЛОВ С ВЕСАМИ ===============
-        const SYMBOLS = [
-            '🍒', '🍒', '🍒', '🍒', '🍒',  // 5x
-            '🍋', '🍋', '🍋', '🍋',         // 4x
-            '🍊', '🍊', '🍊', '🍊',         // 4x
-            '🍇', '🍇', '🍇',               // 3x
-            '💎', '💎',                     // 2x
-            '7️⃣',                           // 1x
-            '🎫'                            // 1x — VIP-символ
-        ];
-        
-        const MULTIPLIERS = {
-            '🍒': 2,
-            '🍋': 3,
-            '🍊': 3,
-            '🍇': 4,
-            '💎': 5,
-            '7️⃣': 8,
-            '🎫': 0
-        };
-        
-        // =============== ИГРОВЫЕ ПЕРЕМЕННЫЕ ===============
-        let balance = 1000;
-        let currentBet = 10;
-        let isSpinning = false;
-        let tickets = 0;
-        let vipTickets = 0;
-        let adCountToday = 0;
-        
-        // Загрузка сохранённых данных
-        function loadData() {
-            const savedBalance = localStorage.getItem('balance');
-            const savedVip = localStorage.getItem('vipTickets');
-            const savedTickets = localStorage.getItem('tickets');
-            const savedAdCount = localStorage.getItem('adCount');
-            const savedAdDate = localStorage.getItem('adDate');
-            
-            const today = new Date().toDateString();
-            if (savedAdDate !== today) {
-                adCountToday = 0;
-                localStorage.setItem('adDate', today);
-            } else if (savedAdCount) {
-                adCountToday = parseInt(savedAdCount);
-            }
-            
-            if (savedBalance) balance = parseInt(savedBalance);
-            if (savedVip) vipTickets = parseInt(savedVip);
-            if (savedTickets) tickets = parseInt(savedTickets);
-            
+    }
+
+    async function loadUserData() {
+        const user = await apiCall(`/api/user/${userId}`);
+        if (user) {
+            balance = user.balance;
+            tickets = user.tickets;
+            vipTickets = user.vip_tickets;
             updateUI();
         }
-        
-        function saveData() {
-            localStorage.setItem('balance', balance);
-            localStorage.setItem('vipTickets', vipTickets);
-            localStorage.setItem('tickets', tickets);
-            localStorage.setItem('adCount', adCountToday);
-            localStorage.setItem('adDate', new Date().toDateString());
-        }
-        
-        // Элементы
-        const balanceEl = document.getElementById('balance');
-        const reel1 = document.getElementById('reel1');
-        const reel2 = document.getElementById('reel2');
-        const reel3 = document.getElementById('reel3');
-        const spinBtn = document.getElementById('spinBtn');
-        const maxBetBtn = document.getElementById('maxBetBtn');
-        const winMessage = document.getElementById('winMessage');
-        const winLine = document.getElementById('winLine');
-        const betValue = document.getElementById('betValue');
-        const decreaseBet = document.getElementById('decreaseBet');
-        const increaseBet = document.getElementById('increaseBet');
-        const vipTicketsEl = document.getElementById('vipTickets');
-        const adCounterEl = document.getElementById('adCounter');
-        
-        function updateUI() {
-            balanceEl.textContent = balance;
-            betValue.textContent = currentBet;
-            vipTicketsEl.textContent = vipTickets;
-            adCounterEl.textContent = adCountToday;
-            document.getElementById('userVipTickets').textContent = vipTickets;
-            document.getElementById('userWeeklyTickets').textContent = tickets;
-            saveData();
-        }
-        
-        function getRandomSymbol() {
-            return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-        }
-        
-        function calculateWin(s1, s2, s3, bet) {
-            if (s1 === s2 && s2 === s3) return bet * MULTIPLIERS[s1];
-            if (s1 === s2 || s1 === s3 || s2 === s3) return bet;
-            return 0;
-        }
-        
-        // =============== РЕКЛАМА ADSGRAM ===============
-        const BLOCK_ID = "25517";
-        
-        let AdController = null;
-        if (window.Adsgram) {
-            AdController = window.Adsgram.init({ blockId: BLOCK_ID });
-            console.log('AdsGram инициализирован');
-        }
-        
-        function showRewardedAd(type, callback) {
-            if (!AdController) {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Реклама временно недоступна',
-                    buttons: [{type: 'close'}]
-                });
-                if (callback) callback(false);
-                return;
-            }
-        
-            if (type === 'coins') {
-                if (adCountToday >= 5) {
-                    tg.showPopup({
-                        title: '❌ ЛИМИТ',
-                        message: 'Вы исчерпали лимит рекламы на сегодня (5 раз). Завтра будет новый лимит.',
-                        buttons: [{type: 'close'}]
-                    });
-                    if (callback) callback(false);
-                    return;
-                }
-                
-                AdController.show().then(() => {
-                    adCountToday++;
-                    balance += 200;
-                    updateUI();
-                    if (callback) callback(true);
-                }).catch(() => {
-                    tg.showPopup({
-                        title: '❌ Ошибка',
-                        message: 'Не удалось показать рекламу',
-                        buttons: [{type: 'close'}]
-                    });
-                    if (callback) callback(false);
-                });
-                
-            } else if (type === 'vip') {
-                AdController.show().then(() => {
-                    vipTickets++;
-                    updateUI();
-                    if (callback) callback(true);
-                }).catch(() => {
-                    tg.showPopup({
-                        title: '❌ Ошибка',
-                        message: 'Не удалось показать рекламу',
-                        buttons: [{type: 'close'}]
-                    });
-                    if (callback) callback(false);
-                });
-            }
-        }
-        
-        async function spin() {
-            if (isSpinning) return;
-            if (balance < currentBet) {
-                winMessage.textContent = '❌ Недостаточно средств!';
-                showRewardedAd('coins');
-                return;
-            }
-            
-            isSpinning = true;
-            spinBtn.disabled = true;
-            maxBetBtn.disabled = true;
-            decreaseBet.disabled = true;
-            increaseBet.disabled = true;
-            
-            balance -= currentBet;
+        await loadLeaderboards();
+    }
+
+    async function loadLeaderboards() {
+        leaderboard = await apiCall('/api/leaderboard') || [];
+        vipLeaderboard = await apiCall('/api/vip_leaderboard') || [];
+        freeLeaderboard = leaderboard.filter(p => p.id !== ADMIN_ID); // временно
+        winnersHistory = JSON.parse(localStorage.getItem('winners') || '[]');
+        renderAllTables();
+    }
+
+    async function sendSpin(bet, win, symbols) {
+        const result = await apiCall('/api/spin', 'POST', { user_id: userId, bet, win, symbols });
+        if (result) {
+            balance = result.balance;
+            tickets = result.tickets;
+            vipTickets = result.vip_tickets;
             updateUI();
-            
-            winMessage.textContent = '';
-            winLine.classList.remove('active');
-            
-            const spinDuration = 500;
-            const startTime = Date.now();
-            
-            while (Date.now() - startTime < spinDuration) {
-                reel1.textContent = getRandomSymbol();
-                reel2.textContent = getRandomSymbol();
-                reel3.textContent = getRandomSymbol();
-                await new Promise(r => setTimeout(r, 50));
-            }
-            
-            const result = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
-            reel1.textContent = result[0];
-            reel2.textContent = result[1];
-            reel3.textContent = result[2];
-            
-            const win = calculateWin(result[0], result[1], result[2], currentBet);
-            
+            return true;
+        }
+        return false;
+    }
+
+    async function claimDailyBonus() {
+        const result = await apiCall('/api/daily_bonus', 'POST', { user_id: userId });
+        if (result && result.status === 'ok') {
+            balance = result.balance;
+            updateUI();
+            tg.showPopup({ title: '🎁 БОНУС', message: '+1000 монет!', buttons: [{type:'close'}] });
+        } else if (result?.status === 'already_claimed') {
+            tg.showPopup({ title: '⏳ УЖЕ ПОЛУЧЕНО', message: 'Бонус можно получить раз в сутки', buttons: [{type:'close'}] });
+        }
+    }
+
+    async function addVipBonus() {
+        const result = await apiCall('/api/vip_bonus', 'POST', { user_id: userId });
+        if (result) {
+            vipTickets = result.vip_tickets;
+            updateUI();
+            tg.showPopup({ title: '🎉 VIP ДЖЕКПОТ!', message: '+15 VIP-билетов!', buttons: [{type:'close'}] });
+        }
+    }
+
+    // =============== ИГРОВЫЕ МЕХАНИКИ ===============
+    const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣', '🎫'];
+    const MULTIPLIERS = { '🍒':2, '🍋':3, '🍊':3, '🍇':4, '💎':5, '7️⃣':8, '🎫':0 };
+
+    function getRandomSymbol() { return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]; }
+    function calculateWin(s1,s2,s3,bet) {
+        if (s1===s2 && s2===s3) return bet * MULTIPLIERS[s1];
+        if (s1===s2 || s1===s3 || s2===s3) return bet;
+        return 0;
+    }
+
+    async function spin() {
+        if (isSpinning) return;
+        if (balance < currentBet) {
+            winMessage.textContent = '❌ Недостаточно средств!';
+            setTimeout(() => tg.showPopup({ title:'🎥 Хочешь ещё монет?', message:'Посмотри видео +200 монет!', buttons:[{type:'default',text:'🎬 Смотреть',id:'watch'},{type:'close',text:'Нет'}] }, (btnId)=>{ if(btnId==='watch') showRewardedAd(); }), 1000);
+            return;
+        }
+        isSpinning = true;
+        spinBtn.disabled = maxBetBtn.disabled = decreaseBet.disabled = increaseBet.disabled = true;
+
+        const spinDuration = 500, start = Date.now();
+        while (Date.now() - start < spinDuration) {
+            reel1.textContent = getRandomSymbol(); reel2.textContent = getRandomSymbol(); reel3.textContent = getRandomSymbol();
+            await new Promise(r => setTimeout(r, 50));
+        }
+        const result = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
+        reel1.textContent = result[0]; reel2.textContent = result[1]; reel3.textContent = result[2];
+        const win = calculateWin(result[0], result[1], result[2], currentBet);
+        const symbolsStr = result.join('');
+        
+        const success = await sendSpin(currentBet, win, symbolsStr);
+        if (success) {
             if (win > 0) {
-                balance += win;
                 winMessage.textContent = `🎉 ВЫИГРЫШ: ${win} 🎉`;
                 winLine.classList.add('active');
-                tickets++;
-            } else {
-                winMessage.textContent = '😎 Попробуй еще!';
+                setTimeout(() => winLine.classList.remove('active'), 1000);
+            } else winMessage.textContent = '😎 Попробуй еще!';
+            
+            if (result[0] === '🎫' && result[1] === '🎫' && result[2] === '🎫') {
+                await addVipBonus();
             }
-            
-            // VIP-символ
-            const vipCount = result.filter(s => s === '🎫').length;
-            for (let i = 0; i < vipCount; i++) {
-                tg.showPopup({
-                    title: '🎫 VIP-СИМВОЛ',
-                    message: 'Посмотри рекламу и получи VIP-билет!',
-                    buttons: [
-                        {type: 'default', text: '🎬 Смотреть', id: 'watch'},
-                        {type: 'close', text: 'Отказаться'}
-                    ]
-                }, (btnId) => {
-                    if (btnId === 'watch') {
-                        showRewardedAd('vip');
-                    }
-                });
-            }
-            
-            updateUI();
-            
-            isSpinning = false;
-            spinBtn.disabled = false;
-            maxBetBtn.disabled = false;
-            decreaseBet.disabled = false;
-            increaseBet.disabled = false;
         }
         
-        // =============== МАГАЗИН ===============
-        window.buyPackage = function(stars, coins) {
-            tg.showPopup({
-                title: '⭐ ПОКУПКА',
-                message: `${coins} монет за ${stars} Stars\n\nОплата через Telegram Stars`,
-                buttons: [{type: 'close', text: 'Понятно'}]
-            });
-        };
-        
-        window.buyVipPackage = function(stars, tickets) {
-            tg.showPopup({
-                title: '⭐ ПОКУПКА VIP-БИЛЕТОВ',
-                message: `${tickets} VIP-билет(ов) за ${stars} Stars\n\nОплата через Telegram Stars`,
-                buttons: [{type: 'close', text: 'Понятно'}]
-            });
-        };
-        
-        // =============== ТУРНИРЫ ===============
-        document.getElementById('joinWeeklyBtn').addEventListener('click', () => {
-            tg.showPopup({
-                title: '🏆 ТУРНИР НЕДЕЛИ',
-                message: 'Ты уже участвуешь! Каждое вращение добавляет билеты.',
-                buttons: [{type: 'close'}]
-            });
+        isSpinning = false;
+        spinBtn.disabled = maxBetBtn.disabled = decreaseBet.disabled = increaseBet.disabled = false;
+    }
+
+    // =============== UI ===============
+    function updateUI() {
+        document.getElementById('balance').textContent = balance;
+        document.getElementById('betValue').textContent = currentBet;
+        document.getElementById('ticketCounter').textContent = `🎫 Билеты: ${tickets}`;
+    }
+
+    function renderAllTables() {
+        document.getElementById('leaderboardList').innerHTML = leaderboard.map((p,i)=>`<div class="leaderboard-item ${p.id==userId?'highlight':''}"><span>${i+1}. ${p.name}</span><span>${p.tickets}</span></div>`).join('') || '<div>Нет данных</div>';
+        document.getElementById('vipLeaderboardList').innerHTML = vipLeaderboard.map((p,i)=>`<div class="leaderboard-item ${p.id==userId?'highlight':''}"><span>${i+1}. ${p.name}</span><span>${p.vip_tickets}</span></div>`).join('') || '<div>Нет данных</div>';
+        document.getElementById('freeLeaderboardList').innerHTML = freeLeaderboard.map((p,i)=>`<div class="leaderboard-item ${p.id==userId?'highlight':''}"><span>${i+1}. ${p.name}</span><span>${p.tickets}</span></div>`).join('') || '<div>Нет данных</div>';
+        document.getElementById('winnersHistoryList').innerHTML = winnersHistory.map(w=>`<div class="leaderboard-item"><span>${w.name}</span><span>${w.prize}</span></div>`).join('') || '<div>Нет победителей</div>';
+        document.getElementById('statsPlayers').textContent = leaderboard.length;
+        document.getElementById('statsSpins').textContent = totalSpins;
+        document.getElementById('statsTickets').textContent = tickets;
+        document.getElementById('statsWins').textContent = totalWins;
+    }
+
+    // =============== СВАЙП-МЕНЮ ===============
+    let currentTable = 0;
+    const tablesWrapper = document.getElementById('tablesWrapper');
+    const dotsContainer = document.getElementById('dots');
+    function updateDots() {
+        dotsContainer.innerHTML = '';
+        for (let i=0; i<4; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i===currentTable ? ' active' : '');
+            dot.onclick = () => { currentTable=i; tablesWrapper.scrollTo({ left: i*tablesWrapper.clientWidth, behavior:'smooth' }); updateDots(); };
+            dotsContainer.appendChild(dot);
+        }
+    }
+    tablesWrapper.addEventListener('scroll', () => {
+        const idx = Math.round(tablesWrapper.scrollLeft / tablesWrapper.clientWidth);
+        if (idx !== currentTable) { currentTable = idx; updateDots(); }
+    });
+    updateDots();
+
+    // =============== ОСТАЛЬНЫЕ ФУНКЦИИ ===============
+    window.buyStars = (stars, coins) => {
+        tg.openInvoice(`https://t.me/YourSlotGameBot?start=pay_${stars}`, (status) => {
+            if (status === 'paid') tg.showPopup({ title:'✅ УСПЕХ', message:`+${coins} монет!`, buttons:[{type:'close'}] });
         });
-        
-        document.getElementById('joinVipBtn').addEventListener('click', () => {
-            if (vipTickets >= 5) {
-                tg.showPopup({
-                    title: '👑 VIP-ТУРНИР',
-                    message: 'Ты вступил в VIP-турнир! Потрачено 5 VIP-билетов.',
-                    buttons: [{type: 'close'}]
-                });
-                vipTickets -= 5;
-                updateUI();
-            } else {
-                tg.showPopup({
-                    title: '❌ НЕ ХВАТАЕТ БИЛЕТОВ',
-                    message: `Нужно 5 VIP-билетов. У тебя: ${vipTickets}`,
-                    buttons: [{type: 'close'}]
-                });
-            }
-        });
-        
-        // =============== ОБРАБОТЧИКИ ===============
-        spinBtn.addEventListener('click', spin);
-        maxBetBtn.addEventListener('click', () => {
-            currentBet = Math.min(100, balance);
-            updateUI();
-        });
-        decreaseBet.addEventListener('click', () => {
-            if (currentBet > 10 && !isSpinning) {
-                currentBet -= 10;
-                updateUI();
-            }
-        });
-        increaseBet.addEventListener('click', () => {
-            if (currentBet < 100 && currentBet + 10 <= balance && !isSpinning) {
-                currentBet += 10;
-                updateUI();
-            }
-        });
-        
-        loadData();
-        updateUI();
-    </script>
+    };
+    window.showRewardedAd = () => {
+        const ad = window.Adsgram?.init({ blockId: '25517' });
+        ad?.show().then(() => { balance+=200; updateUI(); tg.showPopup({ title:'🎥 +200', message:'Спасибо!', buttons:[{type:'close'}] }); })
+          .catch(() => tg.showPopup({ title:'❌', message:'Реклама не загружена', buttons:[{type:'close'}] }));
+    };
+    window.showReferralLink = () => {
+        tg.showPopup({ title:'👥 РЕФЕРАЛКА', message:`Твоя ссылка: https://t.me/YourSlotGameBot?start=ref_${userId}\n\n✅ За друга +200 монет\n🏆 За 5 друзей +500 монет +10 билетов`, buttons:[{type:'default',text:'📋 Копировать',id:'copy'},{type:'close'}] }, (btnId)=>{ if(btnId==='copy') tg.showPopup({ title:'✅', message:'Ссылка скопирована', buttons:[{type:'close'}] }); });
+    };
+    window.sendAnnouncement = () => { const t=document.getElementById('announcementText').value; if(t) tg.showPopup({ title:'📢', message:t, buttons:[{type:'close'}] }); };
+    window.updateEvent = () => { tg.showPopup({ title:'✅', message:'Розыгрыш обновлён', buttons:[{type:'close'}] }); };
+    window.pickWinner = () => { if(leaderboard.length) tg.showPopup({ title:'👑', message:`Победитель: ${leaderboard[0].name}`, buttons:[{type:'close'}] }); };
+    window.markPrizeSent = () => { tg.showPopup({ title:'✅', message:'Отправлено', buttons:[{type:'close'}] }); };
+
+    const reel1=document.getElementById('reel1'), reel2=document.getElementById('reel2'), reel3=document.getElementById('reel3');
+    const spinBtn=document.getElementById('spinBtn'), maxBetBtn=document.getElementById('maxBetBtn');
+    const winMessage=document.getElementById('winMessage'), winLine=document.getElementById('winLine');
+    const decreaseBet=document.getElementById('decreaseBet'), increaseBet=document.getElementById('increaseBet');
+    const betValue=document.getElementById('betValue');
+
+    spinBtn.addEventListener('click', spin);
+    maxBetBtn.addEventListener('click', () => { currentBet = Math.min(100, balance); updateUI(); });
+    decreaseBet.addEventListener('click', () => { if (currentBet > 10 && !isSpinning) { currentBet -= 10; updateUI(); } });
+    increaseBet.addEventListener('click', () => { if (currentBet < 100 && currentBet+10 <= balance && !isSpinning) { currentBet += 10; updateUI(); } });
+
+    document.getElementById('bonusTimer').addEventListener('click', claimDailyBonus);
+    loadUserData();
+</script>
 </body>
 </html>
