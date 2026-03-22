@@ -225,22 +225,6 @@
             gap: 12px;
         }
 
-        .event-banner {
-            background: linear-gradient(45deg, #ff6b6b, #feca57);
-            border-radius: 16px;
-            padding: 8px 12px;
-            text-align: center;
-            border: 2px solid gold;
-            box-shadow: 0 0 15px gold;
-            cursor: pointer;
-        }
-
-        .event-icon { font-size: 24px; margin-bottom: 2px; }
-        .event-title { font-size: 16px; font-weight: bold; margin-bottom: 2px; color: #1a1a2e; }
-        .event-description { font-size: 12px; margin-bottom: 4px; color: #1a1a2e; }
-        .event-timer { font-size: 18px; font-weight: bold; color: #1a1a2e; background: white; border-radius: 50px; padding: 4px 8px; display: inline-block; min-width: 160px; }
-        .ticket-counter { margin-top: 6px; font-size: 14px; font-weight: bold; color: #1a1a2e; background: rgba(255,255,255,0.5); padding: 4px 10px; border-radius: 50px; display: inline-block; }
-
         .referral-panel {
             background: linear-gradient(145deg, #1a3a2a, #0a2a1a);
             border-radius: 20px;
@@ -330,6 +314,51 @@
 
         .bonus-text { font-size: 14px; color: gold; }
         .bonus-timer { font-size: 14px; font-weight: bold; color: white; background: rgba(255,215,0,0.2); padding: 4px 12px; border-radius: 50px; }
+
+        /* БИЛЕТЫ */
+        .tickets-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .ticket-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 12px;
+            border-radius: 40px;
+        }
+
+        .ticket-item.vip {
+            border: 1px solid gold;
+        }
+
+        .ticket-icon {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+
+        .ticket-label {
+            font-size: 12px;
+            opacity: 0.8;
+            flex: 1;
+        }
+
+        .ticket-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: gold;
+            min-width: 40px;
+            text-align: right;
+        }
 
         .win-message { text-align: center; font-size: 24px; font-weight: bold; margin: 16px 0; min-height: 40px; color: gold; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
 
@@ -685,7 +714,7 @@
                 <!-- СТРАНИЦА 2: ГЛАВНАЯ (слот) -->
                 <div class="page">
                     <div class="slot-content">
-                                                <!-- РЕФЕРАЛЬНЫЙ БЛОК (без счётчика) -->
+                        <!-- РЕФЕРАЛЬНЫЙ БЛОК (без счётчика) -->
                         <div class="referral-panel" onclick="showReferralLink()">
                             <span class="referral-text">👥 ПРИГЛАСИТЬ ДРУГА → +500 монет и +1 VIP-билет</span>
                         </div>
@@ -710,6 +739,20 @@
                         <div class="daily-bonus-indicator" id="dailyBonusBtn" onclick="claimDailyBonus()">
                             <span class="bonus-text">🎁 Ежедневный бонус</span>
                             <span class="bonus-timer" id="bonusTimer">Доступно</span>
+                        </div>
+
+                        <!-- БИЛЕТЫ -->
+                        <div class="tickets-panel">
+                            <div class="ticket-item">
+                                <span class="ticket-icon">🎫</span>
+                                <span class="ticket-label">Обычные билеты:</span>
+                                <span class="ticket-value" id="ticketsCount">0</span>
+                            </div>
+                            <div class="ticket-item vip">
+                                <span class="ticket-icon">👑</span>
+                                <span class="ticket-label">VIP-билеты:</span>
+                                <span class="ticket-value" id="vipTicketsCount">0</span>
+                            </div>
                         </div>
 
                         <div class="win-message" id="winMessage"></div>
@@ -795,19 +838,16 @@
                 <!-- СТРАНИЦА 4: ТАБЛИЦЫ -->
                 <div class="page">
                     <div class="tables-content">
-                        <!-- Общая таблица лидеров -->
                         <div class="leaderboard">
                             <div class="leaderboard-title">🏆 ТАБЛИЦА ЛИДЕРОВ (билеты)</div>
                             <div id="leaderboardList">Загрузка...</div>
                         </div>
                         
-                        <!-- VIP-таблица -->
                         <div class="vip-leaderboard">
                             <div class="leaderboard-title">👑 VIP-ТАБЛИЦА</div>
                             <div id="vipLeaderboardList">Загрузка...</div>
                         </div>
                         
-                        <!-- Недельный турнир -->
                         <div class="tournament-info">
                             <div class="tournament-title">🏆 НЕДЕЛЬНЫЙ ТУРНИР</div>
                             <div class="tournament-stats">
@@ -819,7 +859,6 @@
                             <button class="tournament-button" id="joinWeeklyBtn" onclick="joinWeeklyTournament()">🏆 УЧАСТВОВАТЬ</button>
                         </div>
                         
-                        <!-- VIP-турнир -->
                         <div class="tournament-info">
                             <div class="tournament-title">👑 VIP-ТУРНИР</div>
                             <div class="tournament-stats">
@@ -831,7 +870,6 @@
                             <button class="tournament-button" id="joinVipBtn" onclick="joinVipTournament()">👑 УЧАСТВОВАТЬ (5 VIP-билетов)</button>
                         </div>
                         
-                        <!-- Последние победители -->
                         <div class="winners-history">
                             <div class="leaderboard-title">📜 ПОСЛЕДНИЕ ПОБЕДИТЕЛИ</div>
                             <div id="winnersHistoryList">Загрузка...</div>
@@ -841,7 +879,6 @@
             </div>
         </div>
         
-        <!-- ИНДИКАТОРЫ СТРАНИЦ (4 точки) -->
         <div class="dots" id="dots"></div>
     </div>
 
@@ -873,7 +910,6 @@
         let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
         let totalWins = parseInt(localStorage.getItem('totalWins') || '0');
 
-        // 7 символов с равной вероятностью
         const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣', '🎫'];
         
         const MULTIPLIERS = {
@@ -886,7 +922,6 @@
             '🎫': 0
         };
 
-        // Элементы DOM
         const balanceEl = document.getElementById('balance');
         const reel1 = document.getElementById('reel1');
         const reel2 = document.getElementById('reel2');
@@ -898,7 +933,6 @@
         const betValue = document.getElementById('betValue');
         const decreaseBet = document.getElementById('decreaseBet');
         const increaseBet = document.getElementById('increaseBet');
-        const ticketCounter = document.getElementById('ticketCounter');
         const bonusTimer = document.getElementById('bonusTimer');
         const leaderboardList = document.getElementById('leaderboardList');
         const vipLeaderboardList = document.getElementById('vipLeaderboardList');
@@ -910,7 +944,6 @@
         const vipMyContribution = document.getElementById('vipMyContribution');
         const vipStatus = document.getElementById('vipStatus');
 
-        // =============== СЕРВЕРНЫЕ ЗАПРОСЫ ===============
         async function loadUserData() {
             try {
                 const res = await fetch(`${SERVER_URL}/api/user/${userId}`);
@@ -1030,12 +1063,11 @@
             `).join('');
         }
 
-        // =============== ИГРОВЫЕ ФУНКЦИИ ===============
         function updateUI() {
             balanceEl.textContent = balance;
             betValue.textContent = currentBet;
-            ticketCounter.textContent = `🎫 Билеты: ${tickets}`;
-            // Обновляем турнирные данные (заглушки пока)
+            document.getElementById('ticketsCount').textContent = tickets;
+            document.getElementById('vipTicketsCount').textContent = vipTickets;
             weeklyParticipants.textContent = `0/50`;
             weeklyMyContribution.textContent = `0 билетов`;
             vipParticipants.textContent = `0/100`;
@@ -1125,7 +1157,6 @@
                 winMessage.textContent = '😎 Попробуй еще!';
             }
             
-            // Проверка VIP-джекпота (3 символа 🎫)
             if (result[0] === '🎫' && result[1] === '🎫' && result[2] === '🎫') {
                 tg.showPopup({
                     title: '🎫 VIP-ДЖЕКПОТ!',
@@ -1150,7 +1181,6 @@
             increaseBet.disabled = false;
         }
 
-        // Функция для VIP-рекламы
         async function showRewardedAdForVip() {
             if (!AdController) {
                 tg.showPopup({
@@ -1174,11 +1204,6 @@
                     buttons: [{type: 'close'}]
                 });
             });
-        }
-
-        // =============== РЕФЕРАЛЬНАЯ СИСТЕМА ===============
-        async function updateReferralCount() {
-            // Счётчик убран — функция оставлена для внутренних нужд
         }
 
         function showReferralLink() {
@@ -1215,8 +1240,6 @@
                                 message: '+500 монет и +1 VIP-билет за переход по ссылке!',
                                 buttons: [{type: 'close'}]
                             });
-                        } else if (data.status === 'already_exists') {
-                            console.log('Реферал уже зарегистрирован');
                         }
                     } catch (e) {
                         console.error('Ошибка регистрации реферала:', e);
@@ -1225,11 +1248,9 @@
             }
         }
 
-        // Проверка реферала при запуске
         const startParam = tg.initDataUnsafe?.start_param || '';
         checkReferral(startParam);
 
-        // =============== МАГАЗИН ===============
         window.buyPackage = async function(stars, coins) {
             tg.showPopup({
                 title: '⭐ ПОКУПКА МОНЕТ',
@@ -1246,7 +1267,6 @@
             });
         };
 
-        // =============== ТУРНИРЫ ===============
         window.joinWeeklyTournament = function() {
             tg.showPopup({
                 title: '🏆 НЕДЕЛЬНЫЙ ТУРНИР',
@@ -1271,7 +1291,6 @@
             }
         };
 
-        // =============== РЕКЛАМА ===============
         const BLOCK_ID = "25517";
         let AdController = window.Adsgram ? window.Adsgram.init({ blockId: BLOCK_ID }) : null;
 
@@ -1301,7 +1320,6 @@
             });
         };
 
-        // =============== АДМИН-ФУНКЦИИ (заглушки) ===============
         window.sendAnnouncement = function() {
             const text = document.getElementById('announcementText').value;
             if (text) {
@@ -1347,7 +1365,6 @@
             document.getElementById('winnerResult').style.display = 'none';
         };
 
-        // =============== СВАЙП-МЕНЮ (4 страницы) ===============
         let currentPage = 1;
         const pagesWrapper = document.getElementById('pagesWrapper');
         const dotsContainer = document.getElementById('dots');
@@ -1378,7 +1395,6 @@
             updateDots();
         }
 
-        // =============== ОБРАБОТЧИКИ ===============
         spinBtn.addEventListener('click', spin);
         maxBetBtn.addEventListener('click', () => {
             currentBet = Math.min(100, balance);
@@ -1397,7 +1413,6 @@
             }
         });
 
-        // =============== ИНИЦИАЛИЗАЦИЯ ===============
         updateUserOnServer(userName, userUsername);
         loadUserData();
         loadLeaderboards();
