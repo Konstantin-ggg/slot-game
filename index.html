@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Джекпот Слот</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
@@ -136,15 +136,15 @@
             color: gold;
         }
 
-        /* 4 СТРАНИЦЫ, СВАЙП — ИСПРАВЛЕНО */
+        /* 4 СТРАНИЦЫ, СВАЙП */
         .pages-container {
             overflow-x: auto;
             scroll-snap-type: x mandatory;
-            scroll-snap-stop: always;
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
             margin: 0 0 16px 0;
             border-radius: 20px;
+            scroll-snap-stop: always;
         }
 
         .pages-wrapper {
@@ -155,39 +155,29 @@
         .page {
             flex: 0 0 100%;
             scroll-snap-align: start;
-            overflow-y: auto;
-            max-height: 65vh;
-            padding: 0 8px;
+            padding: 0 4px;
         }
 
         .dots {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin: 16px 0 8px 0;
-            padding: 8px;
-            position: sticky;
-            bottom: 8px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 30px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
+            gap: 8px;
+            margin: 8px 0;
         }
 
         .dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.3);
             transition: all 0.2s;
             cursor: pointer;
         }
 
         .dot.active {
             background: gold;
-            width: 24px;
-            border-radius: 12px;
+            width: 20px;
+            border-radius: 4px;
         }
 
         /* СТРАНИЦА 1: ПРАВИЛА */
@@ -692,9 +682,11 @@
             </div>
         </div>
 
-        <!-- 4 СТРАНИЦЫ, СВАЙП (ИСПРАВЛЕНО) -->
+        <!-- 4 СТРАНИЦЫ, СВАЙП -->
         <div class="pages-container" id="pagesContainer">
             <div class="pages-wrapper" id="pagesWrapper">
+                
+                <!-- СТРАНИЦА 1: ПРАВИЛА -->
                 <div class="page">
                     <div class="rules-content">
                         <h2>📜 ПРАВИЛА ИГРЫ</h2>
@@ -718,11 +710,16 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- СТРАНИЦА 2: ГЛАВНАЯ (слот) -->
                 <div class="page">
                     <div class="slot-content">
+                        <!-- РЕФЕРАЛЬНЫЙ БЛОК -->
                         <div class="referral-panel" onclick="showReferralLink()">
                             <span class="referral-text">👥 ПРИГЛАСИТЬ ДРУГА → +500 монет и +1 VIP-билет</span>
                         </div>
+
+                        <!-- БАРАБАНЫ -->
                         <div class="reels-container">
                             <div class="reels">
                                 <div class="reel" id="reel1">🍒</div>
@@ -731,14 +728,20 @@
                             </div>
                             <div class="win-line" id="winLine"></div>
                         </div>
+
+                        <!-- БАЛАНС -->
                         <div class="balance-panel">
                             <span class="balance-label">💰 БАЛАНС</span>
                             <span class="balance-value" id="balance">1000</span>
                         </div>
+
+                        <!-- ЕЖЕДНЕВНЫЙ БОНУС -->
                         <div class="daily-bonus-indicator" id="dailyBonusBtn" onclick="claimDailyBonus()">
                             <span class="bonus-text">🎁 Ежедневный бонус</span>
                             <span class="bonus-timer" id="bonusTimer">Доступно</span>
                         </div>
+
+                        <!-- БИЛЕТЫ -->
                         <div class="tickets-panel">
                             <div class="ticket-item">
                                 <span class="ticket-icon">🎫</span>
@@ -751,16 +754,23 @@
                                 <span class="ticket-value" id="vipTicketsCount">0</span>
                             </div>
                         </div>
+
                         <div class="win-message" id="winMessage"></div>
+
+                        <!-- СТАВКА -->
                         <div class="bet-control">
                             <button class="bet-btn" id="decreaseBet">-</button>
                             <span class="bet-value" id="betValue">10</span>
                             <button class="bet-btn" id="increaseBet">+</button>
                         </div>
+
+                        <!-- КНОПКИ -->
                         <div class="controls">
                             <button class="btn btn-spin" id="spinBtn">🎰 КРУТИТЬ</button>
                             <button class="btn btn-maxbet" id="maxBetBtn">⚡ MAX СТАВКА</button>
                         </div>
+
+                        <!-- ТАБЛИЦА ВЫПЛАТ (краткая) -->
                         <div class="paytable">
                             <div class="paytable-title">🎰 ТАБЛИЦА ВЫПЛАТ 🎰</div>
                             <div class="paytable-grid">
@@ -771,38 +781,76 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- СТРАНИЦА 3: МАГАЗИН -->
                 <div class="page">
                     <div class="shop-panel">
                         <div class="shop-title">⭐ МАГАЗИН</div>
+                        
                         <div class="shop-section">
                             <div class="shop-section-title">💰 МОНЕТЫ ЗА STARS</div>
                             <div class="shop-grid">
-                                <div class="shop-item" onclick="buyPackage(10, 1000)"><div class="shop-item-price">10 ⭐</div><div class="shop-item-amount">+1000 монет</div><div class="shop-item-badge">🔥 ХИТ</div></div>
-                                <div class="shop-item" onclick="buyPackage(40, 5000)"><div class="shop-item-price">40 ⭐</div><div class="shop-item-amount">+5000 монет</div><div class="shop-item-badge">⚡ ВЫГОДНО</div></div>
-                                <div class="shop-item" onclick="buyPackage(150, 20000)"><div class="shop-item-price">150 ⭐</div><div class="shop-item-amount">+20000 монет</div><div class="shop-item-badge">🎁 ПОДАРОК</div></div>
-                                <div class="shop-item" onclick="buyPackage(500, 75000)"><div class="shop-item-price">500 ⭐</div><div class="shop-item-amount">+75000 монет</div><div class="shop-item-badge">👑 VIP</div></div>
+                                <div class="shop-item" onclick="buyPackage(10, 1000)">
+                                    <div class="shop-item-price">10 ⭐</div>
+                                    <div class="shop-item-amount">+1000 монет</div>
+                                    <div class="shop-item-badge">🔥 ХИТ</div>
+                                </div>
+                                <div class="shop-item" onclick="buyPackage(40, 5000)">
+                                    <div class="shop-item-price">40 ⭐</div>
+                                    <div class="shop-item-amount">+5000 монет</div>
+                                    <div class="shop-item-badge">⚡ ВЫГОДНО</div>
+                                </div>
+                                <div class="shop-item" onclick="buyPackage(150, 20000)">
+                                    <div class="shop-item-price">150 ⭐</div>
+                                    <div class="shop-item-amount">+20000 монет</div>
+                                    <div class="shop-item-badge">🎁 ПОДАРОК</div>
+                                </div>
+                                <div class="shop-item" onclick="buyPackage(500, 75000)">
+                                    <div class="shop-item-price">500 ⭐</div>
+                                    <div class="shop-item-amount">+75000 монет</div>
+                                    <div class="shop-item-badge">👑 VIP</div>
+                                </div>
                             </div>
                         </div>
+                        
                         <div class="shop-section">
                             <div class="shop-section-title">👑 VIP-БИЛЕТЫ ЗА STARS</div>
                             <div class="shop-grid">
-                                <div class="shop-item" onclick="buyVipTickets(10, 1)"><div class="shop-item-price">10 ⭐</div><div class="shop-item-amount">+1 VIP-билет</div></div>
-                                <div class="shop-item" onclick="buyVipTickets(30, 3)"><div class="shop-item-price">30 ⭐</div><div class="shop-item-amount">+3 VIP-билета</div><div class="shop-item-badge">⚡ ВЫГОДНО</div></div>
-                                <div class="shop-item" onclick="buyVipTickets(100, 10)"><div class="shop-item-price">100 ⭐</div><div class="shop-item-amount">+10 VIP-билетов</div><div class="shop-item-badge">🎁 ПОДАРОК</div></div>
+                                <div class="shop-item" onclick="buyVipTickets(10, 1)">
+                                    <div class="shop-item-price">10 ⭐</div>
+                                    <div class="shop-item-amount">+1 VIP-билет</div>
+                                </div>
+                                <div class="shop-item" onclick="buyVipTickets(30, 3)">
+                                    <div class="shop-item-price">30 ⭐</div>
+                                    <div class="shop-item-amount">+3 VIP-билета</div>
+                                    <div class="shop-item-badge">⚡ ВЫГОДНО</div>
+                                </div>
+                                <div class="shop-item" onclick="buyVipTickets(100, 10)">
+                                    <div class="shop-item-price">100 ⭐</div>
+                                    <div class="shop-item-amount">+10 VIP-билетов</div>
+                                    <div class="shop-item-badge">🎁 ПОДАРОК</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                
+                <!-- СТРАНИЦА 4: ТАБЛИЦЫ -->
                 <div class="page">
                     <div class="tables-content">
+                        <!-- Общая таблица лидеров -->
                         <div class="leaderboard">
                             <div class="leaderboard-title">🏆 ТАБЛИЦА ЛИДЕРОВ (билеты)</div>
                             <div id="leaderboardList">Загрузка...</div>
                         </div>
+                        
+                        <!-- VIP-таблица -->
                         <div class="vip-leaderboard">
                             <div class="leaderboard-title">👑 VIP-ТАБЛИЦА</div>
                             <div id="vipLeaderboardList">Загрузка...</div>
                         </div>
+                        
+                        <!-- Недельный турнир -->
                         <div class="tournament-info">
                             <div class="tournament-title">🏆 НЕДЕЛЬНЫЙ ТУРНИР</div>
                             <div class="tournament-stats">
@@ -812,6 +860,8 @@
                             </div>
                             <div class="tournament-progress" id="weeklyStatus">⚡ ИДЁТ НАБОР</div>
                         </div>
+                        
+                        <!-- VIP-турнир -->
                         <div class="tournament-info">
                             <div class="tournament-title">👑 VIP-ТУРНИР</div>
                             <div class="tournament-stats">
@@ -822,6 +872,8 @@
                             <div class="tournament-progress" id="vipStatus">⚡ ИДЁТ НАБОР</div>
                             <button class="tournament-button" id="joinVipBtn" onclick="joinVipTournament()">👑 УЧАСТВОВАТЬ (5 VIP-билетов)</button>
                         </div>
+                        
+                        <!-- Последние победители -->
                         <div class="winners-history">
                             <div class="leaderboard-title">📜 ПОСЛЕДНИЕ ПОБЕДИТЕЛИ</div>
                             <div id="winnersHistoryList">Загрузка...</div>
@@ -830,7 +882,7 @@
                 </div>
             </div>
         </div>
-
+        
         <div class="dots" id="dots"></div>
     </div>
 
@@ -858,11 +910,21 @@
         let vipTickets = 0;
         let currentBet = 10;
         let isSpinning = false;
+        
         let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
         let totalWins = parseInt(localStorage.getItem('totalWins') || '0');
 
         const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣', '🎫'];
-        const MULTIPLIERS = { '🍒':2, '🍋':3, '🍊':3, '🍇':4, '💎':5, '7️⃣':8, '🎫':0 };
+        
+        const MULTIPLIERS = {
+            '🍒': 2,
+            '🍋': 3,
+            '🍊': 3,
+            '🍇': 4,
+            '💎': 5,
+            '7️⃣': 8,
+            '🎫': 0
+        };
 
         const balanceEl = document.getElementById('balance');
         const reel1 = document.getElementById('reel1');
@@ -887,112 +949,277 @@
         const vipMyTickets = document.getElementById('vipMyTickets');
         const vipStatus = document.getElementById('vipStatus');
 
-        // =============== ADSGRAM ===============
+        // =============== ADSGRAM (по спецификации) ===============
         const BLOCK_ID_MONEY = "int-25683";
         const BLOCK_ID_VIP = "int-25684";
-        let moneyAd = null, vipAd = null;
+
+        let moneyAd = null;
+        let vipAd = null;
+
         if (window.Adsgram) {
             moneyAd = window.Adsgram.init({ blockId: BLOCK_ID_MONEY });
             vipAd = window.Adsgram.init({ blockId: BLOCK_ID_VIP });
         }
+
+        // Счётчик рекламы за монеты (5 раз в день)
         let dailyAdCount = parseInt(localStorage.getItem('dailyAdCount') || '0');
         let lastAdDate = localStorage.getItem('lastAdDate');
+
         function checkAdReset() {
             const today = new Date().toDateString();
-            if (lastAdDate !== today) { dailyAdCount = 0; localStorage.setItem('dailyAdCount', '0'); localStorage.setItem('lastAdDate', today); }
+            if (lastAdDate !== today) {
+                dailyAdCount = 0;
+                localStorage.setItem('dailyAdCount', '0');
+                localStorage.setItem('lastAdDate', today);
+            }
         }
+
         window.showRewardedAd = function() {
             checkAdReset();
             if (dailyAdCount >= 5) {
-                tg.showPopup({ title: '❌ ЛИМИТ', message: '5 попыток в день. Возвращайтесь завтра!', buttons: [{type: 'close'}] });
+                tg.showPopup({
+                    title: '❌ ЛИМИТ',
+                    message: 'Вы использовали 5 попыток рекламы на сегодня. Возвращайтесь завтра!',
+                    buttons: [{type: 'close'}]
+                });
                 return;
             }
-            if (!moneyAd) { tg.showPopup({ title: '❌ Ошибка', message: 'Реклама недоступна', buttons: [{type: 'close'}] }); return; }
+            if (!moneyAd) {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Реклама временно недоступна',
+                    buttons: [{type: 'close'}]
+                });
+                return;
+            }
+            
             moneyAd.show().then(() => {
-                dailyAdCount++; localStorage.setItem('dailyAdCount', dailyAdCount);
-                balance += 200; updateUI();
-                tg.showPopup({ title: '🎥 +200 монет', message: `Осталось ${5-dailyAdCount} попыток`, buttons: [{type: 'close'}] });
-            }).catch(() => tg.showPopup({ title: '❌ Ошибка', message: 'Не удалось показать рекламу', buttons: [{type: 'close'}] }));
+                dailyAdCount++;
+                localStorage.setItem('dailyAdCount', dailyAdCount);
+                balance += 200;
+                updateUI();
+                tg.showPopup({
+                    title: '🎥 +200 монет',
+                    message: `Спасибо за просмотр! Осталось ${5 - dailyAdCount} попыток сегодня.`,
+                    buttons: [{type: 'close'}]
+                });
+            }).catch(() => {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Не удалось показать рекламу',
+                    buttons: [{type: 'close'}]
+                });
+            });
         };
+
+        // VIP-реклама (безлимит, +15 VIP-билетов)
         function showVipAd() {
-            if (!vipAd) { tg.showPopup({ title: '❌ Ошибка', message: 'VIP-реклама недоступна', buttons: [{type: 'close'}] }); return; }
-            vipAd.show().then(() => { vipTickets += 15; updateUI(); tg.showPopup({ title: '👑 +15 VIP-БИЛЕТОВ!', message: 'VIP-билеты зачислены!', buttons: [{type: 'close'}] }); })
-                .catch(() => tg.showPopup({ title: '❌ Ошибка', message: 'Не удалось показать VIP-рекламу', buttons: [{type: 'close'}] }));
+            if (!vipAd) {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'VIP-реклама временно недоступна',
+                    buttons: [{type: 'close'}]
+                });
+                return;
+            }
+            
+            vipAd.show().then(() => {
+                vipTickets += 15;
+                updateUI();
+                tg.showPopup({
+                    title: '👑 +15 VIP-БИЛЕТОВ!',
+                    message: 'VIP-билеты зачислены!',
+                    buttons: [{type: 'close'}]
+                });
+            }).catch(() => {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Не удалось показать VIP-рекламу',
+                    buttons: [{type: 'close'}]
+                });
+            });
         }
 
-        // =============== API ===============
         async function loadUserData() {
             try {
                 const res = await fetch(`${SERVER_URL}/api/user/${userId}`);
                 const data = await res.json();
-                balance = data.balance; tickets = data.tickets; vipTickets = data.vip_tickets;
+                balance = data.balance;
+                tickets = data.tickets;
+                vipTickets = data.vip_tickets;
                 updateUI();
-            } catch(e) { console.error(e); }
+            } catch (e) {
+                console.error('Ошибка загрузки данных:', e);
+            }
         }
+
         async function updateUserOnServer(name, username) {
-            try { await fetch(`${SERVER_URL}/api/user?user_id=${userId}&name=${encodeURIComponent(name)}&username=${encodeURIComponent(username)}`, { method: 'POST' }); } catch(e) { console.error(e); }
+            try {
+                await fetch(`${SERVER_URL}/api/user?user_id=${userId}&name=${encodeURIComponent(name)}&username=${encodeURIComponent(username)}`, { method: 'POST' });
+            } catch (e) {
+                console.error('Ошибка регистрации:', e);
+            }
         }
+
         async function sendSpin(bet, win, symbols) {
             try {
                 const res = await fetch(`${SERVER_URL}/api/spin?user_id=${userId}&bet=${bet}&win=${win}&symbols=${encodeURIComponent(symbols)}`, { method: 'POST' });
                 const data = await res.json();
-                balance = data.balance; tickets = data.tickets; vipTickets = data.vip_tickets;
-                updateUI(); return data;
-            } catch(e) { console.error(e); }
+                balance = data.balance;
+                tickets = data.tickets;
+                vipTickets = data.vip_tickets;
+                updateUI();
+                return data;
+            } catch (e) {
+                console.error('Ошибка отправки спина:', e);
+            }
         }
+
         async function claimDailyBonus() {
             try {
                 const res = await fetch(`${SERVER_URL}/api/daily_bonus?user_id=${userId}`, { method: 'POST' });
                 const data = await res.json();
-                if (data.status === 'ok') { balance = data.balance; updateUI(); tg.showPopup({ title: '🎁 БОНУС', message: '+1000 монет!', buttons: [{type: 'close'}] }); }
-                else { tg.showPopup({ title: '⏳ УЖЕ ПОЛУЧЕНО', message: 'Бонус раз в сутки', buttons: [{type: 'close'}] }); }
-            } catch(e) { console.error(e); }
+                if (data.status === 'ok') {
+                    balance = data.balance;
+                    updateUI();
+                    tg.showPopup({
+                        title: '🎁 БОНУС',
+                        message: '+1000 монет!',
+                        buttons: [{type: 'close'}]
+                    });
+                } else {
+                    tg.showPopup({
+                        title: '⏳ УЖЕ ПОЛУЧЕНО',
+                        message: 'Бонус доступен раз в сутки',
+                        buttons: [{type: 'close'}]
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
         }
+
+        async function addVipBonus() {
+            try {
+                const res = await fetch(`${SERVER_URL}/api/vip_bonus?user_id=${userId}`, { method: 'POST' });
+                const data = await res.json();
+                vipTickets = data.vip_tickets;
+                updateUI();
+                tg.showPopup({
+                    title: '🎉 VIP ДЖЕКПОТ!',
+                    message: '+15 VIP-билетов!',
+                    buttons: [{type: 'close'}]
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         async function loadLeaderboards() {
             try {
-                const [leaderRes, vipRes] = await Promise.all([fetch(`${SERVER_URL}/api/leaderboard`), fetch(`${SERVER_URL}/api/vip_leaderboard`)]);
+                const [leaderRes, vipRes] = await Promise.all([
+                    fetch(`${SERVER_URL}/api/leaderboard`),
+                    fetch(`${SERVER_URL}/api/vip_leaderboard`)
+                ]);
                 const leaderboard = await leaderRes.json();
                 const vipLeaderboard = await vipRes.json();
                 renderLeaderboard(leaderboard);
                 renderVipLeaderboard(vipLeaderboard);
-            } catch(e) { console.error(e); }
+            } catch (e) {
+                console.error('Ошибка загрузки лидербордов:', e);
+            }
         }
+
         async function loadTournaments() {
             try {
+                // Недельный турнир
                 const weeklyRes = await fetch(`${SERVER_URL}/api/tournament/weekly?user_id=${userId}`);
                 const weekly = await weeklyRes.json();
+                
                 document.getElementById('weeklyParticipants').textContent = weekly.participants;
                 document.getElementById('weeklyMyTickets').textContent = weekly.my_contribution;
-                let prizeText = weekly.prize_places === 1 ? `1 место: ${weekly.prize_per_place} ⭐` : `${weekly.prize_places} мест по ${weekly.prize_per_place} ⭐`;
+                
+                let prizeText = '';
+                if (weekly.prize_places === 1) {
+                    prizeText = `1 место: ${weekly.prize_per_place} ⭐`;
+                } else {
+                    prizeText = `${weekly.prize_places} мест по ${weekly.prize_per_place} ⭐`;
+                }
                 document.getElementById('weeklyPrize').textContent = prizeText;
+                
+                // VIP-турнир
                 const vipRes = await fetch(`${SERVER_URL}/api/tournament/vip?user_id=${userId}`);
                 const vip = await vipRes.json();
+                
                 document.getElementById('vipParticipants').textContent = `${vip.participants}/${vip.max_participants}`;
                 document.getElementById('vipMyTickets').textContent = `${vip.my_contribution} VIP-билетов`;
+                
+                // История победителей
                 const winnersRes = await fetch(`${SERVER_URL}/api/winners`);
                 const winners = await winnersRes.json();
-                document.getElementById('winnersHistoryList').innerHTML = winners.length ? winners.map(w => `<div class="leaderboard-item"><span class="leaderboard-name">${w.name}</span><span class="leaderboard-score">${w.prize}</span></div>`).join('') : '<div class="leaderboard-item">Пока нет победителей</div>';
-            } catch(e) { console.error(e); }
+                
+                if (winners.length === 0) {
+                    document.getElementById('winnersHistoryList').innerHTML = '<div class="leaderboard-item">Пока нет победителей</div>';
+                } else {
+                    document.getElementById('winnersHistoryList').innerHTML = winners.map(w => `
+                        <div class="leaderboard-item">
+                            <span class="leaderboard-name">${w.name}</span>
+                            <span class="leaderboard-score">${w.prize}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки турниров:', e);
+            }
         }
+
         function renderLeaderboard(data) {
-            if (!data.length) { leaderboardList.innerHTML = '<div class="leaderboard-item">Пока нет участников</div>'; return; }
-            leaderboardList.innerHTML = data.map((p,i) => `<div class="leaderboard-item ${p.id == userId ? 'highlight' : ''}"><span class="leaderboard-rank">${i+1}.</span><span class="leaderboard-name">${p.name}</span><span class="leaderboard-score">${p.tickets}</span></div>`).join('');
+            if (!data.length) {
+                leaderboardList.innerHTML = '<div class="leaderboard-item">Пока нет участников</div>';
+                return;
+            }
+            leaderboardList.innerHTML = data.map((p, i) => `
+                <div class="leaderboard-item ${p.id == userId ? 'highlight' : ''}">
+                    <span class="leaderboard-rank">${i+1}.</span>
+                    <span class="leaderboard-name">${p.name}</span>
+                    <span class="leaderboard-score">${p.tickets}</span>
+                </div>
+            `).join('');
             document.getElementById('statsPlayers').textContent = data.length;
         }
+
         function renderVipLeaderboard(data) {
-            if (!data.length) { vipLeaderboardList.innerHTML = '<div class="leaderboard-item">Пока нет участников</div>'; return; }
-            vipLeaderboardList.innerHTML = data.map((p,i) => `<div class="leaderboard-item ${p.id == userId ? 'highlight' : ''}"><span class="leaderboard-rank">${i+1}.</span><span class="leaderboard-name">${p.name}</span><span class="leaderboard-score">${p.vip_tickets}</span></div>`).join('');
+            if (!data.length) {
+                vipLeaderboardList.innerHTML = '<div class="leaderboard-item">Пока нет участников</div>';
+                return;
+            }
+            vipLeaderboardList.innerHTML = data.map((p, i) => `
+                <div class="leaderboard-item ${p.id == userId ? 'highlight' : ''}">
+                    <span class="leaderboard-rank">${i+1}.</span>
+                    <span class="leaderboard-name">${p.name}</span>
+                    <span class="leaderboard-score">${p.vip_tickets}</span>
+                </div>
+            `).join('');
         }
+
         function updateUI() {
             balanceEl.textContent = balance;
             betValue.textContent = currentBet;
             document.getElementById('ticketsCount').textContent = tickets;
             document.getElementById('vipTicketsCount').textContent = vipTickets;
         }
-        function getRandomSymbol() { return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]; }
-        function calculateWin(s1,s2,s3,bet) {
-            if (s1===s2 && s2===s3) return bet * MULTIPLIERS[s1];
-            if (s1===s2 || s1===s3 || s2===s3) return bet;
+
+        function getRandomSymbol() {
+            return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+        }
+
+        function calculateWin(s1, s2, s3, bet) {
+            if (s1 === s2 && s2 === s3) {
+                return bet * MULTIPLIERS[s1];
+            }
+            if (s1 === s2 || s1 === s3 || s2 === s3) {
+                return bet;
+            }
             return 0;
         }
 
@@ -1001,41 +1228,116 @@
             if (balance < currentBet) {
                 winMessage.textContent = '❌ Недостаточно средств!';
                 setTimeout(() => {
-                    tg.showPopup({ title: '🎥 Хочешь ещё монет?', message: '+200 монет за рекламу (5 раз/день)', buttons: [{type: 'default', text: '🎬 Смотреть', id: 'watch'}, {type: 'close', text: 'Нет'}] }, (btnId) => { if (btnId === 'watch') window.showRewardedAd(); });
+                    tg.showPopup({
+                        title: '🎥 Хочешь ещё монет?',
+                        message: 'Посмотри видео и получи +200 монет! (5 раз в день)',
+                        buttons: [
+                            {type: 'default', text: '🎬 Смотреть', id: 'watch'},
+                            {type: 'close', text: 'Нет'}
+                        ]
+                    }, (btnId) => {
+                        if (btnId === 'watch') {
+                            window.showRewardedAd();
+                        }
+                    });
                 }, 1000);
                 return;
             }
+
             isSpinning = true;
-            spinBtn.disabled = maxBetBtn.disabled = decreaseBet.disabled = increaseBet.disabled = true;
-            balance -= currentBet; totalSpins++; localStorage.setItem('totalSpins', totalSpins); updateUI();
-            winMessage.textContent = ''; winLine.classList.remove('active');
-            const spinDuration = 500, start = Date.now();
-            while (Date.now() - start < spinDuration) {
-                reel1.textContent = getRandomSymbol(); reel2.textContent = getRandomSymbol(); reel3.textContent = getRandomSymbol();
+            spinBtn.disabled = true;
+            maxBetBtn.disabled = true;
+            decreaseBet.disabled = true;
+            increaseBet.disabled = true;
+            
+            balance -= currentBet;
+            totalSpins++;
+            localStorage.setItem('totalSpins', totalSpins);
+            updateUI();
+            
+            winMessage.textContent = '';
+            winLine.classList.remove('active');
+
+            const spinDuration = 500;
+            const startTime = Date.now();
+            
+            while (Date.now() - startTime < spinDuration) {
+                reel1.textContent = getRandomSymbol();
+                reel2.textContent = getRandomSymbol();
+                reel3.textContent = getRandomSymbol();
                 await new Promise(r => setTimeout(r, 50));
             }
+
             const result = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
-            reel1.textContent = result[0]; reel2.textContent = result[1]; reel3.textContent = result[2];
+            reel1.textContent = result[0];
+            reel2.textContent = result[1];
+            reel3.textContent = result[2];
+
             const win = calculateWin(result[0], result[1], result[2], currentBet);
             const symbolsStr = result.join('');
+            
             const spinResult = await sendSpin(currentBet, win, symbolsStr);
-            if (spinResult) { balance = spinResult.balance; tickets = spinResult.tickets; vipTickets = spinResult.vip_tickets; }
-            if (win > 0) { totalWins++; localStorage.setItem('totalWins', totalWins); winMessage.textContent = `🎉 ВЫИГРЫШ: ${win} 🎉`; winLine.classList.add('active'); }
-            else { winMessage.textContent = '😎 Попробуй еще!'; }
+            if (spinResult) {
+                balance = spinResult.balance;
+                tickets = spinResult.tickets;
+                vipTickets = spinResult.vip_tickets;
+            }
+            
+            if (win > 0) {
+                totalWins++;
+                localStorage.setItem('totalWins', totalWins);
+                winMessage.textContent = `🎉 ВЫИГРЫШ: ${win} 🎉`;
+                winLine.classList.add('active');
+            } else {
+                winMessage.textContent = '😎 Попробуй еще!';
+            }
+            
             if (result[0] === '🎫' && result[1] === '🎫' && result[2] === '🎫') {
                 setTimeout(() => {
-                    tg.showPopup({ title: '🎫 VIP-ДЖЕКПОТ!', message: 'Посмотри рекламу и получи 15 VIP-билетов!', buttons: [{type: 'default', text: '🎬 Смотреть', id: 'watch'}, {type: 'close', text: 'Отказаться'}] }, (btnId) => { if (btnId === 'watch') showVipAd(); });
+                    tg.showPopup({
+                        title: '🎫 VIP-ДЖЕКПОТ!',
+                        message: 'Ты выиграл 15 VIP-билетов! Посмотри рекламу, чтобы получить их.',
+                        buttons: [
+                            {type: 'default', text: '🎬 Смотреть', id: 'watch'},
+                            {type: 'close', text: 'Отказаться'}
+                        ]
+                    }, (btnId) => {
+                        if (btnId === 'watch') {
+                            showVipAd();
+                        }
+                    });
                 }, 500);
             }
+            
             updateUI();
+
             isSpinning = false;
-            spinBtn.disabled = maxBetBtn.disabled = decreaseBet.btn.disabled = increaseBet.btn.disabled = false;
+            spinBtn.disabled = false;
+            maxBetBtn.disabled = false;
+            decreaseBet.disabled = false;
+            increaseBet.disabled = false;
         }
 
         function showReferralLink() {
             const link = `https://t.me/YourSlotGameBot?start=ref_${userId}`;
-            tg.showPopup({ title: '👥 РЕФЕРАЛЬНАЯ ПРОГРАММА', message: `🔗 Твоя ссылка:\n${link}\n\n✅ За каждого друга → +500 монет + 1 VIP-билет`, buttons: [{type: 'default', text: '📋 Копировать', id: 'copy'}, {type: 'close', text: 'Закрыть'}] }, (btnId) => { if (btnId === 'copy') tg.showPopup({ title: '✅ СКОПИРОВАНО', message: 'Отправь ссылку друзьям!', buttons: [{type: 'close'}] }); });
+            tg.showPopup({
+                title: '👥 РЕФЕРАЛЬНАЯ ПРОГРАММА',
+                message: `🔗 Твоя ссылка:\n${link}\n\n✅ За каждого друга → +500 монет + 1 VIP-билет\n\nОтправь ссылку друзьям!`,
+                buttons: [
+                    {type: 'default', text: '📋 Копировать', id: 'copy'},
+                    {type: 'close', text: 'Закрыть'}
+                ]
+            }, (btnId) => {
+                if (btnId === 'copy') {
+                    tg.showPopup({
+                        title: '✅ СКОПИРОВАНО',
+                        message: 'Отправь ссылку друзьям!',
+                        buttons: [{type: 'close'}]
+                    });
+                }
+            });
         }
+
         async function checkReferral(startParam) {
             if (startParam && startParam.startsWith('ref_')) {
                 const referrerId = startParam.replace('ref_', '');
@@ -1043,68 +1345,148 @@
                     try {
                         const res = await fetch(`${SERVER_URL}/api/referral?referrer_id=${referrerId}&referred_id=${userId}`, { method: 'POST' });
                         const data = await res.json();
-                        if (data.status === 'ok') { await loadUserData(); tg.showPopup({ title: '🎁 БОНУС', message: '+500 монет и +1 VIP-билет!', buttons: [{type: 'close'}] }); }
-                    } catch(e) { console.error(e); }
+                        if (data.status === 'ok') {
+                            await loadUserData();
+                            tg.showPopup({
+                                title: '🎁 БОНУС',
+                                message: '+500 монет и +1 VIP-билет за переход по ссылке!',
+                                buttons: [{type: 'close'}]
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Ошибка регистрации реферала:', e);
+                    }
                 }
             }
         }
+
         const startParam = tg.initDataUnsafe?.start_param || '';
         checkReferral(startParam);
 
-        window.buyPackage = (stars, coins) => tg.showPopup({ title: '⭐ ПОКУПКА', message: `${coins} монет за ${stars} Stars. Скоро!`, buttons: [{type: 'close'}] });
-        window.buyVipTickets = (stars, tickets) => tg.showPopup({ title: '👑 ПОКУПКА', message: `${tickets} VIP-билетов за ${stars} Stars. Скоро!`, buttons: [{type: 'close'}] });
-        window.joinVipTournament = () => vipTickets >= 5 ? tg.showPopup({ title: '👑 VIP-ТУРНИР', message: 'Вы участвуете! Старт при 100 участниках. Приз: 2500 Stars!', buttons: [{type: 'close'}] }) : tg.showPopup({ title: '❌ НЕДОСТАТОЧНО', message: `Нужно 5 VIP-билетов, у вас ${vipTickets}`, buttons: [{type: 'close'}] });
-        window.sendAnnouncement = () => { const t = document.getElementById('announcementText').value; if(t) tg.showPopup({ title: '📢 ОБЪЯВЛЕНИЕ', message: t, buttons: [{type: 'close'}] }); else tg.showPopup({ title: '❌ Ошибка', message: 'Введите текст', buttons: [{type: 'close'}] }); };
-        window.updateEvent = () => tg.showPopup({ title: '🎁 РЕДАКТОР', message: 'Скоро', buttons: [{type: 'close'}] });
-        window.pickWinner = () => tg.showPopup({ title: '👑 ПОБЕДИТЕЛЬ', message: 'Скоро', buttons: [{type: 'close'}] });
-        window.markPrizeSent = () => { tg.showPopup({ title: '✅ ОТПРАВЛЕНО', message: 'Отмечено', buttons: [{type: 'close'}] }); document.getElementById('winnerResult').style.display = 'none'; };
+        window.buyPackage = async function(stars, coins) {
+            tg.showPopup({
+                title: '⭐ ПОКУПКА МОНЕТ',
+                message: `💎 Пакет: ${coins} монет за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!`,
+                buttons: [{type: 'close', text: '🎰 Понятно'}]
+            });
+        };
 
-        // =============== СВАЙП И ИНДИКАТОРЫ (ИСПРАВЛЕНО) ===============
+        window.buyVipTickets = async function(stars, tickets) {
+            tg.showPopup({
+                title: '👑 ПОКУПКА VIP-БИЛЕТОВ',
+                message: `💎 ${tickets} VIP-билет(ов) за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!`,
+                buttons: [{type: 'close', text: '🎰 Понятно'}]
+            });
+        };
+
+        window.joinVipTournament = function() {
+            if (vipTickets >= 5) {
+                tg.showPopup({
+                    title: '👑 VIP-ТУРНИР',
+                    message: 'Вы использовали 5 VIP-билетов для входа!\n\n🚀 Турнир стартует при 100 участниках.\nПриз: 2500 Stars!',
+                    buttons: [{type: 'close', text: 'Отлично!'}]
+                });
+            } else {
+                tg.showPopup({
+                    title: '❌ НЕДОСТАТОЧНО VIP-БИЛЕТОВ',
+                    message: `У вас ${vipTickets} VIP-билетов. Нужно 5 для участия.\n\nКупите билеты в магазине или выиграйте в слоте!`,
+                    buttons: [{type: 'close', text: 'Понятно'}]
+                });
+            }
+        };
+
+        window.sendAnnouncement = function() {
+            const text = document.getElementById('announcementText').value;
+            if (text) {
+                tg.showPopup({
+                    title: '📢 ОБЪЯВЛЕНИЕ',
+                    message: text,
+                    buttons: [{type: 'close'}]
+                });
+                document.getElementById('announcementText').value = '';
+            } else {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Введите текст объявления',
+                    buttons: [{type: 'close'}]
+                });
+            }
+        };
+
+        window.updateEvent = function() {
+            const newPrize = document.getElementById('prizeInput').value;
+            const newDate = document.getElementById('dateInput').value;
+            tg.showPopup({
+                title: '🎁 РЕДАКТОР',
+                message: `Приз: ${newPrize}\nДата: ${newDate}`,
+                buttons: [{type: 'close'}]
+            });
+        };
+
+        window.pickWinner = function() {
+            tg.showPopup({
+                title: '👑 ПОБЕДИТЕЛЬ',
+                message: 'Функция выбора победителя будет доступна позже',
+                buttons: [{type: 'close'}]
+            });
+        };
+
+        window.markPrizeSent = function() {
+            tg.showPopup({
+                title: '✅ ОТПРАВЛЕНО',
+                message: 'Отмечено',
+                buttons: [{type: 'close'}]
+            });
+            document.getElementById('winnerResult').style.display = 'none';
+        };
+
+        let currentPage = 1;
         const pagesWrapper = document.getElementById('pagesWrapper');
         const dotsContainer = document.getElementById('dots');
-        const allPages = document.querySelectorAll('.page');
-        const totalPages = allPages.length;
-        let currentPageIndex = 0;
-
+        const pagesCount = 4;
+        
         function updateDots() {
-            if (!dotsContainer) return;
             dotsContainer.innerHTML = '';
-            for (let i = 0; i < totalPages; i++) {
+            for (let i = 0; i < pagesCount; i++) {
                 const dot = document.createElement('div');
-                dot.className = 'dot' + (i === currentPageIndex ? ' active' : '');
+                dot.className = 'dot' + (i === currentPage ? ' active' : '');
                 dot.onclick = () => {
-                    currentPageIndex = i;
+                    currentPage = i;
                     pagesWrapper.scrollTo({ left: i * pagesWrapper.clientWidth, behavior: 'smooth' });
                     updateDots();
                 };
                 dotsContainer.appendChild(dot);
             }
         }
-
+        
         if (pagesWrapper) {
             pagesWrapper.addEventListener('scroll', () => {
                 const newIndex = Math.round(pagesWrapper.scrollLeft / pagesWrapper.clientWidth);
-                if (newIndex !== currentPageIndex) {
-                    currentPageIndex = newIndex;
+                if (newIndex !== currentPage) {
+                    currentPage = newIndex;
                     updateDots();
                 }
             });
             updateDots();
-            
-            // Старт со второй страницы (индекс 1)
-            setTimeout(() => {
-                if (pagesWrapper.clientWidth > 0) {
-                    pagesWrapper.scrollTo({ left: pagesWrapper.clientWidth, behavior: 'instant' });
-                    currentPageIndex = 1;
-                    updateDots();
-                }
-            }, 100);
         }
 
         spinBtn.addEventListener('click', spin);
-        maxBetBtn.addEventListener('click', () => { currentBet = Math.min(100, balance); updateUI(); });
-        decreaseBet.addEventListener('click', () => { if (currentBet > 10 && !isSpinning) { currentBet -= 10; updateUI(); } });
-        increaseBet.addEventListener('click', () => { if (currentBet < 100 && currentBet + 10 <= balance && !isSpinning) { currentBet += 10; updateUI(); } });
+        maxBetBtn.addEventListener('click', () => {
+            currentBet = Math.min(100, balance);
+            updateUI();
+        });
+        decreaseBet.addEventListener('click', () => {
+            if (currentBet > 10 && !isSpinning) {
+                currentBet -= 10;
+                updateUI();
+            }
+        });
+        increaseBet.addEventListener('click', () => {
+            if (currentBet < 100 && currentBet + 10 <= balance && !isSpinning) {
+                currentBet += 10;
+                updateUI();
+            }
+        });
 
         updateUserOnServer(userName, userUsername);
         loadUserData();
