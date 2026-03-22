@@ -510,7 +510,7 @@
             padding: 16px;
         }
 
-        .leaderboard, .vip-leaderboard, .free-leaderboard, .winners-history {
+        .leaderboard, .vip-leaderboard, .winners-history {
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
             padding: 16px;
@@ -705,7 +705,7 @@
                             <p><strong>🎫 VIP-БИЛЕТЫ:</strong> Получаются за выпадение 🎫🎫🎫 + просмотр рекламы. Участвуют в VIP-турнире. Также 1 VIP-билет даётся за приглашённого друга (вместе с 500 монетами).</p>
                             <p><strong>📺 РЕКЛАМА:</strong> При нехватке монет → +200 монет (5 раз/день).</p>
                             <p><strong>🎁 БОНУСЫ:</strong> 1000 монет каждый день. За 7 дней подряд +500 монет + 1 VIP-билет. За 30 дней +2000 монет + 5 VIP-билетов.</p>
-                            <p><strong>🏆 ТУРНИРЫ:</strong> Недельный (500 Stars, 50 участников). VIP-турнир (2500 Stars, 100 участников, вход 5 VIP-билетов).</p>
+                            <p><strong>🏆 ТУРНИРЫ:</strong> Недельный (10 Stars за призовые места, количество мест зависит от участников). VIP-турнир (2500 Stars, 100 участников, вход 5 VIP-билетов).</p>
                             <p><strong>👥 РЕФЕРАЛЬНАЯ ПРОГРАММА:</strong> За каждого приглашённого друга → +500 монет и +1 VIP-билет.</p>
                         </div>
                     </div>
@@ -714,7 +714,7 @@
                 <!-- СТРАНИЦА 2: ГЛАВНАЯ (слот) -->
                 <div class="page">
                     <div class="slot-content">
-                        <!-- РЕФЕРАЛЬНЫЙ БЛОК (без счётчика) -->
+                        <!-- РЕФЕРАЛЬНЫЙ БЛОК -->
                         <div class="referral-panel" onclick="showReferralLink()">
                             <span class="referral-text">👥 ПРИГЛАСИТЬ ДРУГА → +500 монет и +1 VIP-билет</span>
                         </div>
@@ -835,51 +835,53 @@
                     </div>
                 </div>
                 
-<!-- СТРАНИЦА 4: ТАБЛИЦЫ -->
-<div class="page">
-    <div class="tables-content">
-        <!-- Общая таблица лидеров -->
-        <div class="leaderboard">
-            <div class="leaderboard-title">🏆 ТАБЛИЦА ЛИДЕРОВ (билеты)</div>
-            <div id="leaderboardList">Загрузка...</div>
-        </div>
-        
-        <!-- VIP-таблица -->
-        <div class="vip-leaderboard">
-            <div class="leaderboard-title">👑 VIP-ТАБЛИЦА</div>
-            <div id="vipLeaderboardList">Загрузка...</div>
-        </div>
-        
-        <!-- Недельный турнир -->
-        <div class="tournament-info">
-            <div class="tournament-title">🏆 НЕДЕЛЬНЫЙ ТУРНИР</div>
-            <div class="tournament-stats">
-                <div class="tournament-stat"><div class="tournament-stat-label">ПРИЗЫ</div><div class="tournament-stat-value" id="weeklyPrize">—</div></div>
-                <div class="tournament-stat"><div class="tournament-stat-label">УЧАСТНИКИ</div><div class="tournament-stat-value" id="weeklyParticipants">0</div></div>
-                <div class="tournament-stat"><div class="tournament-stat-label">ТВОИ БИЛЕТЫ</div><div class="tournament-stat-value" id="weeklyMyTickets">0</div></div>
+                <!-- СТРАНИЦА 4: ТАБЛИЦЫ -->
+                <div class="page">
+                    <div class="tables-content">
+                        <!-- Общая таблица лидеров -->
+                        <div class="leaderboard">
+                            <div class="leaderboard-title">🏆 ТАБЛИЦА ЛИДЕРОВ (билеты)</div>
+                            <div id="leaderboardList">Загрузка...</div>
+                        </div>
+                        
+                        <!-- VIP-таблица -->
+                        <div class="vip-leaderboard">
+                            <div class="leaderboard-title">👑 VIP-ТАБЛИЦА</div>
+                            <div id="vipLeaderboardList">Загрузка...</div>
+                        </div>
+                        
+                        <!-- Недельный турнир -->
+                        <div class="tournament-info">
+                            <div class="tournament-title">🏆 НЕДЕЛЬНЫЙ ТУРНИР</div>
+                            <div class="tournament-stats">
+                                <div class="tournament-stat"><div class="tournament-stat-label">ПРИЗЫ</div><div class="tournament-stat-value" id="weeklyPrize">—</div></div>
+                                <div class="tournament-stat"><div class="tournament-stat-label">УЧАСТНИКИ</div><div class="tournament-stat-value" id="weeklyParticipants">0</div></div>
+                                <div class="tournament-stat"><div class="tournament-stat-label">ТВОИ БИЛЕТЫ</div><div class="tournament-stat-value" id="weeklyMyTickets">0</div></div>
+                            </div>
+                            <div class="tournament-progress" id="weeklyStatus">⚡ ИДЁТ НАБОР</div>
+                        </div>
+                        
+                        <!-- VIP-турнир -->
+                        <div class="tournament-info">
+                            <div class="tournament-title">👑 VIP-ТУРНИР</div>
+                            <div class="tournament-stats">
+                                <div class="tournament-stat"><div class="tournament-stat-label">ПРИЗ</div><div class="tournament-stat-value">2500 ⭐</div></div>
+                                <div class="tournament-stat"><div class="tournament-stat-label">УЧАСТНИКИ</div><div class="tournament-stat-value" id="vipParticipants">0/100</div></div>
+                                <div class="tournament-stat"><div class="tournament-stat-label">ТВОЙ ВКЛАД</div><div class="tournament-stat-value" id="vipMyTickets">0 VIP-билетов</div></div>
+                            </div>
+                            <div class="tournament-progress" id="vipStatus">⚡ ИДЁТ НАБОР</div>
+                            <button class="tournament-button" id="joinVipBtn" onclick="joinVipTournament()">👑 УЧАСТВОВАТЬ (5 VIP-билетов)</button>
+                        </div>
+                        
+                        <!-- Последние победители -->
+                        <div class="winners-history">
+                            <div class="leaderboard-title">📜 ПОСЛЕДНИЕ ПОБЕДИТЕЛИ</div>
+                            <div id="winnersHistoryList">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="tournament-progress" id="weeklyStatus">⚡ ИДЁТ НАБОР</div>
         </div>
-        
-        <!-- VIP-турнир -->
-        <div class="tournament-info">
-            <div class="tournament-title">👑 VIP-ТУРНИР</div>
-            <div class="tournament-stats">
-                <div class="tournament-stat"><div class="tournament-stat-label">ПРИЗ</div><div class="tournament-stat-value">2500 ⭐</div></div>
-                <div class="tournament-stat"><div class="tournament-stat-label">УЧАСТНИКИ</div><div class="tournament-stat-value" id="vipParticipants">0/100</div></div>
-                <div class="tournament-stat"><div class="tournament-stat-label">ТВОЙ ВКЛАД</div><div class="tournament-stat-value" id="vipMyTickets">0 VIP-билетов</div></div>
-            </div>
-            <div class="tournament-progress" id="vipStatus">⚡ ИДЁТ НАБОР</div>
-            <button class="tournament-button" id="joinVipBtn" onclick="joinVipTournament()">👑 УЧАСТВОВАТЬ (5 VIP-билетов)</button>
-        </div>
-        
-        <!-- Последние победители -->
-        <div class="winners-history">
-            <div class="leaderboard-title">📜 ПОСЛЕДНИЕ ПОБЕДИТЕЛИ</div>
-            <div id="winnersHistoryList">Загрузка...</div>
-        </div>
-    </div>
-</div>
         
         <div class="dots" id="dots"></div>
     </div>
@@ -940,10 +942,11 @@
         const vipLeaderboardList = document.getElementById('vipLeaderboardList');
         const winnersHistoryList = document.getElementById('winnersHistoryList');
         const weeklyParticipants = document.getElementById('weeklyParticipants');
-        const weeklyMyContribution = document.getElementById('weeklyMyContribution');
+        const weeklyMyTickets = document.getElementById('weeklyMyTickets');
+        const weeklyPrize = document.getElementById('weeklyPrize');
         const weeklyStatus = document.getElementById('weeklyStatus');
         const vipParticipants = document.getElementById('vipParticipants');
-        const vipMyContribution = document.getElementById('vipMyContribution');
+        const vipMyTickets = document.getElementById('vipMyTickets');
         const vipStatus = document.getElementById('vipStatus');
 
         async function loadUserData() {
@@ -1032,7 +1035,50 @@
                 renderLeaderboard(leaderboard);
                 renderVipLeaderboard(vipLeaderboard);
             } catch (e) {
-                console.error(e);
+                console.error('Ошибка загрузки лидербордов:', e);
+            }
+        }
+
+        async function loadTournaments() {
+            try {
+                // Недельный турнир
+                const weeklyRes = await fetch(`${SERVER_URL}/api/tournament/weekly?user_id=${userId}`);
+                const weekly = await weeklyRes.json();
+                
+                document.getElementById('weeklyParticipants').textContent = weekly.participants;
+                document.getElementById('weeklyMyTickets').textContent = weekly.my_contribution;
+                
+                let prizeText = '';
+                if (weekly.prize_places === 1) {
+                    prizeText = `1 место: ${weekly.prize_per_place} ⭐`;
+                } else {
+                    prizeText = `${weekly.prize_places} мест по ${weekly.prize_per_place} ⭐`;
+                }
+                document.getElementById('weeklyPrize').textContent = prizeText;
+                
+                // VIP-турнир
+                const vipRes = await fetch(`${SERVER_URL}/api/tournament/vip?user_id=${userId}`);
+                const vip = await vipRes.json();
+                
+                document.getElementById('vipParticipants').textContent = `${vip.participants}/${vip.max_participants}`;
+                document.getElementById('vipMyTickets').textContent = `${vip.my_contribution} VIP-билетов`;
+                
+                // История победителей
+                const winnersRes = await fetch(`${SERVER_URL}/api/winners`);
+                const winners = await winnersRes.json();
+                
+                if (winners.length === 0) {
+                    document.getElementById('winnersHistoryList').innerHTML = '<div class="leaderboard-item">Пока нет победителей</div>';
+                } else {
+                    document.getElementById('winnersHistoryList').innerHTML = winners.map(w => `
+                        <div class="leaderboard-item">
+                            <span class="leaderboard-name">${w.name}</span>
+                            <span class="leaderboard-score">${w.prize}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки турниров:', e);
             }
         }
 
@@ -1070,10 +1116,6 @@
             betValue.textContent = currentBet;
             document.getElementById('ticketsCount').textContent = tickets;
             document.getElementById('vipTicketsCount').textContent = vipTickets;
-            weeklyParticipants.textContent = `0/50`;
-            weeklyMyContribution.textContent = `0 билетов`;
-            vipParticipants.textContent = `0/100`;
-            vipMyContribution.textContent = `0 VIP-билетов`;
         }
 
         function getRandomSymbol() {
@@ -1269,14 +1311,6 @@
             });
         };
 
-        window.joinWeeklyTournament = function() {
-            tg.showPopup({
-                title: '🏆 НЕДЕЛЬНЫЙ ТУРНИР',
-                message: 'Участие бесплатное (по обычным билетам).\n\n🚀 Турнир стартует при 50 участниках.\nПриз: 500 Stars!',
-                buttons: [{type: 'close', text: 'Понятно'}]
-            });
-        };
-
         window.joinVipTournament = function() {
             if (vipTickets >= 5) {
                 tg.showPopup({
@@ -1418,7 +1452,9 @@
         updateUserOnServer(userName, userUsername);
         loadUserData();
         loadLeaderboards();
+        loadTournaments();
         setInterval(loadLeaderboards, 30000);
+        setInterval(loadTournaments, 30000);
     </script>
 </body>
 </html>
