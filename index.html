@@ -949,6 +949,97 @@
         const vipMyTickets = document.getElementById('vipMyTickets');
         const vipStatus = document.getElementById('vipStatus');
 
+        // =============== ADSGRAM (по спецификации) ===============
+        const BLOCK_ID_MONEY = "int-25683";
+        const BLOCK_ID_VIP = "int-25684";
+
+        let moneyAd = null;
+        let vipAd = null;
+
+        if (window.Adsgram) {
+            moneyAd = window.Adsgram.init({ blockId: BLOCK_ID_MONEY });
+            vipAd = window.Adsgram.init({ blockId: BLOCK_ID_VIP });
+        }
+
+        // Счётчик рекламы за монеты (5 раз в день)
+        let dailyAdCount = parseInt(localStorage.getItem('dailyAdCount') || '0');
+        let lastAdDate = localStorage.getItem('lastAdDate');
+
+        function checkAdReset() {
+            const today = new Date().toDateString();
+            if (lastAdDate !== today) {
+                dailyAdCount = 0;
+                localStorage.setItem('dailyAdCount', '0');
+                localStorage.setItem('lastAdDate', today);
+            }
+        }
+
+        window.showRewardedAd = function() {
+            checkAdReset();
+            if (dailyAdCount >= 5) {
+                tg.showPopup({
+                    title: '❌ ЛИМИТ',
+                    message: 'Вы использовали 5 попыток рекламы на сегодня. Возвращайтесь завтра!',
+                    buttons: [{type: 'close'}]
+                });
+                return;
+            }
+            if (!moneyAd) {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Реклама временно недоступна',
+                    buttons: [{type: 'close'}]
+                });
+                return;
+            }
+            
+            moneyAd.show().then(() => {
+                dailyAdCount++;
+                localStorage.setItem('dailyAdCount', dailyAdCount);
+                balance += 200;
+                updateUI();
+                tg.showPopup({
+                    title: '🎥 +200 монет',
+                    message: `Спасибо за просмотр! Осталось ${5 - dailyAdCount} попыток сегодня.`,
+                    buttons: [{type: 'close'}]
+                });
+            }).catch(() => {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Не удалось показать рекламу',
+                    buttons: [{type: 'close'}]
+                });
+            });
+        };
+
+        // VIP-реклама (безлимит, +15 VIP-билетов)
+        function showVipAd() {
+            if (!vipAd) {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'VIP-реклама временно недоступна',
+                    buttons: [{type: 'close'}]
+                });
+                return;
+            }
+            
+            vipAd.show().then(() => {
+                vipTickets += 15;
+                updateUI();
+                tg.showPopup({
+                    title: '👑 +15 VIP-БИЛЕТОВ!',
+                    message: 'VIP-билеты зачислены!',
+                    buttons: [{type: 'close'}]
+                });
+            }).catch(() => {
+                tg.showPopup({
+                    title: '❌ Ошибка',
+                    message: 'Не удалось показать VIP-рекламу',
+                    buttons: [{type: 'close'}]
+                });
+            });
+        }
+
         async function loadUserData() {
             try {
                 const res = await fetch(`${SERVER_URL}/api/user/${userId}`);
@@ -1146,7 +1237,7 @@
                         ]
                     }, (btnId) => {
                         if (btnId === 'watch') {
-                            showRewardedAd();
+                            window.showRewardedAd();
                         }
                     });
                 }, 1000);
@@ -1202,18 +1293,20 @@
             }
             
             if (result[0] === '🎫' && result[1] === '🎫' && result[2] === '🎫') {
-                tg.showPopup({
-                    title: '🎫 VIP-ДЖЕКПОТ!',
-                    message: 'Ты выиграл 15 VIP-билетов! Посмотри рекламу, чтобы получить их.',
-                    buttons: [
-                        {type: 'default', text: '🎬 Смотреть', id: 'watch'},
-                        {type: 'close', text: 'Отказаться'}
-                    ]
-                }, (btnId) => {
-                    if (btnId === 'watch') {
-                        showRewardedAdForVip();
-                    }
-                });
+                setTimeout(() => {
+                    tg.showPopup({
+                        title: '🎫 VIP-ДЖЕКПОТ!',
+                        message: 'Ты выиграл 15 VIP-билетов! Посмотри рекламу, чтобы получить их.',
+                        buttons: [
+                            {type: 'default', text: '🎬 Смотреть', id: 'watch'},
+                            {type: 'close', text: 'Отказаться'}
+                        ]
+                    }, (btnId) => {
+                        if (btnId === 'watch') {
+                            showVipAd();
+                        }
+                    });
+                }, 500);
             }
             
             updateUI();
@@ -1223,31 +1316,6 @@
             maxBetBtn.disabled = false;
             decreaseBet.disabled = false;
             increaseBet.disabled = false;
-        }
-
-        async function showRewardedAdForVip() {
-            if (!AdController) {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Реклама временно недоступна',
-                    buttons: [{type: 'close'}]
-                });
-                return;
-            }
-            AdController.show().then(async () => {
-                await addVipBonus();
-                tg.showPopup({
-                    title: '🎉 +15 VIP-БИЛЕТОВ!',
-                    message: 'VIP-билеты зачислены!',
-                    buttons: [{type: 'close'}]
-                });
-            }).catch(() => {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Не удалось показать рекламу',
-                    buttons: [{type: 'close'}]
-                });
-            });
         }
 
         function showReferralLink() {
@@ -1325,35 +1393,6 @@
                     buttons: [{type: 'close', text: 'Понятно'}]
                 });
             }
-        };
-
-        const BLOCK_ID = "25517";
-        let AdController = window.Adsgram ? window.Adsgram.init({ blockId: BLOCK_ID }) : null;
-
-        window.showRewardedAd = function() {
-            if (!AdController) {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Реклама временно недоступна',
-                    buttons: [{type: 'close'}]
-                });
-                return;
-            }
-            AdController.show().then(() => {
-                balance += 200;
-                updateUI();
-                tg.showPopup({
-                    title: '🎥 +200 монет',
-                    message: 'Спасибо за просмотр!',
-                    buttons: [{type: 'close'}]
-                });
-            }).catch(() => {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Не удалось показать рекламу',
-                    buttons: [{type: 'close'}]
-                });
-            });
         };
 
         window.sendAnnouncement = function() {
