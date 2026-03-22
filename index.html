@@ -136,7 +136,7 @@
             color: gold;
         }
 
-        /* 4 СТРАНИЦЫ, СВАЙП — ИСПРАВЛЕНО */
+        /* =============== 4 СТРАНИЦЫ, СВАЙП =============== */
         .pages-container {
             overflow-x: auto;
             scroll-snap-type: x mandatory;
@@ -323,7 +323,7 @@
         .bonus-text { font-size: 14px; color: gold; }
         .bonus-timer { font-size: 14px; font-weight: bold; color: white; background: rgba(255,215,0,0.2); padding: 4px 12px; border-radius: 50px; }
 
-        /* БИЛЕТЫ — ИСПРАВЛЕНО (не вылезает) */
+        /* БИЛЕТЫ — ИСПРАВЛЕНО */
         .tickets-panel {
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
@@ -712,14 +712,10 @@
 
         <!-- 4 СТРАНИЦЫ, СВАЙП -->
         <div class="pages-container" id="pagesContainer">
-    <div class="pages-wrapper" id="pagesWrapper">
-        <div class="page">...</div>
-        <div class="page">...</div>
-        <div class="page">...</div>
-        <div class="page">...</div>
-    </div>
-</div>
-<div class="dots" id="dots"></div>
+            <div class="pages-wrapper" id="pagesWrapper">
+                <!-- СТРАНИЦА 1: ПРАВИЛА -->
+                <div class="page">
+                    <div class="rules-content">
                         <h2>📜 ПРАВИЛА ИГРЫ</h2>
                         <div class="rules-text">
                             <p><strong>🎰 Слот:</strong> 3 барабана, 7 символов с равной вероятностью. Выигрышные комбинации:</p>
@@ -741,6 +737,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- СТРАНИЦА 2: ГЛАВНАЯ (слот) -->
                 <div class="page">
                     <div class="slot-content">
                         <div class="referral-panel" onclick="showReferralLink()">
@@ -794,6 +791,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- СТРАНИЦА 3: МАГАЗИН -->
                 <div class="page">
                     <div class="shop-panel">
                         <div class="shop-title">⭐ МАГАЗИН</div>
@@ -816,6 +814,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- СТРАНИЦА 4: ТАБЛИЦЫ -->
                 <div class="page">
                     <div class="tables-content">
                         <div class="leaderboard">
@@ -1082,42 +1081,46 @@
         window.pickWinner = () => tg.showPopup({ title: '👑 ПОБЕДИТЕЛЬ', message: 'Скоро', buttons: [{type: 'close'}] });
         window.markPrizeSent = () => { tg.showPopup({ title: '✅ ОТПРАВЛЕНО', message: 'Отмечено', buttons: [{type: 'close'}] }); document.getElementById('winnerResult').style.display = 'none'; };
 
-        // =============== СВАЙП И ИНДИКАТОРЫ (ИСПРАВЛЕНО) ===============
-const pagesWrapper = document.getElementById('pagesWrapper');
-const dotsContainer = document.getElementById('dots');
-const pages = document.querySelectorAll('.page');
-let currentPage = 0;
+        // =============== СВАЙП И ИНДИКАТОРЫ ===============
+        const pagesWrapper = document.getElementById('pagesWrapper');
+        const dotsContainer = document.getElementById('dots');
+        const allPages = document.querySelectorAll('.page');
+        const totalPages = allPages.length;
+        let currentPageIndex = 0;
 
-function updateDots() {
-    dotsContainer.innerHTML = '';
-    pages.forEach((_, i) => {
-        const dot = document.createElement('div');
-        dot.className = 'dot' + (i === currentPage ? ' active' : '');
-        dot.onclick = () => {
-            currentPage = i;
-            pagesWrapper.scrollTo({ left: i * pagesWrapper.clientWidth, behavior: 'smooth' });
+        function updateDots() {
+            if (!dotsContainer) return;
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < totalPages; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (i === currentPageIndex ? ' active' : '');
+                dot.onclick = () => {
+                    currentPageIndex = i;
+                    pagesWrapper.scrollTo({ left: i * pagesWrapper.clientWidth, behavior: 'smooth' });
+                    updateDots();
+                };
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        if (pagesWrapper) {
+            pagesWrapper.addEventListener('scroll', () => {
+                const newIndex = Math.round(pagesWrapper.scrollLeft / pagesWrapper.clientWidth);
+                if (newIndex !== currentPageIndex) {
+                    currentPageIndex = newIndex;
+                    updateDots();
+                }
+            });
             updateDots();
-        };
-        dotsContainer.appendChild(dot);
-    });
-}
 
-pagesWrapper.addEventListener('scroll', () => {
-    const newIndex = Math.round(pagesWrapper.scrollLeft / pagesWrapper.clientWidth);
-    if (newIndex !== currentPage) {
-        currentPage = newIndex;
-        updateDots();
-    }
-});
-
-updateDots();
-
-            // Старт со второй страницы
-setTimeout(() => {
-    pagesWrapper.scrollTo({ left: pagesWrapper.clientWidth, behavior: 'instant' });
-    currentPage = 1;
-    updateDots();
-}, 100);
+            // Старт со второй страницы (индекс 1)
+            setTimeout(() => {
+                if (pagesWrapper.clientWidth > 0) {
+                    pagesWrapper.scrollTo({ left: pagesWrapper.clientWidth, behavior: 'instant' });
+                    currentPageIndex = 1;
+                    updateDots();
+                }
+            }, 100);
         }
 
         spinBtn.addEventListener('click', spin);
