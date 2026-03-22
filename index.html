@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Джекпот Слот</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
@@ -136,7 +136,7 @@
             color: gold;
         }
 
-        /* 4 СТРАНИЦЫ, СВАЙП */
+        /* 4 СТРАНИЦЫ, СВАЙП — ИСПРАВЛЕНО */
         .pages-container {
             overflow-x: auto;
             scroll-snap-type: x mandatory;
@@ -156,28 +156,31 @@
             flex: 0 0 100%;
             scroll-snap-align: start;
             padding: 0 4px;
+            overflow-y: auto;
+            max-height: 70vh;
         }
 
         .dots {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin: 8px 0;
+            gap: 12px;
+            margin: 16px 0 8px 0;
+            padding: 8px;
         }
 
         .dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.4);
             transition: all 0.2s;
             cursor: pointer;
         }
 
         .dot.active {
             background: gold;
-            width: 20px;
-            border-radius: 4px;
+            width: 24px;
+            border-radius: 12px;
         }
 
         /* СТРАНИЦА 1: ПРАВИЛА */
@@ -977,19 +980,11 @@
         window.showRewardedAd = function() {
             checkAdReset();
             if (dailyAdCount >= 5) {
-                tg.showPopup({
-                    title: '❌ ЛИМИТ',
-                    message: 'Вы использовали 5 попыток рекламы на сегодня. Возвращайтесь завтра!',
-                    buttons: [{type: 'close'}]
-                });
+                alert('❌ ЛИМИТ: Вы использовали 5 попыток рекламы на сегодня. Возвращайтесь завтра!');
                 return;
             }
             if (!moneyAd) {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Реклама временно недоступна',
-                    buttons: [{type: 'close'}]
-                });
+                alert('❌ Ошибка: Реклама временно недоступна');
                 return;
             }
             
@@ -998,45 +993,25 @@
                 localStorage.setItem('dailyAdCount', dailyAdCount);
                 balance += 200;
                 updateUI();
-                tg.showPopup({
-                    title: '🎥 +200 монет',
-                    message: `Спасибо за просмотр! Осталось ${5 - dailyAdCount} попыток сегодня.`,
-                    buttons: [{type: 'close'}]
-                });
+                alert('🎥 +200 монет! Осталось ' + (5 - dailyAdCount) + ' попыток сегодня.');
             }).catch(() => {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Не удалось показать рекламу',
-                    buttons: [{type: 'close'}]
-                });
+                alert('❌ Ошибка: Не удалось показать рекламу');
             });
         };
 
         // VIP-реклама (безлимит, +15 VIP-билетов)
         function showVipAd() {
             if (!vipAd) {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'VIP-реклама временно недоступна',
-                    buttons: [{type: 'close'}]
-                });
+                alert('❌ Ошибка: VIP-реклама временно недоступна');
                 return;
             }
             
             vipAd.show().then(() => {
                 vipTickets += 15;
                 updateUI();
-                tg.showPopup({
-                    title: '👑 +15 VIP-БИЛЕТОВ!',
-                    message: 'VIP-билеты зачислены!',
-                    buttons: [{type: 'close'}]
-                });
+                alert('👑 +15 VIP-БИЛЕТОВ!');
             }).catch(() => {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Не удалось показать VIP-рекламу',
-                    buttons: [{type: 'close'}]
-                });
+                alert('❌ Ошибка: Не удалось показать VIP-рекламу');
             });
         }
 
@@ -1082,17 +1057,9 @@
                 if (data.status === 'ok') {
                     balance = data.balance;
                     updateUI();
-                    tg.showPopup({
-                        title: '🎁 БОНУС',
-                        message: '+1000 монет!',
-                        buttons: [{type: 'close'}]
-                    });
+                    alert('🎁 БОНУС: +1000 монет!');
                 } else {
-                    tg.showPopup({
-                        title: '⏳ УЖЕ ПОЛУЧЕНО',
-                        message: 'Бонус доступен раз в сутки',
-                        buttons: [{type: 'close'}]
-                    });
+                    alert('⏳ УЖЕ ПОЛУЧЕНО: Бонус доступен раз в сутки');
                 }
             } catch (e) {
                 console.error(e);
@@ -1105,11 +1072,7 @@
                 const data = await res.json();
                 vipTickets = data.vip_tickets;
                 updateUI();
-                tg.showPopup({
-                    title: '🎉 VIP ДЖЕКПОТ!',
-                    message: '+15 VIP-билетов!',
-                    buttons: [{type: 'close'}]
-                });
+                alert('🎉 VIP ДЖЕКПОТ! +15 VIP-билетов!');
             } catch (e) {
                 console.error(e);
             }
@@ -1132,7 +1095,6 @@
 
         async function loadTournaments() {
             try {
-                // Недельный турнир
                 const weeklyRes = await fetch(`${SERVER_URL}/api/tournament/weekly?user_id=${userId}`);
                 const weekly = await weeklyRes.json();
                 
@@ -1147,14 +1109,12 @@
                 }
                 document.getElementById('weeklyPrize').textContent = prizeText;
                 
-                // VIP-турнир
                 const vipRes = await fetch(`${SERVER_URL}/api/tournament/vip?user_id=${userId}`);
                 const vip = await vipRes.json();
                 
                 document.getElementById('vipParticipants').textContent = `${vip.participants}/${vip.max_participants}`;
                 document.getElementById('vipMyTickets').textContent = `${vip.my_contribution} VIP-билетов`;
                 
-                // История победителей
                 const winnersRes = await fetch(`${SERVER_URL}/api/winners`);
                 const winners = await winnersRes.json();
                 
@@ -1228,19 +1188,11 @@
             if (balance < currentBet) {
                 winMessage.textContent = '❌ Недостаточно средств!';
                 setTimeout(() => {
-                    tg.showPopup({
-                        title: '🎥 Хочешь ещё монет?',
-                        message: 'Посмотри видео и получи +200 монет! (5 раз в день)',
-                        buttons: [
-                            {type: 'default', text: '🎬 Смотреть', id: 'watch'},
-                            {type: 'close', text: 'Нет'}
-                        ]
-                    }, (btnId) => {
-                        if (btnId === 'watch') {
-                            window.showRewardedAd();
-                        }
-                    });
-                }, 1000);
+                    const confirmWatch = confirm('🎥 Хочешь ещё монет? Посмотри видео и получи +200 монет! (5 раз в день)');
+                    if (confirmWatch) {
+                        window.showRewardedAd();
+                    }
+                }, 500);
                 return;
             }
 
@@ -1294,18 +1246,10 @@
             
             if (result[0] === '🎫' && result[1] === '🎫' && result[2] === '🎫') {
                 setTimeout(() => {
-                    tg.showPopup({
-                        title: '🎫 VIP-ДЖЕКПОТ!',
-                        message: 'Ты выиграл 15 VIP-билетов! Посмотри рекламу, чтобы получить их.',
-                        buttons: [
-                            {type: 'default', text: '🎬 Смотреть', id: 'watch'},
-                            {type: 'close', text: 'Отказаться'}
-                        ]
-                    }, (btnId) => {
-                        if (btnId === 'watch') {
-                            showVipAd();
-                        }
-                    });
+                    const confirmWatch = confirm('🎫 VIP-ДЖЕКПОТ! Ты выиграл 15 VIP-билетов! Посмотри рекламу, чтобы получить их.');
+                    if (confirmWatch) {
+                        showVipAd();
+                    }
                 }, 500);
             }
             
@@ -1320,22 +1264,7 @@
 
         function showReferralLink() {
             const link = `https://t.me/YourSlotGameBot?start=ref_${userId}`;
-            tg.showPopup({
-                title: '👥 РЕФЕРАЛЬНАЯ ПРОГРАММА',
-                message: `🔗 Твоя ссылка:\n${link}\n\n✅ За каждого друга → +500 монет + 1 VIP-билет\n\nОтправь ссылку друзьям!`,
-                buttons: [
-                    {type: 'default', text: '📋 Копировать', id: 'copy'},
-                    {type: 'close', text: 'Закрыть'}
-                ]
-            }, (btnId) => {
-                if (btnId === 'copy') {
-                    tg.showPopup({
-                        title: '✅ СКОПИРОВАНО',
-                        message: 'Отправь ссылку друзьям!',
-                        buttons: [{type: 'close'}]
-                    });
-                }
-            });
+            alert(`👥 РЕФЕРАЛЬНАЯ ПРОГРАММА\n\n🔗 Твоя ссылка:\n${link}\n\n✅ За каждого друга → +500 монет + 1 VIP-билет\n\nОтправь ссылку друзьям!`);
         }
 
         async function checkReferral(startParam) {
@@ -1347,11 +1276,7 @@
                         const data = await res.json();
                         if (data.status === 'ok') {
                             await loadUserData();
-                            tg.showPopup({
-                                title: '🎁 БОНУС',
-                                message: '+500 монет и +1 VIP-билет за переход по ссылке!',
-                                buttons: [{type: 'close'}]
-                            });
+                            alert('🎁 БОНУС: +500 монет и +1 VIP-билет за переход по ссылке!');
                         }
                     } catch (e) {
                         console.error('Ошибка регистрации реферала:', e);
@@ -1364,87 +1289,52 @@
         checkReferral(startParam);
 
         window.buyPackage = async function(stars, coins) {
-            tg.showPopup({
-                title: '⭐ ПОКУПКА МОНЕТ',
-                message: `💎 Пакет: ${coins} монет за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!`,
-                buttons: [{type: 'close', text: '🎰 Понятно'}]
-            });
+            alert(`⭐ ПОКУПКА МОНЕТ\n\n💎 Пакет: ${coins} монет за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!`);
         };
 
         window.buyVipTickets = async function(stars, tickets) {
-            tg.showPopup({
-                title: '👑 ПОКУПКА VIP-БИЛЕТОВ',
-                message: `💎 ${tickets} VIP-билет(ов) за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!`,
-                buttons: [{type: 'close', text: '🎰 Понятно'}]
-            });
+            alert(`👑 ПОКУПКА VIP-БИЛЕТОВ\n\n💎 ${tickets} VIP-билет(ов) за ${stars} Stars\n\n🚀 Оплата через Telegram Stars появится в следующем обновлении!`);
         };
 
         window.joinVipTournament = function() {
             if (vipTickets >= 5) {
-                tg.showPopup({
-                    title: '👑 VIP-ТУРНИР',
-                    message: 'Вы использовали 5 VIP-билетов для входа!\n\n🚀 Турнир стартует при 100 участниках.\nПриз: 2500 Stars!',
-                    buttons: [{type: 'close', text: 'Отлично!'}]
-                });
+                alert('👑 VIP-ТУРНИР\n\nВы использовали 5 VIP-билетов для входа!\n\n🚀 Турнир стартует при 100 участниках.\nПриз: 2500 Stars!');
             } else {
-                tg.showPopup({
-                    title: '❌ НЕДОСТАТОЧНО VIP-БИЛЕТОВ',
-                    message: `У вас ${vipTickets} VIP-билетов. Нужно 5 для участия.\n\nКупите билеты в магазине или выиграйте в слоте!`,
-                    buttons: [{type: 'close', text: 'Понятно'}]
-                });
+                alert(`❌ НЕДОСТАТОЧНО VIP-БИЛЕТОВ\n\nУ вас ${vipTickets} VIP-билетов. Нужно 5 для участия.\n\nКупите билеты в магазине или выиграйте в слоте!`);
             }
         };
 
         window.sendAnnouncement = function() {
             const text = document.getElementById('announcementText').value;
             if (text) {
-                tg.showPopup({
-                    title: '📢 ОБЪЯВЛЕНИЕ',
-                    message: text,
-                    buttons: [{type: 'close'}]
-                });
+                alert(`📢 ОБЪЯВЛЕНИЕ\n\n${text}`);
                 document.getElementById('announcementText').value = '';
             } else {
-                tg.showPopup({
-                    title: '❌ Ошибка',
-                    message: 'Введите текст объявления',
-                    buttons: [{type: 'close'}]
-                });
+                alert('❌ Ошибка: Введите текст объявления');
             }
         };
 
         window.updateEvent = function() {
             const newPrize = document.getElementById('prizeInput').value;
             const newDate = document.getElementById('dateInput').value;
-            tg.showPopup({
-                title: '🎁 РЕДАКТОР',
-                message: `Приз: ${newPrize}\nДата: ${newDate}`,
-                buttons: [{type: 'close'}]
-            });
+            alert(`🎁 РЕДАКТОР\n\nПриз: ${newPrize}\nДата: ${newDate}`);
         };
 
         window.pickWinner = function() {
-            tg.showPopup({
-                title: '👑 ПОБЕДИТЕЛЬ',
-                message: 'Функция выбора победителя будет доступна позже',
-                buttons: [{type: 'close'}]
-            });
+            alert('👑 ПОБЕДИТЕЛЬ\n\nФункция выбора победителя будет доступна позже');
         };
 
         window.markPrizeSent = function() {
-            tg.showPopup({
-                title: '✅ ОТПРАВЛЕНО',
-                message: 'Отмечено',
-                buttons: [{type: 'close'}]
-            });
+            alert('✅ ОТПРАВЛЕНО\n\nОтмечено');
             document.getElementById('winnerResult').style.display = 'none';
         };
 
-        let currentPage = 1;
+        // =============== СВАЙП И ИНДИКАТОРЫ (ИСПРАВЛЕНО) ===============
         const pagesWrapper = document.getElementById('pagesWrapper');
         const dotsContainer = document.getElementById('dots');
         const pagesCount = 4;
-        
+        let currentPage = 1;
+
         function updateDots() {
             dotsContainer.innerHTML = '';
             for (let i = 0; i < pagesCount; i++) {
@@ -1458,7 +1348,7 @@
                 dotsContainer.appendChild(dot);
             }
         }
-        
+
         if (pagesWrapper) {
             pagesWrapper.addEventListener('scroll', () => {
                 const newIndex = Math.round(pagesWrapper.scrollLeft / pagesWrapper.clientWidth);
@@ -1468,6 +1358,12 @@
                 }
             });
             updateDots();
+            // Старт со второй страницы (индекс 1)
+            setTimeout(() => {
+                pagesWrapper.scrollTo({ left: pagesWrapper.clientWidth, behavior: 'instant' });
+                currentPage = 1;
+                updateDots();
+            }, 100);
         }
 
         spinBtn.addEventListener('click', spin);
