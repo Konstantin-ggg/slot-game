@@ -144,6 +144,7 @@
             scroll-behavior: smooth;
             margin: 0 0 16px 0;
             border-radius: 20px;
+            scroll-snap-stop: always;
         }
 
         .pages-wrapper {
@@ -684,16 +685,7 @@
                 <!-- СТРАНИЦА 2: ГЛАВНАЯ (слот) -->
                 <div class="page">
                     <div class="slot-content">
-                        <!-- БАННЕР РОЗЫГРЫША -->
-                        <div class="event-banner" id="eventBanner">
-                            <div class="event-icon" id="eventIcon">🏆🚗</div>
-                            <div class="event-title" id="eventTitle">РОЗЫГРЫШ АВТОМОБИЛЯ</div>
-                            <div class="event-description" id="eventDescription">Каждое вращение = билет. Приз - Toyota Camry!</div>
-                            <div class="event-timer" id="eventTimer">6д 23:59:59</div>
-                            <div class="ticket-counter" id="ticketCounter">🎫 Билеты: 0</div>
-                        </div>
-
-                        <!-- РЕФЕРАЛЬНЫЙ БЛОК (без счётчика) -->
+                                                <!-- РЕФЕРАЛЬНЫЙ БЛОК (без счётчика) -->
                         <div class="referral-panel" onclick="showReferralLink()">
                             <span class="referral-text">👥 ПРИГЛАСИТЬ ДРУГА → +500 монет и +1 VIP-билет</span>
                         </div>
@@ -1356,7 +1348,7 @@
         };
 
         // =============== СВАЙП-МЕНЮ (4 страницы) ===============
-        let currentPage = 0;
+        let currentPage = 1;
         const pagesWrapper = document.getElementById('pagesWrapper');
         const dotsContainer = document.getElementById('dots');
         const pagesCount = 4;
