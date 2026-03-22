@@ -712,9 +712,14 @@
 
         <!-- 4 СТРАНИЦЫ, СВАЙП -->
         <div class="pages-container" id="pagesContainer">
-            <div class="pages-wrapper" id="pagesWrapper">
-                <div class="page">
-                    <div class="rules-content">
+    <div class="pages-wrapper" id="pagesWrapper">
+        <div class="page">...</div>
+        <div class="page">...</div>
+        <div class="page">...</div>
+        <div class="page">...</div>
+    </div>
+</div>
+<div class="dots" id="dots"></div>
                         <h2>📜 ПРАВИЛА ИГРЫ</h2>
                         <div class="rules-text">
                             <p><strong>🎰 Слот:</strong> 3 барабана, 7 символов с равной вероятностью. Выигрышные комбинации:</p>
@@ -1078,45 +1083,41 @@
         window.markPrizeSent = () => { tg.showPopup({ title: '✅ ОТПРАВЛЕНО', message: 'Отмечено', buttons: [{type: 'close'}] }); document.getElementById('winnerResult').style.display = 'none'; };
 
         // =============== СВАЙП И ИНДИКАТОРЫ (ИСПРАВЛЕНО) ===============
-        const pagesWrapper = document.getElementById('pagesWrapper');
-        const dotsContainer = document.getElementById('dots');
-        const allPages = document.querySelectorAll('.page');
-        const totalPages = allPages.length;
-        let currentPageIndex = 0;
+const pagesWrapper = document.getElementById('pagesWrapper');
+const dotsContainer = document.getElementById('dots');
+const pages = document.querySelectorAll('.page');
+let currentPage = 0;
 
-        function updateDots() {
-            if (!dotsContainer) return;
-            dotsContainer.innerHTML = '';
-            for (let i = 0; i < totalPages; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'dot' + (i === currentPageIndex ? ' active' : '');
-                dot.onclick = () => {
-                    currentPageIndex = i;
-                    pagesWrapper.scrollTo({ left: i * pagesWrapper.clientWidth, behavior: 'smooth' });
-                    updateDots();
-                };
-                dotsContainer.appendChild(dot);
-            }
-        }
-
-        if (pagesWrapper) {
-            pagesWrapper.addEventListener('scroll', () => {
-                const newIndex = Math.round(pagesWrapper.scrollLeft / pagesWrapper.clientWidth);
-                if (newIndex !== currentPageIndex) {
-                    currentPageIndex = newIndex;
-                    updateDots();
-                }
-            });
+function updateDots() {
+    dotsContainer.innerHTML = '';
+    pages.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === currentPage ? ' active' : '');
+        dot.onclick = () => {
+            currentPage = i;
+            pagesWrapper.scrollTo({ left: i * pagesWrapper.clientWidth, behavior: 'smooth' });
             updateDots();
+        };
+        dotsContainer.appendChild(dot);
+    });
+}
 
-            // Старт со второй страницы (индекс 1)
-            setTimeout(() => {
-                if (pagesWrapper.clientWidth > 0) {
-                    pagesWrapper.scrollTo({ left: pagesWrapper.clientWidth, behavior: 'instant' });
-                    currentPageIndex = 1;
-                    updateDots();
-                }
-            }, 100);
+pagesWrapper.addEventListener('scroll', () => {
+    const newIndex = Math.round(pagesWrapper.scrollLeft / pagesWrapper.clientWidth);
+    if (newIndex !== currentPage) {
+        currentPage = newIndex;
+        updateDots();
+    }
+});
+
+updateDots();
+
+            // Старт со второй страницы
+setTimeout(() => {
+    pagesWrapper.scrollTo({ left: pagesWrapper.clientWidth, behavior: 'instant' });
+    currentPage = 1;
+    updateDots();
+}, 100);
         }
 
         spinBtn.addEventListener('click', spin);
