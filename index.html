@@ -12,19 +12,50 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            min-height: 100vh;
+            color: white;
+            /* ВАЖНО: Эти 3 строки фиксируют экран от прыжков */
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; 
+        }
+
+        /* Обертка для страниц (Горизонтальная лента) */
+        .pages-wrapper {
+            display: flex;
+            width: 100%;
+            height: calc(100% - 60px); /* Место для точек внизу */
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory; /* Магнитный эффект */
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Каждая отдельная страница */
+        .page {
+            flex: 0 0 100%;
+            width: 100vw;
+            height: 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            overflow-y: auto; /* Скролл только внутри страницы */
+            padding: 16px;
+        }
+
+        /* Точки навигации */
+        .dots-container {
+            height: 60px;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            color: white;
-            padding: 16px;
-            overflow-y: auto !important;
-            height: auto !important;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0,0,0,0.2);
         }
 
         .slot-machine {
@@ -883,16 +914,63 @@
             </div>
         </div>
         
-        <div class="dots" id="dots"></div>
+        <div class="dots" id="dotsContainer"></div>
     </div>
 
     <script>
+        const pagesWrapper = document.getElementById('pagesWrapper');
+        const dotsContainer = document.getElementById('dotsContainer');
+        let currentPage = 1; // Установи 1, чтобы при загрузке открывался Слот (вторая страница)
+
+        function updateDots() {
+            dotsContainer.innerHTML = '';
+            const totalPages = document.querySelectorAll('.page').length;
+            for (let i = 0; i < totalPages; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (i === currentPage ? ' active' : '');
+                dot.onclick = () => {
+                    pagesWrapper.scrollTo({ left: i * window.innerWidth, behavior: 'smooth' });
+                };
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        // Этот блок ловит момент, когда ты свайпаешь пальцем
+        pagesWrapper.addEventListener('scroll', () => {
+            const newIndex = Math.round(pagesWrapper.scrollLeft / window.innerWidth);
+            if (newIndex !== currentPage) {
+                currentPage = newIndex;
+                updateDots();
+                // Вибрация при смене страницы
+                if (window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                }
+            }
+        });
+
+        // Вызови при загрузке, чтобы всё отрисовалось
+        updateDots();
         const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-        document.body.style.overflowY = 'auto';
-        document.body.style.height = 'auto';
-        document.documentElement.style.overflowY = 'auto';
+        // Инициализация рекламы
+const AdController = window.Adsgram.init({ blockId: "4722" }); // Замени 4722 на свой ID, если есть
+
+async function showAd() {
+    try {
+        const result = await AdController.show();
+        if (result.done) {
+            // Если досмотрел до конца:
+            balance += 500; // Начисляем 500 монет
+            updateUI();     // Обновляем текст на экране
+
+            // Сохраняем на сервер (функция ниже)
+            updateUserOnServer(userName, userUsername);
+
+            tg.showAlert("✅ Вы получили 500 монет за просмотр!");
+        }
+    } catch (e) {
+        tg.showAlert("Реклама пока не готова, попробуйте позже.");
+    }
+}
 
         const ADMIN_ID = 1065392792;
         const userId = tg.initDataUnsafe?.user?.id || 0;
@@ -1481,6 +1559,7 @@
                 updateUI();
             }
         });
+   // Обработчики кнопок ставок
         increaseBet.addEventListener('click', () => {
             if (currentBet < 100 && currentBet + 10 <= balance && !isSpinning) {
                 currentBet += 10;
@@ -1488,12 +1567,37 @@
             }
         });
 
-        updateUserOnServer(userName, userUsername);
-        loadUserData();
-        loadLeaderboards();
-        loadTournaments();
-        setInterval(loadLeaderboards, 30000);
-        setInterval(loadTournaments, 30000);
+        decreaseBet.addEventListener('click', () => {
+            if (currentBet > 10 && !isSpinning) {
+                currentBet -= 10;
+                updateUI();
+            }
+        });
+
+        // САМЫЙ КОНЕЦ СКРИПТА
+        window.onload = () => {
+            // 1. Устанавливаем начальную страницу (Слот - индекс 1)
+            if (pagesWrapper) {
+                setTimeout(() => {
+                    pagesWrapper.scrollTo({ 
+                        left: pagesWrapper.clientWidth, 
+                        behavior: 'auto' 
+                    });
+                    currentPage = 1; 
+                    updateDots();    
+                }, 100);
+            }
+
+            // 2. Запускаем загрузку данных ОДИН РАЗ
+            updateUserOnServer(userName, userUsername);
+            loadUserData();
+            loadLeaderboards();
+            loadTournaments();
+            
+            // 3. Устанавливаем таймеры обновления (каждые 30 сек)
+            setInterval(loadLeaderboards, 30000);
+            setInterval(loadTournaments, 30000);
+        };
     </script>
 </body>
 </html>
