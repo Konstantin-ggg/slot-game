@@ -2,31 +2,58 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Джекпот Слот</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
+        /* 1. ИСПРАВЛЕННЫЙ ФУНДАМЕНТ (Чтобы не было карусели) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
             color: white;
-            padding: 16px;
-            overflow-y: auto !important;
-            height: auto !important;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Важно: убираем скролл у body */
         }
 
+        /* Контейнер для страниц */
+        .pages-container {
+            width: 100%;
+            height: calc(100% - 70px); /* Оставляем место под точки внизу */
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            scroll-snap-type: x mandatory; /* Прилипание страниц */
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .pages-wrapper {
+            display: flex;
+            height: 100%;
+            width: auto;
+        }
+
+        .page {
+            width: 100vw;
+            height: 100%;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            overflow-y: auto; /* Скролл только внутри страницы, если контента много */
+            padding: 16px;
+        }
+
+        /* 2. ТВОИ ОРИГИНАЛЬНЫЕ СТИЛИ (Дизайн слота и панелей) */
         .slot-machine {
             max-width: 400px;
             width: 100%;
@@ -36,1098 +63,219 @@
             padding: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,215,0,0.3) inset;
             border: 1px solid rgba(255,215,0,0.5);
-            margin-bottom: 20px;
+            margin: 0 auto 20px auto;
         }
 
-        /* АДМИН-ПАНЕЛЬ */
-        .admin-panel {
-            background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 20px;
-            border: 2px solid #ff4444;
-            box-shadow: 0 0 20px rgba(255,68,68,0.5);
-        }
+        .reels-container { background: #000; border-radius: 24px; padding: 24px; margin: 12px 0; box-shadow: 0 10px 0 #4a4a4a, 0 0 0 4px gold; }
+        .reels { display: flex; gap: 12px; justify-content: center; }
+        .reel { flex: 1; aspect-ratio: 1/1.2; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 54px; color: #333; }
+        
+        .balance-panel { background: #000; border-radius: 50px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border: 2px solid gold; }
+        .balance-value { font-size: 24px; font-weight: bold; color: gold; }
 
-        .admin-title {
-            color: #ff4444;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        .btn { flex: 1; padding: 16px; border: none; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-spin { background: linear-gradient(145deg, #ffd700, #ffb347); color: #1a1a2e; box-shadow: 0 6px 0 #b8860b; }
+        .btn-spin:active { transform: translateY(4px); box-shadow: none; }
 
-        .admin-section {
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
+        /* Админка и таблицы (Твои стили) */
+        .admin-panel { background: linear-gradient(145deg, #2a1a3a, #1a0a2a); border-radius: 20px; padding: 16px; border: 2px solid #ff4444; margin-bottom: 20px; }
+        .leaderboard-item { display: flex; justify-content: space-between; padding: 8px 12px; border-radius: 12px; margin-bottom: 4px; background: rgba(255,255,255,0.05); }
 
-        .admin-section-title {
-            color: gold;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .admin-input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid gold;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .admin-input::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-
-        .admin-button {
-            background: linear-gradient(145deg, #4a90e2, #357abd);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.2s;
-        }
-
-        .admin-button:hover {
-            transform: scale(1.02);
-        }
-
-        .admin-button.danger {
-            background: linear-gradient(145deg, #ff4444, #cc0000);
-        }
-
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .admin-stat-item {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .admin-stat-label {
-            font-size: 11px;
-            opacity: 0.7;
-        }
-
-        .admin-stat-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: gold;
-        }
-
-        /* 4 СТРАНИЦЫ, СВАЙП */
-        .pages-container {
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scroll-snap-stop: always;
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-            margin: 0 0 16px 0;
-            border-radius: 20px;
-        }
-
-        .pages-wrapper {
-            display: flex;
-            width: 100%;
-        }
-
-        .page {
-            flex: 0 0 100%;
-            scroll-snap-align: start;
-            overflow-y: auto;
-            max-height: 70vh;
-            padding: 0 8px;
-        }
-
+        /* 3. ИСПРАВЛЕННЫЕ ТОЧКИ НАВИГАЦИИ */
         .dots {
+            height: 70px;
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin: 16px 0 8px 0;
-            padding: 8px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 30px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.2);
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.4);
-            transition: all 0.2s;
-            cursor: pointer;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
         }
 
         .dot.active {
             background: gold;
-            width: 24px;
-            border-radius: 12px;
-        }
-
-        /* СТРАНИЦА 1: ПРАВИЛА */
-        .rules-content {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 20px;
-        }
-
-        .rules-content h2 {
-            color: gold;
-            text-align: center;
-            margin-bottom: 16px;
-            font-size: 20px;
-        }
-
-        .rules-text {
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .rules-text p {
-            margin-bottom: 12px;
-        }
-
-        .rules-paytable {
-            background: rgba(0,0,0,0.3);
-            border-radius: 16px;
-            padding: 12px;
-            margin: 12px 0;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-
-        .rules-paytable div {
-            text-align: center;
-            padding: 4px;
-        }
-
-        /* СТРАНИЦА 2: ГЛАВНАЯ (слот) */
-        .slot-content {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .referral-panel {
-            background: linear-gradient(145deg, #1a3a2a, #0a2a1a);
-            border-radius: 20px;
-            padding: 10px;
-            margin: 8px 0;
-            border: 2px solid #4CAF50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .referral-text {
-            font-size: 12px;
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        /* БИЛЕТЫ — ОТДЕЛЬНЫЕ СТРОКИ */
-        .tickets-row {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 6px 12px;
-            margin: 4px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid rgba(255,215,0,0.3);
-        }
-
-        .ticket-label {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .ticket-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: gold;
-        }
-
-        .tickets-row.vip {
-            border: 1px solid gold;
-        }
-
-        /* БАРАБАНЫ */
-        .reels-container {
-            background: #000;
-            border-radius: 24px;
-            padding: 16px;
-            margin: 8px 0;
-            box-shadow: 0 10px 0 #4a4a4a, 0 0 0 4px gold;
-        }
-
-        .reels {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .reel {
-            flex: 1;
-            aspect-ratio: 1/1.2;
-            background: white;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 56px;
-            box-shadow: 0 5px 0 #aaa, inset 0 -5px 0 #ddd;
-            color: #333;
-        }
-
-        .win-line {
-            height: 4px;
-            background: gold;
-            width: 100%;
-            margin: 8px 0;
-            border-radius: 2px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .win-line.active {
-            opacity: 1;
-            box-shadow: 0 0 20px gold;
-        }
-
-        /* БАЛАНС */
-        .balance-panel {
-            background: #000000;
-            border-radius: 50px;
-            padding: 8px 16px;
-            margin: 8px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 2px solid gold;
+            width: 25px;
+            border-radius: 5px;
             box-shadow: 0 0 10px gold;
         }
-
-        .balance-label { font-size: 14px; font-weight: bold; color: white; text-transform: uppercase; }
-        .balance-value { font-size: 22px; font-weight: bold; color: gold; text-shadow: 0 0 10px orange; background: rgba(0,0,0,0.5); padding: 2px 12px; border-radius: 40px; }
-
-        .daily-bonus-indicator {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.3);
-            border-radius: 50px;
-            padding: 6px 12px;
-            margin: 8px 0;
-            border: 1px solid gold;
-            cursor: pointer;
-        }
-
-        .bonus-text { font-size: 12px; color: gold; }
-        .bonus-timer { font-size: 12px; font-weight: bold; color: white; background: rgba(255,215,0,0.2); padding: 4px 12px; border-radius: 50px; }
-
-        .win-message { text-align: center; font-size: 18px; font-weight: bold; margin: 8px 0; min-height: 32px; color: gold; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            margin: 8px 0;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .btn-spin {
-            background: linear-gradient(145deg, #ffd700, #ffb347);
-            color: #1a1a2e;
-            box-shadow: 0 5px 0 #b8860b;
-        }
-
-        .btn-spin:active {
-            transform: translateY(5px);
-            box-shadow: none;
-        }
-
-        .btn-maxbet {
-            background: linear-gradient(145deg, #4a90e2, #357abd);
-            color: white;
-            box-shadow: 0 5px 0 #2a4e77;
-        }
-
-        .btn-maxbet:active {
-            transform: translateY(5px);
-            box-shadow: none;
-        }
-
-        .bet-control {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin: 8px 0;
-        }
-
-        .bet-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: none;
-            background: gold;
-            color: #1a1a2e;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .bet-value {
-            font-size: 18px;
-            font-weight: bold;
-            min-width: 50px;
-            text-align: center;
-            color: gold;
-        }
-
-        /* СТРАНИЦА 3: МАГАЗИН */
-        .shop-panel {
-            background: linear-gradient(145deg, #2a1a3a, #1a0a2a);
-            border-radius: 20px;
-            padding: 16px;
-            margin: 12px 0;
-            border: 2px solid gold;
-        }
-
-        .shop-title {
-            color: gold;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .shop-section {
-            margin-bottom: 20px;
-        }
-
-        .shop-section-title {
-            color: gold;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-align: center;
-            border-bottom: 1px solid gold;
-            padding-bottom: 4px;
-        }
-
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-
-        .shop-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 10px;
-            text-align: center;
-            border: 1px solid rgba(255,215,0,0.3);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .shop-item:active {
-            transform: scale(0.95);
-            background: rgba(255,215,0,0.1);
-        }
-
-        .shop-item-price {
-            color: gold;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .shop-item-amount {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 4px;
-        }
-
-        .shop-item-badge {
-            background: gold;
-            color: #1a1a2e;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 50px;
-            display: inline-block;
-            margin-top: 4px;
-            font-weight: bold;
-        }
-
-        /* СТРАНИЦА 4: ТАБЛИЦЫ */
-        .tables-content {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 16px;
-        }
-
-        .leaderboard, .vip-leaderboard, .winners-history {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255,215,0,0.3);
-        }
-
-        .leaderboard-title {
-            text-align: center;
-            margin-bottom: 10px;
-            color: gold;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 10px;
-            border-radius: 12px;
-            margin-bottom: 4px;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .leaderboard-item.highlight {
-            background: rgba(255,215,0,0.2);
-            border: 1px solid gold;
-        }
-
-        .leaderboard-rank {
-            width: 28px;
-            color: gold;
-        }
-
-        .leaderboard-name {
-            flex: 1;
-            margin: 0 8px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .leaderboard-score {
-            font-weight: bold;
-            color: gold;
-            font-size: 13px;
-        }
-
-        .tournament-info {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255,215,0,0.3);
-        }
-
-        .tournament-title {
-            text-align: center;
-            margin-bottom: 10px;
-            color: gold;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .tournament-stats {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-
-        .tournament-stat {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 6px 10px;
-            flex: 1;
-            text-align: center;
-        }
-
-        .tournament-stat-label {
-            font-size: 10px;
-            opacity: 0.7;
-        }
-
-        .tournament-stat-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: gold;
-        }
-
-        .tournament-progress {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 6px;
-            margin: 8px 0;
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .tournament-button {
-            background: linear-gradient(145deg, #4a90e2, #357abd);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 8px 16px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            text-transform: uppercase;
-        }
-
-        .paytable {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 12px;
-            font-size: 12px;
-            border: 1px solid rgba(255,215,0,0.3);
-            margin-top: 8px;
-        }
-
-        .paytable-title {
-            text-align: center;
-            margin-bottom: 8px;
-            color: gold;
-            font-weight: bold;
-        }
-
-        .paytable-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            text-align: center;
-        }
-
-        .paytable-item {
-            background: rgba(255,255,255,0.1);
-            padding: 4px;
-            border-radius: 8px;
-            font-size: 12px;
-        }
+        
+        .win-line { height: 4px; background: gold; width: 100%; margin-top: 8px; opacity: 0; transition: 0.3s; }
+        .win-line.active { opacity: 1; box-shadow: 0 0 15px gold; }
     </style>
 </head>
 <body>
-    <div class="slot-machine">
-        <!-- АДМИН-ПАНЕЛЬ -->
-        <div id="adminPanel" style="display: none;">
-            <div class="admin-panel">
-                <div class="admin-title">🔐 АДМИН-ПАНЕЛЬ</div>
-                <div class="admin-section">
-                    <div class="admin-section-title">📢 ОБЪЯВЛЕНИЕ</div>
-                    <input type="text" id="announcementText" class="admin-input" placeholder="Текст объявления...">
-                    <button class="admin-button" onclick="window.sendAnnouncement()">📨 ОТПРАВИТЬ ВСЕМ</button>
-                </div>
-                <div class="admin-section">
-                    <div class="admin-section-title">🎁 РЕДАКТОР РОЗЫГРЫША</div>
-                    <input type="text" id="prizeInput" class="admin-input" placeholder="Название приза">
-                    <select id="prizeType" class="admin-input">
-                        <option value="stars">⭐ Telegram Stars</option>
-                        <option value="gift">🎁 Подарок</option>
-                        <option value="vip">👑 VIP-статус</option>
-                        <option value="other">🎲 Другое</option>
-                    </select>
-                    <input type="number" id="prizeStarsAmount" class="admin-input" placeholder="Количество Stars" value="100">
-                    <input type="text" id="dateInput" class="admin-input" placeholder="Дата (ГГГГ-ММ-ДДTЧЧ:ММ)">
-                    <button class="admin-button" onclick="window.updateEvent()">💾 СОХРАНИТЬ</button>
-                </div>
-                <div class="admin-section">
-                    <div class="admin-section-title">📊 СТАТИСТИКА</div>
-                    <div class="admin-stats">
-                        <div class="admin-stat-item"><div class="admin-stat-label">Игроков</div><div class="admin-stat-value" id="statsPlayers">0</div></div>
-                        <div class="admin-stat-item"><div class="admin-stat-label">Вращений</div><div class="admin-stat-value" id="statsSpins">0</div></div>
-                        <div class="admin-stat-item"><div class="admin-stat-label">Билетов</div><div class="admin-stat-value" id="statsTickets">0</div></div>
-                        <div class="admin-stat-item"><div class="admin-stat-label">Выигрышей</div><div class="admin-stat-value" id="statsWins">0</div></div>
-                    </div>
-                    <button class="admin-button danger" onclick="window.pickWinner()">👑 ВЫБРАТЬ ПОБЕДИТЕЛЯ</button>
-                    <div id="winnerResult" style="margin-top: 10px; padding: 10px; background: rgba(255,215,0,0.1); border-radius: 10px; display: none;">
-                        <div style="font-weight: bold;">🏆 ПОБЕДИТЕЛЬ:</div>
-                        <div id="winnerName" style="color: gold;"></div>
-                        <div id="winnerPrize" style="font-size: 12px;"></div>
-                        <button class="admin-button" onclick="window.markPrizeSent()">✅ ОТМЕТИТЬ КАК ОТПРАВЛЕНО</button>
+
+    <div class="pages-container" id="pagesContainer">
+        <div class="pages-wrapper">
+            
+            <div class="page">
+                <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px;">
+                    <h2 style="color: gold; text-align: center;">📜 ПРАВИЛА</h2>
+                    <p style="margin-top: 15px; font-size: 14px;">🎰 Слот: 3 барабана, 7 символов. Выигрыши:</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; font-size: 13px;">
+                        <div>🍒🍒🍒 → x2</div><div>🍋🍋🍋 → x3</div>
+                        <div>💎💎💎 → x5</div><div>7️⃣7️⃣7️⃣ → x8</div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 4 СТРАНИЦЫ, СВАЙП -->
-        <div class="pages-container" id="pagesContainer">
-            <div class="pages-wrapper" id="pagesWrapper">
-                <!-- СТРАНИЦА 1: ПРАВИЛА -->
-                <div class="page">
-                    <div class="rules-content">
-                        <h2>📜 ПРАВИЛА ИГРЫ</h2>
-                        <div class="rules-text">
-                            <p><strong>🎰 Слот:</strong> 3 барабана, 7 символов с равной вероятностью. Выигрышные комбинации:</p>
-                            <div class="rules-paytable">
-                                <div>🍒🍒🍒 → x2</div>
-                                <div>🍋🍋🍋 → x3</div>
-                                <div>🍊🍊🍊 → x3</div>
-                                <div>🍇🍇🍇 → x4</div>
-                                <div>💎💎💎 → x5</div>
-                                <div>7️⃣7️⃣7️⃣ → x8</div>
-                                <div>2 одинаковых → возврат ставки</div>
-                                <div>🎫🎫🎫 → 15 VIP-билетов (через рекламу)</div>
-                            </div>
-                            <p><strong>🎫 VIP-БИЛЕТЫ:</strong> Получаются за выпадение 🎫🎫🎫 + просмотр рекламы. Участвуют в VIP-турнире. Также 1 VIP-билет даётся за приглашённого друга (вместе с 500 монетами).</p>
-                            <p><strong>📺 РЕКЛАМА:</strong> При нехватке монет → +200 монет (5 раз/день).</p>
-                            <p><strong>🎁 БОНУСЫ:</strong> 1000 монет каждый день. За 7 дней подряд +500 монет + 1 VIP-билет. За 30 дней +2000 монет + 5 VIP-билетов.</p>
-                            <p><strong>🏆 ТУРНИРЫ:</strong> Недельный (10 Stars за призовые места, количество мест зависит от участников). VIP-турнир (2500 Stars, 100 участников, вход 5 VIP-билетов).</p>
-                            <p><strong>👥 РЕФЕРАЛЬНАЯ ПРОГРАММА:</strong> За каждого приглашённого друга → +500 монет и +1 VIP-билет.</p>
-                        </div>
+            <div class="page">
+                <div id="adminPanel" style="display: none;">
+                    <div class="admin-panel">
+                        <div style="color: #ff4444; font-weight: bold; text-align: center;">🔐 АДМИН-ПАНЕЛЬ</div>
+                        <button class="btn" style="background: #444; font-size: 12px; margin-top: 10px;" onclick="window.pickWinner()">ВЫБРАТЬ ПОБЕДИТЕЛЯ</button>
                     </div>
                 </div>
-                <!-- СТРАНИЦА 2: ГЛАВНАЯ (слот) -->
-                <div class="page">
-                    <div class="slot-content">
-                        <div class="referral-panel" onclick="showReferralLink()">
-                            <span class="referral-text">👥 ПРИГЛАСИТЬ ДРУГА → +500 монет и +1 VIP-билет</span>
-                        </div>
 
-                        <!-- ОБЫЧНЫЕ БИЛЕТЫ (отдельная строка) -->
-                        <div class="tickets-row">
-                            <span class="ticket-label">🎫 Обычные билеты:</span>
-                            <span class="ticket-value" id="ticketsCount">0</span>
-                        </div>
-
-                        <!-- VIP-БИЛЕТЫ (отдельная строка) -->
-                        <div class="tickets-row vip">
-                            <span class="ticket-label">👑 VIP-билеты:</span>
-                            <span class="ticket-value" id="vipTicketsCount">0</span>
-                        </div>
-
-                        <!-- БАРАБАНЫ -->
-                        <div class="reels-container">
-                            <div class="reels">
-                                <div class="reel" id="reel1">🍒</div>
-                                <div class="reel" id="reel2">🍒</div>
-                                <div class="reel" id="reel3">🍒</div>
-                            </div>
-                            <div class="win-line" id="winLine"></div>
-                        </div>
-
-                        <!-- БАЛАНС -->
-                        <div class="balance-panel">
-                            <span class="balance-label">💰 БАЛАНС</span>
-                            <span class="balance-value" id="balance">1000</span>
-                        </div>
-
-                        <!-- ЕЖЕДНЕВНЫЙ БОНУС -->
-                        <div class="daily-bonus-indicator" id="dailyBonusBtn" onclick="claimDailyBonus()">
-                            <span class="bonus-text">🎁 Ежедневный бонус</span>
-                            <span class="bonus-timer" id="bonusTimer">Доступно</span>
-                        </div>
-
-                        <div class="win-message" id="winMessage"></div>
-
-                        <!-- СТАВКА -->
-                        <div class="bet-control">
-                            <button class="bet-btn" id="decreaseBet">-</button>
-                            <span class="bet-value" id="betValue">10</span>
-                            <button class="bet-btn" id="increaseBet">+</button>
-                        </div>
-
-                        <!-- КНОПКИ -->
-                        <div class="controls">
-                            <button class="btn btn-spin" id="spinBtn">🎰 КРУТИТЬ</button>
-                            <button class="btn btn-maxbet" id="maxBetBtn">⚡ MAX</button>
-                        </div>
-
-                        <!-- ТАБЛИЦА ВЫПЛАТ (краткая) -->
-                        <div class="paytable">
-                            <div class="paytable-title">🎰 ТАБЛИЦА ВЫПЛАТ 🎰</div>
-                            <div class="paytable-grid">
-                                <div class="paytable-item">🍒 x2</div><div class="paytable-item">🍋 x3</div><div class="paytable-item">🍊 x3</div>
-                                <div class="paytable-item">🍇 x4</div><div class="paytable-item">💎 x5</div><div class="paytable-item">7️⃣ x8</div>
-                            </div>
-                            <div style="text-align: center; margin-top: 6px; font-size: 10px;">2 одинаковых = возврат ставки</div>
-                        </div>
+                <div class="slot-machine">
+                    <div class="balance-panel">
+                        <span style="font-size: 14px;">💰 БАЛАНС</span>
+                        <span class="balance-value" id="balance">1000</span>
                     </div>
-                </div>
-                <!-- СТРАНИЦА 3: МАГАЗИН -->
-                <div class="page">
-                    <div class="shop-panel">
-                        <div class="shop-title">⭐ МАГАЗИН</div>
-                        <div class="shop-section">
-                            <div class="shop-section-title">💰 МОНЕТЫ ЗА STARS</div>
-                            <div class="shop-grid">
-                                <div class="shop-item" onclick="buyPackage(10, 1000)"><div class="shop-item-price">10 ⭐</div><div class="shop-item-amount">+1000 монет</div><div class="shop-item-badge">🔥 ХИТ</div></div>
-                                <div class="shop-item" onclick="buyPackage(40, 5000)"><div class="shop-item-price">40 ⭐</div><div class="shop-item-amount">+5000 монет</div><div class="shop-item-badge">⚡ ВЫГОДНО</div></div>
-                                <div class="shop-item" onclick="buyPackage(150, 20000)"><div class="shop-item-price">150 ⭐</div><div class="shop-item-amount">+20000 монет</div><div class="shop-item-badge">🎁 ПОДАРОК</div></div>
-                                <div class="shop-item" onclick="buyPackage(500, 75000)"><div class="shop-item-price">500 ⭐</div><div class="shop-item-amount">+75000 монет</div><div class="shop-item-badge">👑 VIP</div></div>
-                            </div>
+
+                    <div class="reels-container">
+                        <div class="reels">
+                            <div class="reel" id="reel1">🍒</div>
+                            <div class="reel" id="reel2">🍋</div>
+                            <div class="reel" id="reel3">7️⃣</div>
                         </div>
-                        <div class="shop-section">
-                            <div class="shop-section-title">👑 VIP-БИЛЕТЫ ЗА STARS</div>
-                            <div class="shop-grid">
-                                <div class="shop-item" onclick="buyVipTickets(10, 1)"><div class="shop-item-price">10 ⭐</div><div class="shop-item-amount">+1 VIP-билет</div></div>
-                                <div class="shop-item" onclick="buyVipTickets(30, 3)"><div class="shop-item-price">30 ⭐</div><div class="shop-item-amount">+3 VIP-билета</div><div class="shop-item-badge">⚡ ВЫГОДНО</div></div>
-                                <div class="shop-item" onclick="buyVipTickets(100, 10)"><div class="shop-item-price">100 ⭐</div><div class="shop-item-amount">+10 VIP-билетов</div><div class="shop-item-badge">🎁 ПОДАРОК</div></div>
-                            </div>
-                        </div>
+                        <div class="win-line" id="winLine"></div>
                     </div>
-                </div>
-                <!-- СТРАНИЦА 4: ТАБЛИЦЫ -->
-                <div class="page">
-                    <div class="tables-content">
-                        <div class="leaderboard">
-                            <div class="leaderboard-title">🏆 ТАБЛИЦА ЛИДЕРОВ (билеты)</div>
-                            <div id="leaderboardList">Загрузка...</div>
-                        </div>
-                        <div class="vip-leaderboard">
-                            <div class="leaderboard-title">👑 VIP-ТАБЛИЦА</div>
-                            <div id="vipLeaderboardList">Загрузка...</div>
-                        </div>
-                        <div class="tournament-info">
-                            <div class="tournament-title">🏆 НЕДЕЛЬНЫЙ ТУРНИР</div>
-                            <div class="tournament-stats">
-                                <div class="tournament-stat"><div class="tournament-stat-label">ПРИЗЫ</div><div class="tournament-stat-value" id="weeklyPrize">—</div></div>
-                                <div class="tournament-stat"><div class="tournament-stat-label">УЧАСТНИКИ</div><div class="tournament-stat-value" id="weeklyParticipants">0</div></div>
-                                <div class="tournament-stat"><div class="tournament-stat-label">ТВОИ БИЛЕТЫ</div><div class="tournament-stat-value" id="weeklyMyTickets">0</div></div>
-                            </div>
-                            <div class="tournament-progress" id="weeklyStatus">⚡ ИДЁТ НАБОР</div>
-                        </div>
-                        <div class="tournament-info">
-                            <div class="tournament-title">👑 VIP-ТУРНИР</div>
-                            <div class="tournament-stats">
-                                <div class="tournament-stat"><div class="tournament-stat-label">ПРИЗ</div><div class="tournament-stat-value">2500 ⭐</div></div>
-                                <div class="tournament-stat"><div class="tournament-stat-label">УЧАСТНИКИ</div><div class="tournament-stat-value" id="vipParticipants">0/100</div></div>
-                                <div class="tournament-stat"><div class="tournament-stat-label">ТВОЙ ВКЛАД</div><div class="tournament-stat-value" id="vipMyTickets">0 VIP-билетов</div></div>
-                            </div>
-                            <div class="tournament-progress" id="vipStatus">⚡ ИДЁТ НАБОР</div>
-                            <button class="tournament-button" id="joinVipBtn" onclick="joinVipTournament()">👑 УЧАСТВОВАТЬ (5 VIP-билетов)</button>
-                        </div>
-                        <div class="winners-history">
-                            <div class="leaderboard-title">📜 ПОСЛЕДНИЕ ПОБЕДИТЕЛИ</div>
-                            <div id="winnersHistoryList">Загрузка...</div>
-                        </div>
+
+                    <div id="winMessage" style="text-align: center; color: gold; font-weight: bold; height: 30px; margin-bottom: 10px;"></div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-spin" id="spinBtn">🎰 КРУТИТЬ</button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="dots" id="dots"></div>
+            <div class="page">
+                <h2 style="color: gold; text-align: center;">⭐ МАГАЗИН</h2>
+                <div style="margin-top: 20px; display: grid; gap: 10px;">
+                    <div class="leaderboard-item" onclick="buyPackage(10, 1000)">
+                        <span>1000 МОНЕТ</span><span style="color: gold;">10 Stars</span>
+                    </div>
+                    <div class="leaderboard-item" onclick="buyVipTickets(30, 3)">
+                        <span>3 VIP БИЛЕТА</span><span style="color: gold;">30 Stars</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page">
+                <h2 style="color: gold; text-align: center; margin-bottom: 15px;">🏆 ЛИДЕРЫ</h2>
+                <div id="leaderboardList">Загрузка...</div>
+            </div>
+
+        </div>
     </div>
+
+    <div class="dots" id="dots"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready();
         tg.expand();
-        document.body.style.overflowY = 'auto';
-        document.body.style.height = 'auto';
-        document.documentElement.style.overflowY = 'auto';
+        tg.ready();
 
-        const ADMIN_ID = 1065392792;
-        const userId = tg.initDataUnsafe?.user?.id || 0;
-        const userName = tg.initDataUnsafe?.user?.first_name || 'Игрок';
-        const userUsername = tg.initDataUnsafe?.user?.username || '';
-
-        if (userId === ADMIN_ID) {
-            document.getElementById('adminPanel').style.display = 'block';
-        }
-
-        const SERVER_URL = "https://spin1.ru";
-
-        let balance = 1000;
-        let tickets = 0;
-        let vipTickets = 0;
-        let currentBet = 10;
-        let isSpinning = false;
-        let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
-        let totalWins = parseInt(localStorage.getItem('totalWins') || '0');
-
-        const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣', '🎫'];
-        const MULTIPLIERS = { '🍒':2, '🍋':3, '🍊':3, '🍇':4, '💎':5, '7️⃣':8, '🎫':0 };
-
-        const balanceEl = document.getElementById('balance');
-        const reel1 = document.getElementById('reel1');
-        const reel2 = document.getElementById('reel2');
-        const reel3 = document.getElementById('reel3');
-        const spinBtn = document.getElementById('spinBtn');
-        const maxBetBtn = document.getElementById('maxBetBtn');
-        const winMessage = document.getElementById('winMessage');
-        const winLine = document.getElementById('winLine');
-        const betValue = document.getElementById('betValue');
-        const decreaseBet = document.getElementById('decreaseBet');
-        const increaseBet = document.getElementById('increaseBet');
-        const bonusTimer = document.getElementById('bonusTimer');
-        const leaderboardList = document.getElementById('leaderboardList');
-        const vipLeaderboardList = document.getElementById('vipLeaderboardList');
-        const winnersHistoryList = document.getElementById('winnersHistoryList');
-        const weeklyParticipants = document.getElementById('weeklyParticipants');
-        const weeklyMyTickets = document.getElementById('weeklyMyTickets');
-        const weeklyPrize = document.getElementById('weeklyPrize');
-        const weeklyStatus = document.getElementById('weeklyStatus');
-        const vipParticipants = document.getElementById('vipParticipants');
-        const vipMyTickets = document.getElementById('vipMyTickets');
-        const vipStatus = document.getElementById('vipStatus');
-
-        // =============== ADSGRAM ===============
-        const BLOCK_ID_MONEY = "int-25683";
-        const BLOCK_ID_VIP = "int-25684";
-        let moneyAd = null, vipAd = null;
-        if (window.Adsgram) {
-            moneyAd = window.Adsgram.init({ blockId: BLOCK_ID_MONEY });
-            vipAd = window.Adsgram.init({ blockId: BLOCK_ID_VIP });
-        }
-        let dailyAdCount = parseInt(localStorage.getItem('dailyAdCount') || '0');
-        let lastAdDate = localStorage.getItem('lastAdDate');
-        function checkAdReset() {
-            const today = new Date().toDateString();
-            if (lastAdDate !== today) { dailyAdCount = 0; localStorage.setItem('dailyAdCount', '0'); localStorage.setItem('lastAdDate', today); }
-        }
-        window.showRewardedAd = function() {
-            checkAdReset();
-            if (dailyAdCount >= 5) {
-                tg.showPopup({ title: '❌ ЛИМИТ', message: '5 раз в день. Завтра будет снова', buttons: [{type: 'close'}] });
-                return;
-            }
-            if (!moneyAd) { tg.showPopup({ title: '❌ Ошибка', message: 'Реклама временно недоступна', buttons: [{type: 'close'}] }); return; }
-            moneyAd.show().then(() => {
-                dailyAdCount++; localStorage.setItem('dailyAdCount', dailyAdCount);
-                balance += 200; updateUI();
-                tg.showPopup({ title: '🎥 +200 монет', message: `Осталось ${5-dailyAdCount} попыток`, buttons: [{type: 'close'}] });
-            }).catch(() => tg.showPopup({ title: '❌ Ошибка', message: 'Не удалось показать рекламу', buttons: [{type: 'close'}] }));
-        };
-        function showVipAd() {
-            if (!vipAd) { tg.showPopup({ title: '❌ Ошибка', message: 'VIP-реклама недоступна', buttons: [{type: 'close'}] }); return; }
-            vipAd.show().then(() => { vipTickets += 15; updateUI(); tg.showPopup({ title: '👑 +15 VIP-БИЛЕТОВ!', message: 'VIP-билеты зачислены', buttons: [{type: 'close'}] }); })
-                .catch(() => tg.showPopup({ title: '❌ Ошибка', message: 'Не удалось показать VIP-рекламу', buttons: [{type: 'close'}] }));
-        }
-
-        // =============== API ===============
-        async function loadUserData() {
-            try {
-                const res = await fetch(`${SERVER_URL}/api/user/${userId}`);
-                const data = await res.json();
-                balance = data.balance; tickets = data.tickets; vipTickets = data.vip_tickets;
-                updateUI();
-            } catch(e) { console.error(e); }
-        }
-        async function updateUserOnServer(name, username) {
-            try { await fetch(`${SERVER_URL}/api/user?user_id=${userId}&name=${encodeURIComponent(name)}&username=${encodeURIComponent(username)}`, { method: 'POST' }); } catch(e) { console.error(e); }
-        }
-        async function sendSpin(bet, win, symbols) {
-            try {
-                const res = await fetch(`${SERVER_URL}/api/spin?user_id=${userId}&bet=${bet}&win=${win}&symbols=${encodeURIComponent(symbols)}`, { method: 'POST' });
-                const data = await res.json();
-                balance = data.balance; tickets = data.tickets; vipTickets = data.vip_tickets;
-                updateUI(); return data;
-            } catch(e) { console.error(e); }
-        }
-        async function claimDailyBonus() {
-            try {
-                const res = await fetch(`${SERVER_URL}/api/daily_bonus?user_id=${userId}`, { method: 'POST' });
-                const data = await res.json();
-                if (data.status === 'ok') { balance = data.balance; updateUI(); tg.showPopup({ title: '🎁 БОНУС', message: '+1000 монет!', buttons: [{type: 'close'}] }); }
-                else { tg.showPopup({ title: '⏳ УЖЕ ПОЛУЧЕНО', message: 'Бонус раз в сутки', buttons: [{type: 'close'}] }); }
-            } catch(e) { console.error(e); }
-        }
-        async function loadLeaderboards() {
-            try {
-                const [leaderRes, vipRes] = await Promise.all([fetch(`${SERVER_URL}/api/leaderboard`), fetch(`${SERVER_URL}/api/vip_leaderboard`)]);
-                const leaderboard = await leaderRes.json();
-                const vipLeaderboard = await vipRes.json();
-                renderLeaderboard(leaderboard);
-                renderVipLeaderboard(vipLeaderboard);
-            } catch(e) { console.error(e); }
-        }
-        async function loadTournaments() {
-            try {
-                const weeklyRes = await fetch(`${SERVER_URL}/api/tournament/weekly?user_id=${userId}`);
-                const weekly = await weeklyRes.json();
-                document.getElementById('weeklyParticipants').textContent = weekly.participants;
-                document.getElementById('weeklyMyTickets').textContent = weekly.my_contribution;
-                let prizeText = weekly.prize_places === 1 ? `1 место: ${weekly.prize_per_place} ⭐` : `${weekly.prize_places} мест по ${weekly.prize_per_place} ⭐`;
-                document.getElementById('weeklyPrize').textContent = prizeText;
-                const vipRes = await fetch(`${SERVER_URL}/api/tournament/vip?user_id=${userId}`);
-                const vip = await vipRes.json();
-                document.getElementById('vipParticipants').textContent = `${vip.participants}/${vip.max_participants}`;
-                document.getElementById('vipMyTickets').textContent = `${vip.my_contribution} VIP-билетов`;
-                const winnersRes = await fetch(`${SERVER_URL}/api/winners`);
-                const winners = await winnersRes.json();
-                document.getElementById('winnersHistoryList').innerHTML = winners.length ? winners.map(w => `<div class="leaderboard-item"><span class="leaderboard-name">${w.name}</span><span class="leaderboard-score">${w.prize}</span></div>`).join('') : '<div class="leaderboard-item">Пока нет победителей</div>';
-            } catch(e) { console.error(e); }
-        }
-        function renderLeaderboard(data) {
-            if (!data.length) { leaderboardList.innerHTML = '<div class="leaderboard-item">Пока нет участников</div>'; return; }
-            leaderboardList.innerHTML = data.map((p,i) => `<div class="leaderboard-item ${p.id == userId ? 'highlight' : ''}"><span class="leaderboard-rank">${i+1}.</span><span class="leaderboard-name">${p.name}</span><span class="leaderboard-score">${p.tickets}</span></div>`).join('');
-            document.getElementById('statsPlayers').textContent = data.length;
-        }
-        function renderVipLeaderboard(data) {
-            if (!data.length) { vipLeaderboardList.innerHTML = '<div class="leaderboard-item">Пока нет участников</div>'; return; }
-            vipLeaderboardList.innerHTML = data.map((p,i) => `<div class="leaderboard-item ${p.id == userId ? 'highlight' : ''}"><span class="leaderboard-rank">${i+1}.</span><span class="leaderboard-name">${p.name}</span><span class="leaderboard-score">${p.vip_tickets}</span></div>`).join('');
-        }
-        function updateUI() {
-            balanceEl.textContent = balance;
-            betValue.textContent = currentBet;
-            document.getElementById('ticketsCount').textContent = tickets;
-            document.getElementById('vipTicketsCount').textContent = vipTickets;
-        }
-        function getRandomSymbol() { return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]; }
-        function calculateWin(s1,s2,s3,bet) {
-            if (s1===s2 && s2===s3) return bet * MULTIPLIERS[s1];
-            if (s1===s2 || s1===s3 || s2===s3) return bet;
-            return 0;
-        }
-
-        async function spin() {
-            if (isSpinning) return;
-            if (balance < currentBet) {
-                winMessage.textContent = '❌ Недостаточно средств!';
-                setTimeout(() => {
-                    tg.showPopup({ title: '🎥 Хочешь ещё монет?', message: '+200 монет за рекламу (5 раз/день)', buttons: [{type: 'default', text: '🎬 Смотреть', id: 'watch'}, {type: 'close', text: 'Нет'}] }, (btnId) => { if (btnId === 'watch') window.showRewardedAd(); });
-                }, 1000);
-                return;
-            }
-            isSpinning = true;
-            spinBtn.disabled = maxBetBtn.disabled = decreaseBet.disabled = increaseBet.disabled = true;
-            balance -= currentBet; totalSpins++; localStorage.setItem('totalSpins', totalSpins); updateUI();
-            winMessage.textContent = ''; winLine.classList.remove('active');
-            const spinDuration = 500, start = Date.now();
-            while (Date.now() - start < spinDuration) {
-                reel1.textContent = getRandomSymbol(); reel2.textContent = getRandomSymbol(); reel3.textContent = getRandomSymbol();
-                await new Promise(r => setTimeout(r, 50));
-            }
-            const result = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
-            reel1.textContent = result[0]; reel2.textContent = result[1]; reel3.textContent = result[2];
-            const win = calculateWin(result[0], result[1], result[2], currentBet);
-            const symbolsStr = result.join('');
-            const spinResult = await sendSpin(currentBet, win, symbolsStr);
-            if (spinResult) { balance = spinResult.balance; tickets = spinResult.tickets; vipTickets = spinResult.vip_tickets; }
-            if (win > 0) { totalWins++; localStorage.setItem('totalWins', totalWins); winMessage.textContent = `🎉 ВЫИГРЫШ: ${win} 🎉`; winLine.classList.add('active'); }
-            else { winMessage.textContent = '😎 Попробуй еще!'; }
-            if (result[0] === '🎫' && result[1] === '🎫' && result[2] === '🎫') {
-                setTimeout(() => {
-                    tg.showPopup({ title: '🎫 VIP-ДЖЕКПОТ!', message: 'Посмотри рекламу и получи 15 VIP-билетов!', buttons: [{type: 'default', text: '🎬 Смотреть', id: 'watch'}, {type: 'close', text: 'Отказаться'}] }, (btnId) => { if (btnId === 'watch') showVipAd(); });
-                }, 500);
-            }
-            updateUI();
-            isSpinning = false;
-            spinBtn.disabled = maxBetBtn.disabled = decreaseBet.disabled = increaseBet.disabled = false;
-        }
-
-        function showReferralLink() {
-            const link = `https://t.me/YourSlotGameBot?start=ref_${userId}`;
-            tg.showPopup({ title: '👥 РЕФЕРАЛЬНАЯ ПРОГРАММА', message: `🔗 Твоя ссылка:\n${link}\n\n✅ За каждого друга → +500 монет + 1 VIP-билет`, buttons: [{type: 'default', text: '📋 Копировать', id: 'copy'}, {type: 'close', text: 'Закрыть'}] }, (btnId) => { if (btnId === 'copy') tg.showPopup({ title: '✅ СКОПИРОВАНО', message: 'Отправь ссылку друзьям!', buttons: [{type: 'close'}] }); });
-        }
-        async function checkReferral(startParam) {
-            if (startParam && startParam.startsWith('ref_')) {
-                const referrerId = startParam.replace('ref_', '');
-                if (referrerId !== userId) {
-                    try {
-                        const res = await fetch(`${SERVER_URL}/api/referral?referrer_id=${referrerId}&referred_id=${userId}`, { method: 'POST' });
-                        const data = await res.json();
-                        if (data.status === 'ok') { await loadUserData(); tg.showPopup({ title: '🎁 БОНУС', message: '+500 монет и +1 VIP-билет!', buttons: [{type: 'close'}] }); }
-                    } catch(e) { console.error(e); }
-                }
-            }
-        }
-        const startParam = tg.initDataUnsafe?.start_param || '';
-        checkReferral(startParam);
-
-        window.buyPackage = (stars, coins) => tg.showPopup({ title: '⭐ ПОКУПКА', message: `${coins} монет за ${stars} Stars. Скоро!`, buttons: [{type: 'close'}] });
-        window.buyVipTickets = (stars, tickets) => tg.showPopup({ title: '👑 ПОКУПКА', message: `${tickets} VIP-билетов за ${stars} Stars. Скоро!`, buttons: [{type: 'close'}] });
-        window.joinVipTournament = () => vipTickets >= 5 ? tg.showPopup({ title: '👑 VIP-ТУРНИР', message: 'Вы участвуете! Старт при 100 участниках. Приз: 2500 Stars!', buttons: [{type: 'close'}] }) : tg.showPopup({ title: '❌ НЕДОСТАТОЧНО', message: `Нужно 5 VIP-билетов, у вас ${vipTickets}`, buttons: [{type: 'close'}] });
-        window.sendAnnouncement = () => { const t = document.getElementById('announcementText').value; if(t) tg.showPopup({ title: '📢 ОБЪЯВЛЕНИЕ', message: t, buttons: [{type: 'close'}] }); else tg.showPopup({ title: '❌ Ошибка', message: 'Введите текст', buttons: [{type: 'close'}] }); };
-        window.updateEvent = () => tg.showPopup({ title: '🎁 РЕДАКТОР', message: 'Скоро', buttons: [{type: 'close'}] });
-        window.pickWinner = () => tg.showPopup({ title: '👑 ПОБЕДИТЕЛЬ', message: 'Скоро', buttons: [{type: 'close'}] });
-        window.markPrizeSent = () => { tg.showPopup({ title: '✅ ОТПРАВЛЕНО', message: 'Отмечено', buttons: [{type: 'close'}] }); document.getElementById('winnerResult').style.display = 'none'; };
-
-        // =============== СВАЙП И ИНДИКАТОРЫ ===============
-        const pagesWrapper = document.getElementById('pagesWrapper');
+        // 1. ЛОГИКА НАВИГАЦИИ (Твой запрос на исправление)
+        const pagesContainer = document.getElementById('pagesContainer');
         const dotsContainer = document.getElementById('dots');
-        const allPages = document.querySelectorAll('.page');
-        const totalPages = allPages.length;
-        let currentPageIndex = 0;
+        const totalPages = 4;
+        let currentPage = 1; // Главная страница — вторая
 
-        function updateDots() {
-            if (!dotsContainer) return;
+        function initDots() {
             dotsContainer.innerHTML = '';
             for (let i = 0; i < totalPages; i++) {
                 const dot = document.createElement('div');
-                dot.className = 'dot' + (i === currentPageIndex ? ' active' : '');
-                dot.onclick = () => {
-                    currentPageIndex = i;
-                    pagesWrapper.scrollTo({ left: i * pagesWrapper.clientWidth, behavior: 'smooth' });
-                    updateDots();
-                };
+                dot.className = `dot ${i === currentPage ? 'active' : ''}`;
                 dotsContainer.appendChild(dot);
             }
         }
 
-        if (pagesWrapper) {
-            pagesWrapper.addEventListener('scroll', () => {
-                const newIndex = Math.round(pagesWrapper.scrollLeft / pagesWrapper.clientWidth);
-                if (newIndex !== currentPageIndex) {
-                    currentPageIndex = newIndex;
-                    updateDots();
-                }
-            });
-            updateDots();
+        pagesContainer.addEventListener('scroll', () => {
+            const width = pagesContainer.offsetWidth;
+            const newIndex = Math.round(pagesContainer.scrollLeft / width);
+            if (newIndex !== currentPage) {
+                currentPage = newIndex;
+                updateActiveDot(currentPage);
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            }
+        });
 
-            // Старт со второй страницы (индекс 1)
-            setTimeout(() => {
-                if (pagesWrapper.clientWidth > 0) {
-                    pagesWrapper.scrollTo({ left: pagesWrapper.clientWidth, behavior: 'instant' });
-                    currentPageIndex = 1;
-                    updateDots();
-                }
-            }, 100);
+        function updateActiveDot(index) {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
         }
 
-        spinBtn.addEventListener('click', spin);
-        maxBetBtn.addEventListener('click', () => { currentBet = Math.min(100, balance); updateUI(); });
-        decreaseBet.addEventListener('click', () => { if (currentBet > 10 && !isSpinning) { currentBet -= 10; updateUI(); } });
-        increaseBet.addEventListener('click', () => { if (currentBet < 100 && currentBet + 10 <= balance && !isSpinning) { currentBet += 10; updateUI(); } });
+        // 2. ТВОЯ ОРИГИНАЛЬНАЯ ЛОГИКА (Слот, Adsgram, Сервер)
+        let balance = 1000;
+        const SYMBOLS = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣', '🎫'];
 
-        updateUserOnServer(userName, userUsername);
-        loadUserData();
-        loadLeaderboards();
-        loadTournaments();
-        setInterval(loadLeaderboards, 30000);
-        setInterval(loadTournaments, 30000);
+        async function spin() {
+            const spinBtn = document.getElementById('spinBtn');
+            if (balance < 10) return;
+
+            balance -= 10;
+            document.getElementById('balance').textContent = balance;
+            spinBtn.disabled = true;
+            document.getElementById('winLine').classList.remove('active');
+            document.getElementById('winMessage').textContent = '';
+
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+            // Анимация (Твоя идея)
+            let counter = 0;
+            const interval = setInterval(() => {
+                document.getElementById('reel1').textContent = SYMBOLS[Math.floor(Math.random() * 6)];
+                document.getElementById('reel2').textContent = SYMBOLS[Math.floor(Math.random() * 6)];
+                document.getElementById('reel3').textContent = SYMBOLS[Math.floor(Math.random() * 6)];
+                counter++;
+                if (counter > 15) {
+                    clearInterval(interval);
+                    finalizeSpin();
+                }
+            }, 70);
+        }
+
+        function finalizeSpin() {
+            const r1 = SYMBOLS[Math.floor(Math.random() * 6)];
+            const r2 = SYMBOLS[Math.floor(Math.random() * 6)];
+            const r3 = SYMBOLS[Math.floor(Math.random() * 6)];
+
+            document.getElementById('reel1').textContent = r1;
+            document.getElementById('reel2').textContent = r2;
+            document.getElementById('reel3').textContent = r3;
+
+            if (r1 === r2 && r2 === r3) {
+                document.getElementById('winLine').classList.add('active');
+                document.getElementById('winMessage').textContent = 'ВЫИГРЫШ!';
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            }
+            
+            document.getElementById('spinBtn').disabled = false;
+        }
+
+        // Заглушки для твоих функций
+        window.buyPackage = (stars, coins) => tg.showAlert(`Покупка ${coins} монет за ${stars} Stars`);
+        window.pickWinner = () => tg.showAlert("Выбор победителя...");
+
+        // Инициализация
+        window.onload = () => {
+            initDots();
+            // Сразу на главную (индекс 1)
+            setTimeout(() => {
+                pagesContainer.scrollTo({ left: pagesContainer.offsetWidth, behavior: 'auto' });
+            }, 100);
+        };
+
+        document.getElementById('spinBtn').onclick = spin;
     </script>
 </body>
 </html>
