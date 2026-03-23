@@ -988,6 +988,45 @@ async function showAd() {
         let vipTickets = 0;
         let currentBet = 10;
         let isSpinning = false;
+        // --- НОВЫЕ ФУНКЦИИ ---
+
+// 1. Функция рекламы
+const AdController = window.Adsgram.init({ blockId: "4722" }); // Замени 4722 на свой ID
+
+async function showAd() {
+    try {
+        const result = await AdController.show();
+        if (result.done) {
+            balance += 500;
+            updateUI();
+            tg.showAlert("🎁 Начислено 500 монет!");
+        }
+    } catch (e) {
+        tg.showAlert("Реклама временно недоступна");
+    }
+}
+
+// 2. Функция рефералов
+function showReferralLink() {
+    const userId = tg.initDataUnsafe.user?.id || 0;
+    const shareUrl = `https://t.me/ТВОЙ_БОТ?start=ref${userId}`;
+    const text = "Присоединяйся к игре и получи бонус!";
+    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`);
+}
+
+// 3. Функция покупки Stars
+function buyPackage(stars, amount) {
+    tg.showConfirm(`Купить ${amount} монет за ${stars} Stars?`, (confirm) => {
+        if (confirm) {
+            tg.showAlert("Платеж инициирован! (Нужна настройка сервера)");
+        }
+    });
+}
+
+// 4. Заглушка для Лидерборда (чтобы не было ошибки)
+function showLeaderboard() {
+    console.log("Лидерборд загружен");
+}
         
         let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
         let totalWins = parseInt(localStorage.getItem('totalWins') || '0');
@@ -1549,6 +1588,12 @@ async function showAd() {
         }
 
         spinBtn.addEventListener('click', spin);
+        // Привязываем рекламу к кнопкам (если у них есть такие ID в HTML)
+const adButton = document.getElementById('adBtn');
+if (adButton) adButton.addEventListener('click', showAd);
+
+const refButton = document.getElementById('refBtn');
+if (refButton) refButton.addEventListener('click', showReferralLink);
         maxBetBtn.addEventListener('click', () => {
             currentBet = Math.min(100, balance);
             updateUI();
