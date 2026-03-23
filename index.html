@@ -2,11 +2,18 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Джекпот Слот</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
+        /* ОСНОВНЫЕ ИСПРАВЛЕНИЯ ДЛЯ РАБОТЫ НА СЕРВЕРЕ */
+        :root {
+            --main-blue: #4cc9f0;
+            --dark-bg: #1a1a2e;
+            --accent-gradient: linear-gradient(135deg, #4cc9f0, #4361ee);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,23 +23,24 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000; /* Черный фон до загрузки градиента */
             color: white;
             height: 100vh;
             width: 100vw;
-            overflow: hidden; 
+            overflow: hidden;
+            position: fixed;
         }
 
+        /* Обертка страниц с исправленным свайпом */
         .pages-wrapper {
             display: flex;
             width: 100%;
-            height: calc(100% - 60px);
+            height: calc(100% - 80px); /* Место под навигацию снизу */
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             scroll-behavior: smooth;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
         }
 
         .pages-wrapper::-webkit-scrollbar { display: none; }
@@ -45,115 +53,118 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            padding-bottom: 40px;
         }
 
-        .dots-container {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        /* ТВОЙ ДИЗАЙН КАРТОЧЕК И КНОПОК (Вставь сюда свои 1000 строк CSS) */
+        /* Я ниже привожу ключевые блоки, чтобы не терять функционал */
+
+        .header {
             display: flex;
-            gap: 8px;
-            z-index: 100;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.07);
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .balance-item { text-align: center; }
+        .balance-label { font-size: 10px; opacity: 0.6; text-transform: uppercase; }
+        .balance-value { font-size: 18px; font-weight: 800; color: var(--main-blue); }
+
+        .slot-machine {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            padding: 25px;
+            border: 2px solid rgba(76, 201, 240, 0.3);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .reels {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .reel {
+            width: 85px;
+            height: 110px;
+            background: #050510;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 45px;
+            border: 1px solid rgba(76, 201, 240, 0.5);
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+
+        .spin-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 20px;
+            border: none;
+            background: var(--accent-gradient);
+            color: white;
+            font-size: 20px;
+            font-weight: 900;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+            transition: 0.2s;
+        }
+
+        .spin-btn:active { transform: scale(0.96); }
+        .spin-btn:disabled { background: #333; box-shadow: none; opacity: 0.5; }
+
+        /* Навигация (Точки) */
+        .dots-container {
+            height: 80px;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            backdrop-filter: blur(15px);
         }
 
         .dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transition: all 0.3s;
+            background: rgba(255,255,255,0.2);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .dot.active {
-            background: #4cc9f0;
-            transform: scale(1.2);
+            background: var(--main-blue);
+            width: 24px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px var(--main-blue);
         }
 
-        .header {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 20px;
-        }
-
-        .balance-item { display: flex; flex-direction: column; align-items: center; }
-        .balance-label { font-size: 12px; opacity: 0.7; }
-        .balance-value { font-size: 18px; font-weight: bold; color: #4cc9f0; }
-
-        .slot-machine {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 24px;
-            width: 100%;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .reels {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .reel {
-            width: 80px;
-            height: 100px;
-            background: #1a1a2e;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-            border: 2px solid #4cc9f0;
-        }
-
-        .controls { display: flex; flex-direction: column; gap: 15px; width: 100%; }
-        .bet-control { display: flex; justify-content: center; align-items: center; gap: 20px; }
-        .bet-btn { background: none; border: 2px solid #4cc9f0; color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; }
-        
-        .spin-btn {
-            background: #4cc9f0;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.4);
-        }
-
-        .spin-btn:disabled { opacity: 0.5; }
-
+        /* Стили для карточек заданий */
         .card {
             background: rgba(255, 255, 255, 0.05);
-            width: 100%;
-            padding: 20px;
             border-radius: 20px;
+            padding: 20px;
             margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .action-btn {
             width: 100%;
             padding: 12px;
-            margin-top: 10px;
             border-radius: 12px;
             border: none;
-            background: #4cc9f0;
+            background: rgba(255,255,255,0.1);
             color: white;
-            font-weight: bold;
-        }
-
-        .leader-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -161,311 +172,356 @@
     <div class="pages-wrapper" id="pagesWrapper">
         
         <div class="page" id="shopPage">
-            <h2 style="margin-bottom: 20px;">Магазин Stars ⭐️</h2>
+            <h2 style="text-align: center; margin-bottom: 25px; color: var(--main-blue);">МАГАЗИН STARS ⭐️</h2>
             
             <div class="card">
-                <h3>Набор "Новичок"</h3>
-                <p>5,000 монет</p>
-                <button class="action-btn" onclick="buyPackage(50, 5000)">50 ⭐️</button>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="color: #ffd700;">Пакет "Старт"</h3>
+                        <p style="font-size: 14px; opacity: 0.7;">+5,000 монет</p>
+                    </div>
+                    <button class="action-btn" style="width: 80px;" onclick="buyPackage(50, 5000)">50 ⭐️</button>
+                </div>
             </div>
 
             <div class="card">
-                <h3>Набор "Лудоман"</h3>
-                <p>20,000 монет</p>
-                <button class="action-btn" onclick="buyPackage(150, 20000)">150 ⭐️</button>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="color: #4cc9f0;">VIP Билеты</h3>
+                        <p style="font-size: 14px; opacity: 0.7;">5 золотых билетов</p>
+                    </div>
+                    <button class="action-btn" style="width: 80px;" onclick="buyPackage(100, '5 VIP')">100 ⭐️</button>
+                </div>
             </div>
 
-            <div class="card">
-                <h3>VIP Билеты</h3>
-                <p>5 золотых билетов</p>
-                <button class="action-btn" onclick="buyPackage(100, '5 VIP')">100 ⭐️</button>
+            <div class="card" style="border: 1px dashed var(--main-blue); background: rgba(76, 201, 240, 0.05);">
+                <p style="font-size: 12px; text-align: center; opacity: 0.6;">Покупки обрабатываются через Telegram Stars</p>
             </div>
         </div>
 
         <div class="page" id="mainPage">
             <div class="header">
                 <div class="balance-item">
-                    <span class="balance-label">МОНЕТЫ</span>
-                    <span class="balance-value" id="balanceText">1,000</span>
+                    <span class="balance-label">БАЛАНС</span>
+                    <span class="balance-value" id="balanceText">0</span>
                 </div>
                 <div class="balance-item">
                     <span class="balance-label">БИЛЕТЫ</span>
-                    <span class="balance-value" id="ticketsText">5</span>
+                    <span class="balance-value" id="ticketsText">0</span>
                 </div>
             </div>
 
             <div class="slot-machine">
                 <div class="reels">
-                    <div class="reel" id="reel1">🎰</div>
-                    <div class="reel" id="reel2">🎰</div>
-                    <div class="reel" id="reel3">🎰</div>
+                    <div class="reel" id="reel1">🍒</div>
+                    <div class="reel" id="reel2">🔔</div>
+                    <div class="reel" id="reel3">💎</div>
                 </div>
 
                 <div class="controls">
-                    <div class="bet-control">
-                        <button class="bet-btn" id="decreaseBet">−</button>
+                    <div style="display:flex; justify-content: space-around; align-items:center; margin-bottom: 15px;">
+                        <button class="bet-btn" style="width:45px; height:45px; border-radius:50%; border:1px solid var(--main-blue); background:none; color:white;" id="decreaseBet">−</button>
                         <div style="text-align: center;">
-                            <div style="font-size: 12px; opacity: 0.6;">СТАВКА</div>
-                            <div id="currentBetText" style="font-size: 20px; font-weight: bold;">10</div>
+                            <div style="font-size: 10px; opacity:0.5;">СТАВКА</div>
+                            <div id="currentBetText" style="font-size: 22px; font-weight: 800;">10</div>
                         </div>
-                        <button class="bet-btn" id="increaseBet">+</button>
+                        <button class="bet-btn" style="width:45px; height:45px; border-radius:50%; border:1px solid var(--main-blue); background:none; color:white;" id="increaseBet">+</button>
                     </div>
 
-                    <button class="spin-btn" id="spinBtn">КРУТИТЬ</button>
-                    <button id="maxBetBtn" style="background:none; border:none; color:#4cc9f0; font-size:12px; margin-top:5px;">МАКС. СТАВКА</button>
+                    <button class="spin-btn" id="spinBtn">SPIN</button>
+                    <button id="maxBetBtn" style="background:none; border:none; color:var(--main-blue); font-size:11px; margin-top:8px; width:100%; text-transform:uppercase; letter-spacing:1px;">Максимальная ставка</button>
                 </div>
             </div>
             
-            <p id="message" style="margin-top: 20px; font-weight: bold; height: 24px; color: #4cc9f0;"></p>
+            <p id="message" style="margin-top: 20px; text-align: center; font-weight: bold; min-height: 24px; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.3);"></p>
         </div>
 
         <div class="page" id="tasksPage">
-            <h2 style="margin-bottom: 20px;">Задания</h2>
+            <h2 style="margin-bottom: 20px;">Заработок</h2>
             
             <div class="card">
-                <h3>Бесплатные монеты</h3>
-                <p>Смотри рекламу и получай +500 💰</p>
-                <button class="action-btn" id="adBtn">Смотреть рекламу</button>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="font-size:16px;">Видео-бонус</h3>
+                        <p style="font-size: 12px; opacity: 0.7;">+500 монет за просмотр</p>
+                    </div>
+                    <button class="action-btn" style="width:100px; background:var(--accent-gradient);" id="adBtn">Смотреть</button>
+                </div>
             </div>
 
             <div class="card">
-                <h3>Рефералы</h3>
-                <p>Зови друзей и получай +1000 💰</p>
-                <button class="action-btn" id="refBtn">Пригласить друга</button>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="font-size:16px;">Друзья</h3>
+                        <p style="font-size: 12px; opacity: 0.7;">+1000 за реферала</p>
+                    </div>
+                    <button class="action-btn" style="width:100px;" id="refBtn">Пригласить</button>
+                </div>
             </div>
 
-            <h3 style="margin: 20px 0 10px 0;">Топ игроков</h3>
-            <div class="card" id="leaderboardList" style="padding: 10px;">
-                Загрузка...
-            </div>
+            <h3 style="margin: 20px 0 10px 5px; font-size:14px; opacity:0.8;">ТОП ИГРОКОВ</h3>
+            <div class="card" id="leaderboardList" style="padding: 10px; max-height: 250px; overflow-y: auto;">
+                </div>
         </div>
-
     </div>
 
     <div class="dots-container" id="dotsContainer"></div>
 
-    <div id="adminPanel" style="display:none; position:fixed; top:10px; left:10px; background:red; padding:5px; border-radius:5px; z-index:1000; font-size:10px;">
-        ADMIN MODE
+    <div id="adminPanel" style="display:none; position:fixed; top:20px; left:20px; background:rgba(255,0,0,0.8); padding:8px 12px; border-radius:10px; z-index:9999; font-size:12px; font-weight:bold; backdrop-filter:blur(5px);">
+        ⚡ ADMIN MODE
     </div>
 <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+    const tg = window.Telegram.WebApp;
+    const SERVER_URL = "https://spin1.ru";
+    const ADMIN_ID = 1065392792;
+    
+    tg.expand();
+    tg.ready();
 
-        // Данные пользователя из Telegram
-        const user = tg.initDataUnsafe.user || {};
-        const userId = user.id || 0;
-        const userName = user.first_name || "Игрок";
-        const userUsername = user.username || "player";
-        const ADMIN_ID = 1065392792;
+    // Авторизационные данные для заголовков (Защита)
+    const initData = tg.initData; 
+    const user = tg.initDataUnsafe.user || {};
+    const userId = user.id || 0;
+    const userName = user.first_name || "Guest";
+    const userUsername = user.username || "player";
 
-        // Состояние игры
-        let balance = 1000;
-        let tickets = 5;
-        let currentBet = 10;
-        let isSpinning = false;
-        let currentPage = 1;
+    // Состояние
+    let balance = 0;
+    let tickets = 0;
+    let currentBet = 10;
+    let isSpinning = false;
+    let currentPage = 1;
 
-        // Элементы интерфейса
-        const balanceText = document.getElementById('balanceText');
-        const ticketsText = document.getElementById('ticketsText');
-        const currentBetText = document.getElementById('currentBetText');
-        const message = document.getElementById('message');
-        const spinBtn = document.getElementById('spinBtn');
-        const pagesWrapper = document.getElementById('pagesWrapper');
-        const dotsContainer = document.getElementById('dotsContainer');
+    const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🍀'];
 
-        const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🍀'];
-
-        // --- ИНИЦИАЛИЗАЦИЯ РЕКЛАМЫ ADSGRAM ---
-        const AdController = window.Adsgram.init({ blockId: "int-25683" }); // Замени на свой ID
-
-        async function showAd() {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            try {
-                const result = await AdController.show();
-                if (result.done) {
-                    balance += 500;
-                    updateUI();
-                    tg.showAlert("🎁 Награда: +500 монет!");
-                }
-            } catch (e) {
-                tg.showAlert("Реклама пока не готова. Попробуйте позже.");
+    // Универсальная функция запроса к твоему FastAPI
+    async function apiRequest(endpoint, method = 'GET', body = null) {
+        const url = `${SERVER_URL}${endpoint}`;
+        const options = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-TG-Data': initData // Передаем данные инициализации для проверки на сервере
             }
-        }
-
-        // --- РЕФЕРАЛЬНАЯ СИСТЕМА ---
-        function showReferralLink() {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            const botUsername = "YourSlotGameBot"; // ЗАМЕНИТЕ НА ИМЯ ВАШЕГО БОТА
-            const shareUrl = `https://t.me/${botUsername}?start=ref${userId}`;
-            const fullUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=Играй со мной в Слот и получай бонусы!`;
-            tg.openTelegramLink(fullUrl);
-        }
-
-        // --- ЛОГИКА СЛОТОВ ---
-        function updateUI() {
-            balanceText.textContent = balance.toLocaleString();
-            ticketsText.textContent = tickets;
-            currentBetText.textContent = currentBet;
-            
-            // Проверка доступности кнопок
-            spinBtn.disabled = isSpinning || balance < currentBet;
-        }
-
-        function spin() {
-            if (isSpinning || balance < currentBet) return;
-
-            isSpinning = true;
-            balance -= currentBet;
-            updateUI();
-            message.textContent = "Удача близко...";
-            
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-
-            const reels = [
-                document.getElementById('reel1'),
-                document.getElementById('reel2'),
-                document.getElementById('reel3')
-            ];
-
-            // Анимация вращения
-            const spinInterval = setInterval(() => {
-                reels.forEach(reel => {
-                    reel.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                });
-            }, 100);
-
-            setTimeout(() => {
-                clearInterval(spinInterval);
-                
-                // Результат
-                const results = [
-                    symbols[Math.floor(Math.random() * symbols.length)],
-                    symbols[Math.floor(Math.random() * symbols.length)],
-                    symbols[Math.floor(Math.random() * symbols.length)]
-                ];
-
-                reels.forEach((reel, i) => reel.textContent = results[i]);
-
-                checkWin(results);
-                isSpinning = false;
-                updateUI();
-            }, 2000);
-        }
-
-        function checkWin(results) {
-            const [r1, r2, r3] = results;
-            let winAmount = 0;
-
-            if (r1 === r2 && r2 === r3) {
-                winAmount = currentBet * 10;
-                message.textContent = `ДЖЕКПОТ! +${winAmount} 💰`;
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else if (r1 === r2 || r2 === r3 || r1 === r3) {
-                winAmount = Math.floor(currentBet * 1.5);
-                message.textContent = `Победа! +${winAmount} 💰`;
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            } else {
-                message.textContent = "";
-            }
-
-            balance += winAmount;
-        }
-// --- ЛОГИКА НАВИГАЦИИ (СВАЙПЫ) ---
-        function updateDots() {
-            dotsContainer.innerHTML = '';
-            for (let i = 0; i < 3; i++) {
-                const dot = document.createElement('div');
-                dot.classList.add('dot');
-                if (i === currentPage) dot.classList.add('active');
-                dotsContainer.appendChild(dot);
-            }
-        }
-
-        // Отслеживаем прокрутку для обновления точек
-        pagesWrapper.addEventListener('scroll', () => {
-            const width = pagesWrapper.clientWidth;
-            const newPage = Math.round(pagesWrapper.scrollLeft / width);
-            if (newPage !== currentPage) {
-                currentPage = newPage;
-                updateDots();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            }
-        });
-
-        // --- ОБРАБОТЧИКИ КНОПОК ---
-        
-        // Ставки
-        document.getElementById('increaseBet').addEventListener('click', () => {
-            if (currentBet < 100 && (currentBet + 10) <= balance && !isSpinning) {
-                currentBet += 10;
-                updateUI();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            }
-        });
-
-        document.getElementById('decreaseBet').addEventListener('click', () => {
-            if (currentBet > 10 && !isSpinning) {
-                currentBet -= 10;
-                updateUI();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            }
-        });
-
-        document.getElementById('maxBetBtn').addEventListener('click', () => {
-            if (!isSpinning) {
-                currentBet = Math.min(100, Math.floor(balance / 10) * 10);
-                if (currentBet < 10) currentBet = 10;
-                updateUI();
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            }
-        });
-
-        // Кнопка SPIN
-        spinBtn.addEventListener('click', spin);
-
-        // Кнопки заданий (Реклама и Рефералы)
-        document.getElementById('adBtn').addEventListener('click', showAd);
-        document.getElementById('refBtn').addEventListener('click', showReferralLink);
-
-        // --- СЕРВЕРНЫЕ ЗАГЛУШКИ (Чтобы не было ошибок) ---
-        async function loadUserData() { console.log("Данные загружены"); updateUI(); }
-        async function loadLeaderboards() {
-            const list = document.getElementById('leaderboardList');
-            if (list) {
-                list.innerHTML = `
-                    <div class="leader-item"><span>1. ${userName}</span><span>${balance} 💰</span></div>
-                    <div class="leader-item"><span>2. CryptoKing</span><span>50,000 💰</span></div>
-                    <div class="leader-item"><span>3. SlotMaster</span><span>25,000 💰</span></div>
-                `;
-            }
-        }
-        async function updateUserOnServer() { console.log("Синхронизация с сервером..."); }
-        async function loadTournaments() { console.log("Турниры активны"); }
-
-        // --- ЗАПУСК ПРИ ЗАГРУЗКЕ ---
-        window.onload = () => {
-            // Установка начальной страницы (Центральная - Слот)
-            setTimeout(() => {
-                pagesWrapper.scrollTo({
-                    left: pagesWrapper.clientWidth,
-                    behavior: 'auto'
-                });
-                currentPage = 1;
-                updateDots();
-            }, 100);
-
-            // Проверка админа
-            if (userId === ADMIN_ID) {
-                document.getElementById('adminPanel').style.display = 'block';
-            }
-
-            // Загрузка данных
-            loadUserData();
-            loadLeaderboards();
-            updateUserOnServer();
         };
-    </script>
+        if (body) options.body = JSON.stringify(body);
+
+        try {
+            const response = await fetch(url, options);
+            return await response.json();
+        } catch (error) {
+            console.error(`Ошибка API (${endpoint}):`, error);
+            return null;
+        }
+    }
+
+    // Инициализация Adsgram
+    const AdController = window.Adsgram.init({ blockId: "int-25683" });
+// --- 1. ЗАГРУЗКА И РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ ---
+    async function loadUserData() {
+        // Сначала регистрируем/обновляем пользователя
+        await apiRequest(`/api/user?user_id=${userId}&name=${encodeURIComponent(userName)}&username=${encodeURIComponent(userUsername)}`, 'POST');
+        
+        // Затем получаем актуальные данные
+        const data = await apiRequest(`/api/user/${userId}`);
+        if (data) {
+            balance = data.balance;
+            tickets = data.tickets;
+            updateUI();
+        }
+    }
+
+    // --- 2. ЛОГИКА ВРАЩЕНИЯ (SPIN) ---
+    async function spin() {
+        if (isSpinning || balance < currentBet) return;
+
+        isSpinning = true;
+        const oldBalance = balance;
+        balance -= currentBet; // Визуальное списание сразу
+        updateUI();
+        message.textContent = "Удача близко...";
+
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+        const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+        
+        // Анимация крутилки (визуальный эффект)
+        const spinInterval = setInterval(() => {
+            reels.forEach(reel => {
+                reel.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            });
+        }, 100);
+
+        // Запрос к серверу для определения результата
+        // Мы отправляем ставку, а сервер возвращает: выигрыш, символы и новый баланс
+        const result = await apiRequest(`/api/spin?user_id=${userId}&bet=${currentBet}`, 'POST');
+
+        setTimeout(() => {
+            clearInterval(spinInterval);
+            
+            if (result && result.success) {
+                // Устанавливаем символы, которые прислал сервер
+                reels[0].textContent = result.symbols[0];
+                reels[1].textContent = result.symbols[1];
+                reels[2].textContent = result.symbols[2];
+
+                balance = result.new_balance; // Синхронизируем баланс с сервером
+                
+                if (result.win > 0) {
+                    message.textContent = `ВЫИГРЫШ: +${result.win} 💰`;
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                } else {
+                    message.textContent = "";
+                }
+            } else {
+                // Если сервер не ответил, возвращаем баланс назад
+                balance = oldBalance;
+                tg.showAlert("Ошибка связи с сервером");
+            }
+
+            isSpinning = false;
+            updateUI();
+        }, 2000);
+    }
+
+    // --- 3. РЕКЛАМА (ADSGRAM) ---
+    async function showAd() {
+        try {
+            const result = await AdController.show();
+            if (result.done) {
+                // После просмотра рекламы вызываем бонус на сервере
+                // (Если у тебя нет отдельного эндпоинта для рекламы, используем daily_bonus или создай новый)
+                const res = await apiRequest(`/api/daily_bonus?user_id=${userId}`, 'POST');
+                if (res && res.success) {
+                    balance = res.new_balance;
+                    updateUI();
+                    tg.showAlert("🎁 Награда получена!");
+                }
+            }
+        } catch (e) {
+            tg.showAlert("Реклама пока не доступна");
+        }
+    }
+
+    // --- 4. РЕФЕРАЛЬНАЯ СИСТЕМА ---
+    function showReferralLink() {
+        const botUsername = "ТВОЙ_БОТ_USERNAME"; // ЗАМЕНИ НА ИМЯ СВОЕГО БОТА (БЕЗ @)
+        const shareUrl = `https://t.me/${botUsername}?start=ref${userId}`;
+        const text = "Присоединяйся к игре и получи 1000 монет бонуса! 🎰";
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`);
+    }
+
+    // --- 5. ТАБЛИЦА ЛИДЕРОВ ---
+    async function loadLeaderboards() {
+        const data = await apiRequest('/api/leaderboard');
+        const list = document.getElementById('leaderboardList');
+        if (data && list) {
+            list.innerHTML = data.map((player, index) => `
+                <div class="leader-item" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <span>${index + 1}. ${player.name}</span>
+                    <span style="color:var(--main-blue); font-weight:bold;">${player.balance.toLocaleString()} 💰</span>
+                </div>
+            `).join('');
+        }
+    }
+// --- 1. ЛОГИКА НАВИГАЦИИ (СВАЙПЫ И ТОЧКИ) ---
+    function updateDots() {
+        dotsContainer.innerHTML = '';
+        // У нас 3 страницы: Магазин (0), Слот (1), Задания (2)
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === currentPage) dot.classList.add('active');
+            dotsContainer.appendChild(dot);
+        }
+    }
+
+    // Слушатель прокрутки для обновления индикатора (точек)
+    pagesWrapper.addEventListener('scroll', () => {
+        const width = pagesWrapper.clientWidth;
+        const scrollLeft = pagesWrapper.scrollLeft;
+        const newPage = Math.round(scrollLeft / width);
+
+        if (newPage !== currentPage) {
+            currentPage = newPage;
+            updateDots();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+    });
+
+    // --- 2. УПРАВЛЕНИЕ СТАВКАМИ ---
+    document.getElementById('increaseBet').addEventListener('click', () => {
+        if (isSpinning) return;
+        // Максимальная ставка 100 или текущий баланс
+        if (currentBet + 10 <= 100 && currentBet + 10 <= balance) {
+            currentBet += 10;
+            updateUI();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+    });
+
+    document.getElementById('decreaseBet').addEventListener('click', () => {
+        if (isSpinning) return;
+        if (currentBet - 10 >= 10) {
+            currentBet -= 10;
+            updateUI();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+    });
+
+    document.getElementById('maxBetBtn').addEventListener('click', () => {
+        if (isSpinning) return;
+        let possibleMax = Math.min(100, Math.floor(balance / 10) * 10);
+        if (possibleMax >= 10) {
+            currentBet = possibleMax;
+            updateUI();
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        }
+    });
+
+    // Привязка основных кнопок
+    document.getElementById('spinBtn').addEventListener('click', spin);
+    document.getElementById('adBtn').addEventListener('click', showAd);
+    document.getElementById('refBtn').addEventListener('click', showReferralLink);
+
+    // --- 3. ФУНКЦИЯ ПОКУПКИ (STARS) ---
+    function buyPackage(stars, amount) {
+        tg.showConfirm(`Купить ${amount} за ${stars} Stars?`, (confirm) => {
+            if (confirm) {
+                // Здесь вызывается платеж через BotFather / твой сервер
+                tg.showAlert("Платежная система в разработке. Используйте Stars инвойсы.");
+            }
+        });
+    }
+
+    // --- 4. ФИНАЛЬНЫЙ ЗАПУСК ПРИ ЗАГРУЗКЕ ---
+    window.onload = async () => {
+        // Проверка прав админа
+        if (userId === ADMIN_ID) {
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+
+        // 1. Устанавливаем начальную страницу на СЛОТЫ (Центр)
+        setTimeout(() => {
+            const pageWidth = pagesWrapper.clientWidth;
+            pagesWrapper.scrollTo({
+                left: pageWidth,
+                behavior: 'auto'
+            });
+            currentPage = 1;
+            updateDots();
+        }, 150);
+
+        // 2. Загружаем данные с твоего сервера
+        await loadUserData();     // Регистрация и баланс
+        await loadLeaderboards(); // Таблица лидеров
+
+        // 3. Скрываем Splash Screen Telegram (если он есть)
+        tg.ready();
+    };
+
+    // Обновляем UI начальными значениями
+    updateUI();
+</script>
 </body>
 </html>
